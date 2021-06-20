@@ -1,107 +1,88 @@
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_IS31FL3731.h>
-
-// If you're using the full breakout...
-Adafruit_IS31FL3731 matrix = Adafruit_IS31FL3731();
-// If you're using the FeatherWing version
-//Adafruit_IS31FL3731_Wing matrix = Adafruit_IS31FL3731_Wing();
-
-static const uint8_t PROGMEM
-  smile_bmp[] =
-  { B00111100,
-    B01000010,
-    B10100101,
-    B10000001,
-    B10100101,
-    B10011001,
-    B01000010,
-    B00111100 },
-  neutral_bmp[] =
-  { B00111100,
-    B01000010,
-    B10100101,
-    B10000001,
-    B10111101,
-    B10000001,
-    B01000010,
-    B00111100 },
-  frown_bmp[] =
-  { B00111100,
-    B01000010,
-    B10100101,
-    B10000001,
-    B10011001,
-    B10100101,
-    B01000010,
-    B00111100 };
+#include <Adafruit_IS31FL3741.h>
+Adafruit_IS31FL3741_EVB matrix;
 
 
 void setup() {
+  Serial.begin(115200);
+  Serial.println("ISSI 3741 EVB Adafruit GFX Test");
 
-  Serial.begin(9600);
-  Serial.println("ISSI manual animation test");
   if (! matrix.begin()) {
-    Serial.println("IS31 not found");
+    Serial.println("IS41 not found");
     while (1);
   }
-  Serial.println("IS31 Found!");
   
+  Serial.println("IS41 found!");
+
+  // speed it up if you can!
+  Wire.setClock(800000);
+
+  matrix.setLEDscaling(0xFF); 
+  matrix.setGlobalCurrent(0xFF);
+  Serial.print("Global current set to: ");
+  Serial.println(matrix.getGlobalCurrent());
+
+  matrix.fill(0);
+  matrix.enable(true); // bring out of shutdown
+  matrix.setRotation(1);
+  matrix.setTextWrap(false);
+  
+  // Make four color bars (red, green, blue, white) with brightness ramp:
+  for(int x=0; x<matrix.width(); x++) {
+    uint8_t level = x * 256 / matrix.width(); // 0-255 brightness
+    matrix.drawPixel(x, matrix.height() - 4, matrix.color565(level, 0, 0));
+    matrix.drawPixel(x, matrix.height() - 3, matrix.color565(0, level, 0));
+    matrix.drawPixel(x, matrix.height() - 2, matrix.color565(0, 0, level));
+    matrix.drawPixel(x, matrix.height() - 1, matrix.color565(level, level, level));
+  }
+}
+
+int text_x = matrix.width();
+int text_y = 1;
+uint8_t color;
+char adafruit[] = "ADAFRUIT!";
+
+void loop() {
+  matrix.setCursor(text_x, text_y);
+  for (int i = 0; i < strlen(adafruit); i++) {
+    // set the color thru the rainbow
+    uint32_t color888 = Wheel((256UL * i) / strlen(adafruit));  // Wheel gives us 888 color
+    uint16_t color565 = matrix.color565(color888>>16, color888>>8, color888); // so we have to convert it to 565 here!
+    
+    matrix.setTextColor(color565, 0); // backound is '0' to erase previous text!
+    
+    // write the letter
+    matrix.print(adafruit[i]);
+  }
+
+  if (--text_x < -50) {
+    text_x = matrix.width();
+    matrix.fillRect(0, 0, matrix.width(), text_y + 8, 0); // erase old text
+  }
+
+  delay(25);
 }
 
 
-void loop() {
-  matrix.setRotation(0);
-
-  matrix.clear();
-  matrix.drawBitmap(3, 0, smile_bmp, 8, 8, 255);
-  delay(500);
-  
-  matrix.clear();
-  matrix.drawBitmap(3, 0, neutral_bmp, 8, 8, 64);
-  delay(500);
-
-  matrix.clear();
-  matrix.drawBitmap(3, 0, frown_bmp, 8, 8, 32);
-  delay(500);
-
-  matrix.clear();
-  matrix.drawPixel(0, 0, 255);  
-  delay(500);
-
-  matrix.clear();
-  matrix.drawLine(0,0, matrix.width()-1, matrix.height()-1, 127);
-  delay(500);
-
-  matrix.clear();
-  matrix.drawRect(0,0, matrix.width(), matrix.height(), 255);
-  matrix.fillRect(2,2, matrix.width()-4, matrix.height()-4, 20);
-  delay(500);
-
-  matrix.clear();
-  matrix.drawCircle(8,4, 4, 64);
-  matrix.drawCircle(8,4, 2, 32);
-  delay(500);
-
-
-  matrix.setTextSize(1);
-  matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
-  matrix.setTextColor(100);
-  for (int8_t x=0; x>=-32; x--) {
-    matrix.clear();
-    matrix.setCursor(x,0);
-    matrix.print("Hello");
-    delay(100);
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  uint32_t c = 0;
+  if (WheelPos < 85) {
+     c = (255 - WheelPos*3) & 0xFF;
+     c <<= 8;
+     c |= (WheelPos * 3) & 0xFF;
+     c <<= 8;
+  } else if (WheelPos < 170) {
+     WheelPos -= 85;
+     c <<= 8;
+     c |= (255 - WheelPos*3) & 0xFF;
+     c <<= 8;
+     c |= (WheelPos * 3) & 0xFF;
+  } else {
+     WheelPos -= 170;
+     c = (WheelPos * 3) & 0xFF;
+     c <<= 16;
+     c |= (255 - WheelPos*3) & 0xFF;
   }
-
-  matrix.setTextSize(2);
-  matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
-  matrix.setTextColor(32);
-  matrix.setRotation(1);
-  for (int8_t x=7; x>=-64; x--) {
-    matrix.clear();
-    matrix.setCursor(x,0);
-    matrix.print("World");
-    delay(100);
-  }
+  return c;
 }
