@@ -25,7 +25,7 @@
 /**************************************************************************/
 class Adafruit_IS31FL3741 : public Adafruit_GFX {
 public:
-  Adafruit_IS31FL3741(uint8_t x = 16, uint8_t y = 9);
+  Adafruit_IS31FL3741(uint8_t x = 9, uint8_t y = 13);
   bool begin(uint8_t addr = IS3741_ADDR_DEFAULT, TwoWire *theWire = &Wire);
   bool reset(void);
   bool enable(bool en);
@@ -42,6 +42,7 @@ public:
   bool fill(uint8_t fillpwm = 0);
 
   void drawPixel(int16_t x, int16_t y, uint16_t color);
+  static uint16_t color565(uint8_t red, uint8_t green, uint8_t blue);
 
 protected:
   bool selectPage(uint8_t page);
@@ -51,5 +52,19 @@ protected:
 private:
   Adafruit_I2CDevice *_i2c_dev = NULL;
 };
+
+
+
+/**************************************************************************/
+/*!
+    @brief Constructor for Lumissil IS31FL3741 EVB
+*/
+/**************************************************************************/
+class Adafruit_IS31FL3741_EVB : public Adafruit_IS31FL3741 {
+public:
+  Adafruit_IS31FL3741_EVB(void);
+  void drawPixel(int16_t x, int16_t y, uint16_t color);
+};
+
 
 #endif

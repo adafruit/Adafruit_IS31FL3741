@@ -49,7 +49,7 @@ bool Adafruit_IS31FL3741::begin(uint8_t addr, TwoWire *theWire) {
   if (!reset()) {
     return false;
   }
-
+  setRotation(0);
   return true;
 }
 
@@ -159,7 +159,7 @@ bool Adafruit_IS31FL3741::setLEDscaling(uint16_t lednum, uint8_t scale) {
   if (lednum < 180) {
     selectPage(2);
     return _i2c_dev->write(cmd, 2);
-  } else if (lednum < 350) {
+  } else if (lednum < 351) {
     selectPage(3);
     cmd[0] = lednum - 180; // fix it for higher numbers!
     return _i2c_dev->write(cmd, 2);
@@ -244,12 +244,14 @@ bool Adafruit_IS31FL3741::fill(uint8_t fillpwm) {
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::setLEDPWM(uint16_t lednum, uint8_t pwm) {
-  uint8_t cmd[2] = {lednum, pwm}; // we'll fix the lednum later
+  uint8_t cmd[2] = {(uint8_t)lednum, pwm}; // we'll fix the lednum later
+
+  //Serial.print("Setting led #"); Serial.print(lednum); Serial.print(" -> "); Serial.println(pwm);
 
   if (lednum < 180) {
     selectPage(0);
     return _i2c_dev->write(cmd, 2);
-  } else if (lednum < 350) {
+  } else if (lednum < 351) {
     selectPage(1);
     cmd[0] = lednum - 180; // fix it for higher numbers!
     return _i2c_dev->write(cmd, 2);
@@ -271,25 +273,112 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
   switch (getRotation()) {
   case 1:
     _swap_int16_t(x, y);
-    x = 16 - x - 1;
+    x = WIDTH - x - 1;
     break;
   case 2:
-    x = 16 - x - 1;
-    y = 9 - y - 1;
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
     break;
   case 3:
     _swap_int16_t(x, y);
-    y = 9 - y - 1;
+    y = HEIGHT - y - 1;
     break;
   }
 
-  if ((x < 0) || (x >= 16))
+  if ((x < 0) || (x >= WIDTH))
     return;
-  if ((y < 0) || (y >= 9))
+  if ((y < 0) || (y >= HEIGHT))
     return;
-  if (color > 255)
-    color = 255; // PWM 8bit max
 
-  // setLEDPWM(x + y * 16, color, _frame);
+  // extract RGB
+  uint8_t r, g, b;
+  r = (color >> 8) & 0xF8;
+  r |= (r >> 5) & 0x07; // dup the top 3 bits to make 5 + 3 = 8 bits
+  g = (color >> 3) & 0xFC;
+  g |= (g >> 6) & 0x03; // dup the top 2 bits to make 6 + 2 = 8 bits
+  b = (color << 3) & 0xFF;
+  b |= (b >> 5) & 0x07; // dup the top 3 bits to make 5 + 3 = 8 bits
+  uint16_t offset = (x + WIDTH * y) * 3;
+
+  setLEDPWM(offset, b);
+  setLEDPWM(offset+1, g);
+  setLEDPWM(offset+2, r);
+
+  return;
+}
+
+
+static uint16_t Adafruit_IS31FL3741::color565(uint8_t red, uint8_t green, uint8_t blue) {
+  return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
+}
+
+
+/**************************************************************************/
+/*!
+    @brief Constructor for EVB version (9 x 13 LEDs)
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_EVB::Adafruit_IS31FL3741_EVB(void)
+    : Adafruit_IS31FL3741(13, 9) {}
+
+
+/**************************************************************************/
+/*!
+    @brief Adafruit GFX low level accesssor - sets a 8-bit PWM pixel value
+    handles rotation and pixel arrangement, unlike setLEDPWM
+    @param x The x position, starting with 0 for left-most side
+    @param y The y position, starting with 0 for top-most side
+    @param color Despite being a 16-bit value, takes 0 (off) to 255 (max on)
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
+  if ((x < 0) || (x >= width()))
+    return;
+  if ((y < 0) || (y >= height()))
+    return;
+
+  // check rotation, move pixel around if necessary
+
+  switch (getRotation()) {
+  case 1:
+    _swap_int16_t(x, y);
+    x = WIDTH - x - 1;
+    break;
+  case 2:
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
+    break;
+  case 3:
+    _swap_int16_t(x, y);
+    y = HEIGHT - y - 1;
+    break;
+  }
+
+  // extract RGB
+  uint8_t r, g, b;
+  r = (color >> 8) & 0xF8;
+  r |= (r >> 5) & 0x07; // dup the top 3 bits to make 5 + 3 = 8 bits
+  g = (color >> 3) & 0xFC;
+  g |= (g >> 6) & 0x03; // dup the top 2 bits to make 6 + 2 = 8 bits
+  b = (color << 3) & 0xFF;
+  b |= (b >> 5) & 0x07; // dup the top 3 bits to make 5 + 3 = 8 bits
+
+  uint16_t offset;
+  if (x > 9) {
+    offset = (x + 80 + y * 3) * 3;
+  } else {
+    offset = (x + y * 10) * 3;
+  }
+
+  /*
+  Serial.print("("); Serial.print(x);
+  Serial.print(", "); Serial.print(y);
+  Serial.print(") -> "); Serial.println(offset);
+  */
+
+  setLEDPWM(offset, b);
+  setLEDPWM(offset+1, g);
+  setLEDPWM(offset+2, r);
+
   return;
 }
