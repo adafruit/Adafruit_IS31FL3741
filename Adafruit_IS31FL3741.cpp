@@ -308,6 +308,15 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
   return;
 }
 
+/**************************************************************************/
+/*!
+    @brief Converter for RGB888-format color to RGB565-format
+    @param red 8-bit red color
+    @param green 8-bit green color
+    @param blue 8-bit blue color
+    @returns Packed 16-bit RGB565 c
+*/
+/**************************************************************************/
 uint16_t Adafruit_IS31FL3741::color565(uint8_t red, uint8_t green,
                                        uint8_t blue) {
   return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
