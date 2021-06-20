@@ -53,8 +53,6 @@ private:
   Adafruit_I2CDevice *_i2c_dev = NULL;
 };
 
-
-
 /**************************************************************************/
 /*!
     @brief Constructor for Lumissil IS31FL3741 EVB
@@ -65,6 +63,5 @@ public:
   Adafruit_IS31FL3741_EVB(void);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
-
 
 #endif

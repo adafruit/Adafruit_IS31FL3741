@@ -246,7 +246,8 @@ bool Adafruit_IS31FL3741::fill(uint8_t fillpwm) {
 bool Adafruit_IS31FL3741::setLEDPWM(uint16_t lednum, uint8_t pwm) {
   uint8_t cmd[2] = {(uint8_t)lednum, pwm}; // we'll fix the lednum later
 
-  //Serial.print("Setting led #"); Serial.print(lednum); Serial.print(" -> "); Serial.println(pwm);
+  // Serial.print("Setting led #"); Serial.print(lednum); Serial.print(" -> ");
+  // Serial.println(pwm);
 
   if (lednum < 180) {
     selectPage(0);
@@ -301,17 +302,16 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
   uint16_t offset = (x + WIDTH * y) * 3;
 
   setLEDPWM(offset, b);
-  setLEDPWM(offset+1, g);
-  setLEDPWM(offset+2, r);
+  setLEDPWM(offset + 1, g);
+  setLEDPWM(offset + 2, r);
 
   return;
 }
 
-
-uint16_t Adafruit_IS31FL3741::color565(uint8_t red, uint8_t green, uint8_t blue) {
+uint16_t Adafruit_IS31FL3741::color565(uint8_t red, uint8_t green,
+                                       uint8_t blue) {
   return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
 }
-
 
 /**************************************************************************/
 /*!
@@ -320,7 +320,6 @@ uint16_t Adafruit_IS31FL3741::color565(uint8_t red, uint8_t green, uint8_t blue)
 /**************************************************************************/
 Adafruit_IS31FL3741_EVB::Adafruit_IS31FL3741_EVB(void)
     : Adafruit_IS31FL3741(13, 9) {}
-
 
 /**************************************************************************/
 /*!
@@ -377,8 +376,8 @@ void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
   */
 
   setLEDPWM(offset, b);
-  setLEDPWM(offset+1, g);
-  setLEDPWM(offset+2, r);
+  setLEDPWM(offset + 1, g);
+  setLEDPWM(offset + 2, r);
 
   return;
 }
