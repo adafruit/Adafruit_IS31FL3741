@@ -43,7 +43,7 @@ char adafruit[] = "ADAFRUIT!";
 
 void loop() {
   matrix.setCursor(text_x, text_y);
-  for (int i = 0; i < strlen(adafruit); i++) {
+  for (int i = 0; i < (int)strlen(adafruit); i++) {
     // set the color thru the rainbow
     uint32_t color888 = Wheel((256UL * i) / strlen(adafruit));  // Wheel gives us 888 color
     uint16_t color565 = matrix.color565(color888>>16, color888>>8, color888); // so we have to convert it to 565 here!

@@ -308,7 +308,7 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
 }
 
 
-static uint16_t Adafruit_IS31FL3741::color565(uint8_t red, uint8_t green, uint8_t blue) {
+uint16_t Adafruit_IS31FL3741::color565(uint8_t red, uint8_t green, uint8_t blue) {
   return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
 }
 
