@@ -64,4 +64,17 @@ public:
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 
+
+/**************************************************************************/
+/*!
+    @brief Constructor for Lumissil IS31FL3741 QT
+*/
+/**************************************************************************/
+class Adafruit_IS31FL3741_QT : public Adafruit_IS31FL3741 {
+public:
+  Adafruit_IS31FL3741_QT(void);
+  void drawPixel(int16_t x, int16_t y, uint16_t color);
+};
+
+
 #endif

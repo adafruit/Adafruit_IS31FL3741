@@ -246,8 +246,7 @@ bool Adafruit_IS31FL3741::fill(uint8_t fillpwm) {
 bool Adafruit_IS31FL3741::setLEDPWM(uint16_t lednum, uint8_t pwm) {
   uint8_t cmd[2] = {(uint8_t)lednum, pwm}; // we'll fix the lednum later
 
-  // Serial.print("Setting led #"); Serial.print(lednum); Serial.print(" -> ");
-  // Serial.println(pwm);
+  //Serial.print("Setting led 0x"); Serial.print(lednum, HEX); Serial.print(" -> "); Serial.println(pwm);
 
   if (lednum < 180) {
     selectPage(0);
@@ -387,6 +386,108 @@ void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
   setLEDPWM(offset, b);
   setLEDPWM(offset + 1, g);
   setLEDPWM(offset + 2, r);
+
+  return;
+}
+
+
+
+///////////////
+
+/**************************************************************************/
+/*!
+    @brief Constructor for QT version (13 x 9 LEDs)
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_QT::Adafruit_IS31FL3741_QT(void)
+  : Adafruit_IS31FL3741(13, 9) {}
+
+/**************************************************************************/
+/*!
+    @brief Adafruit GFX low level accesssor - sets a 8-bit PWM pixel value
+    handles rotation and pixel arrangement, unlike setLEDPWM
+    @param x The x position, starting with 0 for left-most side
+    @param y The y position, starting with 0 for top-most side
+    @param color Despite being a 16-bit value, takes 0 (off) to 255 (max on)
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
+  if ((x < 0) || (x >= width()))
+    return;
+  if ((y < 0) || (y >= height()))
+    return;
+
+  // check rotation, move pixel around if necessary
+
+  switch (getRotation()) {
+  case 1:
+    _swap_int16_t(x, y);
+    x = WIDTH - x - 1;
+    break;
+  case 2:
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
+    break;
+  case 3:
+    _swap_int16_t(x, y);
+    y = HEIGHT - y - 1;
+    break;
+  }
+
+  // extract RGB
+  uint8_t r, g, b;
+  r = (color >> 8) & 0xF8;
+  r |= (r >> 5) & 0x07; // dup the top 3 bits to make 5 + 3 = 8 bits
+  g = (color >> 3) & 0xFC;
+  g |= (g >> 6) & 0x03; // dup the top 2 bits to make 6 + 2 = 8 bits
+  b = (color << 3) & 0xFF;
+  b |= (b >> 5) & 0x07; // dup the top 3 bits to make 5 + 3 = 8 bits
+
+  /*
+  Serial.print("("); Serial.print(x);
+  Serial.print(", "); Serial.print(y);
+  Serial.print(") -> 0x");
+  */
+
+  uint8_t col = x;
+  uint8_t row = y;
+
+  // remap the row
+  uint8_t rowmap[] = {8, 5, 4, 3, 2, 1, 0, 7, 6};
+  row = rowmap[y];
+
+  uint16_t offset = 0;
+
+  if (row <= 5) {
+    if (col < 10) {
+      offset = 0x1E * row + col * 3;
+    } else {
+      offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
+    }
+  } else {
+    if (col < 10) {
+      offset = 0xB4 + (row - 6) * 0x1E + col * 3;
+    } else { 
+      offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
+    }
+  }
+
+  int8_t r_off = 0, g_off = 1, b_off = 2;
+  if ((col == 12) || (col % 2 == 1)) {  // odds + last col
+    r_off = 2;
+    g_off = 1;
+    b_off = 0;
+  } else { // evens;
+    r_off = 0;
+    g_off = 2;
+    b_off = 1;
+  }
+
+  //Serial.println(offset, HEX);
+  
+  setLEDPWM(offset + r_off, r);
+  setLEDPWM(offset + g_off, g);
+  setLEDPWM(offset + b_off, b);
 
   return;
 }
