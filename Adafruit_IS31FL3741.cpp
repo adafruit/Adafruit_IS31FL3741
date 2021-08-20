@@ -246,7 +246,8 @@ bool Adafruit_IS31FL3741::fill(uint8_t fillpwm) {
 bool Adafruit_IS31FL3741::setLEDPWM(uint16_t lednum, uint8_t pwm) {
   uint8_t cmd[2] = {(uint8_t)lednum, pwm}; // we'll fix the lednum later
 
-  //Serial.print("Setting led 0x"); Serial.print(lednum, HEX); Serial.print(" -> "); Serial.println(pwm);
+  // Serial.print("Setting led 0x"); Serial.print(lednum, HEX); Serial.print("
+  // -> "); Serial.println(pwm);
 
   if (lednum < 180) {
     selectPage(0);
@@ -390,8 +391,6 @@ void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
   return;
 }
 
-
-
 ///////////////
 
 /**************************************************************************/
@@ -400,7 +399,7 @@ void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_QT::Adafruit_IS31FL3741_QT(void)
-  : Adafruit_IS31FL3741(13, 9) {}
+    : Adafruit_IS31FL3741(13, 9) {}
 
 /**************************************************************************/
 /*!
@@ -467,13 +466,13 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
   } else {
     if (col < 10) {
       offset = 0xB4 + (row - 6) * 0x1E + col * 3;
-    } else { 
+    } else {
       offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
     }
   }
 
   int8_t r_off = 0, g_off = 1, b_off = 2;
-  if ((col == 12) || (col % 2 == 1)) {  // odds + last col
+  if ((col == 12) || (col % 2 == 1)) { // odds + last col
     r_off = 2;
     g_off = 1;
     b_off = 0;
@@ -483,8 +482,8 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
     b_off = 1;
   }
 
-  //Serial.println(offset, HEX);
-  
+  // Serial.println(offset, HEX);
+
   setLEDPWM(offset + r_off, r);
   setLEDPWM(offset + g_off, g);
   setLEDPWM(offset + b_off, b);
