@@ -1,10 +1,10 @@
 #include <Adafruit_IS31FL3741.h>
-Adafruit_IS31FL3741_EVB matrix;
+Adafruit_IS31FL3741_QT matrix;
 
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("ISSI 3741 EVB Adafruit GFX Test");
+  Serial.println("ISSI 3741 QT Adafruit GFX Test");
 
   if (! matrix.begin()) {
     Serial.println("IS41 not found");
@@ -23,17 +23,8 @@ void setup() {
 
   matrix.fill(0);
   matrix.enable(true); // bring out of shutdown
-  matrix.setRotation(1);
+  matrix.setRotation(0);
   matrix.setTextWrap(false);
-  
-  // Make four color bars (red, green, blue, white) with brightness ramp:
-  for(int x=0; x<matrix.width(); x++) {
-    uint8_t level = x * 256 / matrix.width(); // 0-255 brightness
-    matrix.drawPixel(x, matrix.height() - 4, matrix.color565(level, 0, 0));
-    matrix.drawPixel(x, matrix.height() - 3, matrix.color565(0, level, 0));
-    matrix.drawPixel(x, matrix.height() - 2, matrix.color565(0, 0, level));
-    matrix.drawPixel(x, matrix.height() - 1, matrix.color565(level, level, level));
-  }
 }
 
 int text_x = matrix.width();
