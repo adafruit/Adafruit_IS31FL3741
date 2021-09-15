@@ -50,8 +50,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ github.event.repository.name }}.${{ github.sha }}
-      - name: List Files
-        run: ls
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
