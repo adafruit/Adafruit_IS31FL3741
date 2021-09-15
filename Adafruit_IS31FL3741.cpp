@@ -758,3 +758,112 @@ void Adafruit_IS31FL3741_GlassesLeftRing::setPixelColor(int16_t n, uint32_t colo
 
   return;
 }
+
+// -------------------------------------------------------------------------
+
+Adafruit_IS31FL3741_buffered::Adafruit_IS31FL3741_buffered(uint8_t width,
+                                                           uint8_t height,
+                                                           uint8_t *buf)
+    : Adafruit_IS31FL3741(width, height), ledbuf(buf), ledbuf_passed_in((buf)) {
+}
+
+Adafruit_IS31FL3741_buffered::~Adafruit_IS31FL3741_buffered(void) {
+  if (!ledbuf_passed_in && ledbuf) {
+    delete ledbuf;
+  }
+}
+
+bool Adafruit_IS31FL3741_buffered::begin(uint8_t addr, TwoWire *theWire) {
+  // If a preallocated buffer was not passed to the constructor, do that
+  // allocation here. In addition to the LED PWM data, there are two extra
+  // bytes. First byte is a "bit bucket" destination for clipping (certain
+  // (X,Y) coords can be table-mapped here so conditional branches aren't
+  // needed). Second byte is the first Page 0 register address (0) so a
+  // single I2C write() call can be used for reg + data. LED PWM data then
+  // starts at index 2. Buffer is NOT cleared yet.
+  if (!ledbuf_passed_in && !((ledbuf = new uint8_t[WIDTH * HEIGHT * 3 + 2]))) {
+    return false; // alloc fail before even getting to the hard stuff
+  }
+
+  // LED buffer is valid. Initialize underlying I2C magic...
+  bool status = Adafruit_IS31FL3741::begin(addr, theWire);
+
+  if (status) {
+    // Good I2C init, clear the LED buffer (whether passed in or alloc'd)
+    memset(ledbuf, 0, WIDTH * HEIGHT * 3 + 2);
+  } else if (!ledbuf_passed_in) {
+    // If I2C init failed AND we allocated ledbuf above, delete it
+    delete ledbuf;
+  }
+
+  return status;
+}
+
+// This doesn't actually make sense and I’ll probably make it an empty
+// function (to meet GFX virtual func requirements), then have a separate
+// thing (with LED index remapping) to actually draw on the glasses matrix.
+void Adafruit_IS31FL3741_buffered::drawPixel(int16_t x, int16_t y,
+                                             uint16_t color) {
+  // check rotation, move pixel around if necessary
+  switch (getRotation()) {
+  case 1:
+    _swap_int16_t(x, y);
+    x = WIDTH - x - 1;
+    break;
+  case 2:
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
+    break;
+  case 3:
+    _swap_int16_t(x, y);
+    y = HEIGHT - y - 1;
+    break;
+  }
+
+  if ((x >= 0) && (x < WIDTH) && (y >= 0) && (y < HEIGHT)) {
+    uint16_t offset = (y * WIDTH + x) * 3 + 2;
+    ledbuf[offset] = ((color >> 8) & 0xF8) | (color >> 13);    // 5->8 bits R
+    ledbuf[offset + 1] = ((color >> 3) & 0xFC) | (color >> 9); // 6->8 bits G
+    ledbuf[offset + 2] = (color << 3) | (color >> 2);          // 5->8 bits B
+  }
+}
+
+void Adafruit_IS31FL3741_buffered::show(void) {
+  uint16_t total_bytes = WIDTH * HEIGHT * 3; // Amount of LED data
+  uint8_t *ptr = &ledbuf[1];                 // Page 0 Reg 0 in ledbuf
+  uint8_t chunk = _i2c_dev->maxBufferSize(); // I2C xfer limit
+
+  // Page 0 is always written
+  selectPage(0);
+  uint8_t page_bytes = min(total_bytes, 180) + 1; // +1 for Page 0 Reg 0
+  while (page_bytes) { // While there's data to write for page 0...
+    uint8_t bytesThisPass = min(page_bytes, chunk);
+    _i2c_dev->write(ptr, bytesThisPass);
+    page_bytes -= bytesThisPass;
+    ptr += bytesThisPass;
+  }
+
+  // Page 1 is written only if device has a generous complement of LEDs
+  if (total_bytes > 180) {
+    // The "write one big addr+data packet rather than separate reg address
+    // and data packets" trick requires shenanigans for Page 1. With Page 0
+    // we could maintain a permanently-stuffed reg addr byte just before
+    // the LED data. But we DON'T want a similar byte mid-buffer because
+    // that would add a conditional check on every single pixel-drawing
+    // call. Instead, the byte just before the first Page 1 data is saved,
+    // modified with the reg address (0), and restored later. This only
+    // happens once per show() so it's not bad.
+    uint8_t save = ledbuf[181]; // Remember the last Page 0 LED in ledbuf
+    ledbuf[181] = 0;            // Set that spot to Page 1 Reg 0 plz
+    ptr = &ledbuf[181];         // And start transfer there
+    selectPage(1);
+    page_bytes = total_bytes - 180 + 1; // +1 for Page 1 Reg 0
+    while (page_bytes) {
+      uint8_t bytesThisPass = min(page_bytes, chunk);
+      _i2c_dev->write(ptr, bytesThisPass);
+      page_bytes -= bytesThisPass;
+      ptr += bytesThisPass;
+    }
+    ledbuf[181] = save; // Restore the saved pixel byte
+  }
+}

@@ -47,9 +47,8 @@ public:
 protected:
   bool selectPage(uint8_t page);
 
-  uint8_t _page = -1; ///< Cached value of the page we're currently addressing
+  int8_t _page = -1; ///< Cached value of the page we're currently addressing
 
-private:
   Adafruit_I2CDevice *_i2c_dev = NULL;
 };
 
@@ -180,4 +179,24 @@ class Adafruit_IS31FL3741_GlassesLeftRing {
     {350, 241, 240}, // 23
   };
 };
+
+// Idea: don't make this a GFX subclass.
+// Just put the LED buffer and set/get functions there.
+// Higher-level things then do GFX.
+
+class Adafruit_IS31FL3741_buffered : public Adafruit_IS31FL3741 {
+public:
+  Adafruit_IS31FL3741_buffered(uint8_t x = 9, uint8_t y = 13,
+                               uint8_t *buf = NULL);
+  ~Adafruit_IS31FL3741_buffered(void);
+  bool begin(uint8_t addr = IS3741_ADDR_DEFAULT, TwoWire *theWire = &Wire);
+
+  void drawPixel(int16_t x, int16_t y, uint16_t color);
+  void show(void);
+
+protected:
+  uint8_t *ledbuf;
+  bool ledbuf_passed_in;
+};
+
 #endif
