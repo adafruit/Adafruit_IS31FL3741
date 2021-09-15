@@ -52,11 +52,15 @@ jobs:
           name: ${{ github.event.repository.name }}.${{ github.sha }}
       - name: List Files
         run: ls
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: 'release.zip'
+      - name: List Files
+        run: ls
       - name: Upload Assets to the GitHub Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: |
-                  *.uf2
-                  *.bin
-                  *.hex
+          files: release.zip
