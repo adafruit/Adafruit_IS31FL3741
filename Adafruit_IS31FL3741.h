@@ -86,7 +86,7 @@ class Adafruit_IS31FL3741_GlassesMatrix : public Adafruit_GFX {
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
  protected:
-  Adafruit_IS31FL3741 *_is31 = NULL;  
+  Adafruit_IS31FL3741 *_is31 = NULL;
 
 };
 
@@ -131,7 +131,7 @@ class Adafruit_IS31FL3741_GlassesRightRing {
     {339, 340, 232}, // 20
     {327, 328, 329}, // 21
     {305, 91, 90}, // 22
-    {296, 61, 60}, // 23 
+    {296, 61, 60}, // 23
   };
 };
 
@@ -194,9 +194,18 @@ public:
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void show(void);
 
-protected:
+//protected:
   uint8_t *ledbuf;
   bool ledbuf_passed_in;
+};
+
+class Adafruit_IS31FL3741_buffered_GlassesMatrix : public Adafruit_GFX {
+ public:
+  Adafruit_IS31FL3741_buffered_GlassesMatrix(Adafruit_IS31FL3741_buffered *controller = NULL);
+  void drawPixel(int16_t x, int16_t y, uint16_t color);
+
+ protected:
+  Adafruit_IS31FL3741_buffered *_is31;
 };
 
 #endif
