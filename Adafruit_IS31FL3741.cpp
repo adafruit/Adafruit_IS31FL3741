@@ -490,3 +490,271 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
   return;
 }
+
+
+///////////////
+
+/**************************************************************************/
+/*!
+    @brief Constructor for QT version (13 x 9 LEDs)
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_GlassesMatrix::Adafruit_IS31FL3741_GlassesMatrix(Adafruit_IS31FL3741 *controller) :
+  Adafruit_GFX(16, 5)
+  {
+    _is31 = controller;
+  }
+
+const PROGMEM uint16_t glassesmatrix_ledmap[16*5*3] = {
+    // col 0
+      217, 216, 215,
+      220, 219, 218,
+      223, 222, 221,
+      226, 225, 224,
+      214, 213, 212,
+    
+     // col 1
+      187, 186, 185,
+      190, 189, 188,
+      193, 192, 191,
+      196, 195, 194,
+      184, 183, 182,
+
+     // col 2
+      37, 36, 35,
+      40, 39, 38,
+      43, 42, 41,
+      46, 45, 44,
+      34, 33, 32,
+
+     // col 3
+      67, 66, 65,
+      70, 69, 68,
+      73, 72, 71,
+      76, 75, 74,
+      64, 63, 62,
+
+     // col 4
+      97, 96, 95,
+      100, 99, 98,
+      103, 102, 101,
+      106, 105, 104,
+      94, 93, 92,
+
+     // col 5
+      127, 126, 125,
+      130, 129, 128,
+      133, 132, 131,
+      136, 135, 134,
+      124, 123, 122,
+
+     // col 6
+      157, 156, 155,
+      160, 159, 158,
+      163, 162, 161,
+      166, 165, 164,
+      244, 243, 242,
+
+     // col 7
+      247, 246, 245,
+      250, 249, 248,
+      253, 252, 251,
+      256, 255, 254,
+      65535, 65535, 65535, // not avail
+
+     // col 8
+      345, 346, 347,
+      342, 343, 344,
+      267, 268, 269,
+      263, 264, 265,
+      65535, 65535, 65535, // not avail
+
+     // col 9
+      336, 337, 338,
+      333, 334, 335,
+      237, 238, 239,
+      233, 234, 235,
+      348, 349, 262,
+
+    // col 10
+      327, 328, 329,
+      324, 325, 326,
+      207, 208, 209,
+      203, 204, 205,
+      330, 331, 202,
+
+     // col 11
+      318, 319, 320,
+      315, 316, 317,
+      177, 178, 179,
+      173, 174, 175,
+      321, 322, 172,
+
+     // col 12
+      309, 310, 311,
+      306, 307, 308,
+      147, 148, 149,
+      143, 144, 145,
+      312, 313, 142,
+
+     // col 13
+      300, 301, 302,
+      297, 298, 299,
+      117, 118, 119,
+      113, 114, 115,
+      303, 304, 112,
+
+     // col 14
+      291, 292, 293,
+      288, 289, 290,
+      87, 88, 89,
+      83, 84, 85,
+      294, 295, 82,
+
+     // col 15
+      282, 283, 284,
+      279, 280, 281,
+      57, 58, 59,
+      53, 54, 55,
+      285, 286, 52
+};
+
+/**************************************************************************/
+/*!
+    @brief Adafruit GFX low level accesssor - sets a 8-bit PWM pixel value
+    handles rotation and pixel arrangement, unlike setLEDPWM
+    @param x The x position, starting with 0 for left-most side
+    @param y The y position, starting with 0 for top-most side
+    @param color Despite being a 16-bit value, takes 0 (off) to 255 (max on)
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_GlassesMatrix::drawPixel(int16_t x, int16_t y, uint16_t color) {
+  if ((x < 0) || (x >= width()))
+    return;
+  if ((y < 0) || (y >= height()))
+    return;
+
+  // check rotation, move pixel around if necessary
+
+  switch (getRotation()) {
+  case 1:
+    _swap_int16_t(x, y);
+    x = WIDTH - x - 1;
+    break;
+  case 2:
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
+    break;
+  case 3:
+    _swap_int16_t(x, y);
+    y = HEIGHT - y - 1;
+    break;
+  }
+
+  // extract RGB
+  uint8_t r, g, b;
+  r = (color >> 8) & 0xF8;
+  r |= (r >> 5) & 0x07; // dup the top 3 bits to make 5 + 3 = 8 bits
+  g = (color >> 3) & 0xFC;
+  g |= (g >> 6) & 0x03; // dup the top 2 bits to make 6 + 2 = 8 bits
+  b = (color << 3) & 0xFF;
+  b |= (b >> 5) & 0x07; // dup the top 3 bits to make 5 + 3 = 8 bits
+
+  uint16_t ridx = pgm_read_word(glassesmatrix_ledmap + x*5*3 + y*3 + 0);
+  uint16_t gidx = pgm_read_word(glassesmatrix_ledmap + x*5*3 + y*3 + 1);
+  uint16_t bidx = pgm_read_word(glassesmatrix_ledmap + x*5*3 + y*3 + 2);
+
+  /*
+  Serial.print("("); Serial.print(x);
+  Serial.print(", "); Serial.print(y);
+  Serial.print(") -> [");
+  Serial.print(ridx); Serial.print(", ");
+  Serial.print(gidx); Serial.print(", ");
+  Serial.print(bidx); Serial.println("]");
+  */
+
+  if (ridx != 65535) {
+    _is31->setLEDPWM(ridx, b);
+    _is31->setLEDPWM(gidx, r);
+    _is31->setLEDPWM(bidx, g);
+  }
+  return;
+}
+
+
+Adafruit_IS31FL3741_GlassesRightRing::Adafruit_IS31FL3741_GlassesRightRing(Adafruit_IS31FL3741 *controller)
+  {
+    _is31 = controller;
+  }
+
+
+void Adafruit_IS31FL3741_GlassesRightRing::fill(uint32_t color) {
+  // extract RGB
+  uint8_t r, g, b;
+  r = (color >> 16) & 0xFF;
+  g = (color >> 8) & 0xFF;
+  b = color & 0xFF;
+  
+  for (uint8_t n=0; n<24; n++) {
+    _is31->setLEDPWM(ledmap[n][0], b);
+    _is31->setLEDPWM(ledmap[n][1], r);
+    _is31->setLEDPWM(ledmap[n][2], g);
+  }
+
+  return;
+}
+
+void Adafruit_IS31FL3741_GlassesRightRing::setPixelColor(int16_t n, uint32_t color) {
+  if ((n < 0) || (n >= 24))
+    return;
+
+  // extract RGB
+  uint8_t r, g, b;
+  r = (((uint16_t) ((color >> 16) & 0xFF)) * (uint16_t)_brightness) >> 8;
+  g = (((uint16_t) ((color >> 8) & 0xFF)) * (uint16_t)_brightness) >> 8;
+  b = (((uint16_t) (color & 0xFF)) * (uint16_t)_brightness) >> 8;
+
+  _is31->setLEDPWM(ledmap[n][0], b);
+  _is31->setLEDPWM(ledmap[n][1], r);
+  _is31->setLEDPWM(ledmap[n][2], g);
+
+  return;
+}
+
+Adafruit_IS31FL3741_GlassesLeftRing::Adafruit_IS31FL3741_GlassesLeftRing(Adafruit_IS31FL3741 *controller)
+  {
+    _is31 = controller;
+  }
+
+void Adafruit_IS31FL3741_GlassesLeftRing::fill(uint32_t color) {
+  // extract RGB
+  uint8_t r, g, b;
+  r = (color >> 16) & 0xFF;
+  g = (color >> 8) & 0xFF;
+  b = color & 0xFF;
+  
+  for (uint8_t n=0; n<24; n++) {
+    _is31->setLEDPWM(ledmap[n][0], b);
+    _is31->setLEDPWM(ledmap[n][1], r);
+    _is31->setLEDPWM(ledmap[n][2], g);
+  }
+
+  return;
+}
+
+void Adafruit_IS31FL3741_GlassesLeftRing::setPixelColor(int16_t n, uint32_t color) {
+  if ((n < 0) || (n >= 24))
+    return;
+
+  // extract RGB
+  uint8_t r, g, b;
+  r = (((uint16_t) ((color >> 16) & 0xFF)) * (uint16_t)_brightness) >> 8;
+  g = (((uint16_t) ((color >> 8) & 0xFF)) * (uint16_t)_brightness) >> 8;
+  b = (((uint16_t) (color & 0xFF)) * (uint16_t)_brightness) >> 8;
+
+  _is31->setLEDPWM(ledmap[n][0], b);
+  _is31->setLEDPWM(ledmap[n][1], r);
+  _is31->setLEDPWM(ledmap[n][2], g);
+
+  return;
+}
