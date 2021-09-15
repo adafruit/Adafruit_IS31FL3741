@@ -25,6 +25,15 @@ jobs:
     - name: clang
       run: python3 ci/run-clang-format.py -e "ci/*" -e "bin/*" -r . 
 
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ github.event.repository.name }}.${{ github.sha }}
+        path: |
+            examples/*/build/*/*.hex
+            examples/*/build/*/*.bin
+            examples/*/build/*/*.uf2
+
     - name: doxygen
       env:
         GH_REPO_TOKEN: ${{ secrets.GH_REPO_TOKEN }}
