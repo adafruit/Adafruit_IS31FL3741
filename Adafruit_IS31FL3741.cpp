@@ -778,54 +778,27 @@ void Adafruit_IS31FL3741_GlassesLeftRing::setPixelColor(int16_t n, uint32_t colo
 // -------------------------------------------------------------------------
 
 Adafruit_IS31FL3741_buffered::Adafruit_IS31FL3741_buffered(uint8_t width,
-                                                           uint8_t height,
-                                                           uint8_t *buf)
-    : Adafruit_IS31FL3741(width, height), ledbuf(buf), ledbuf_passed_in((buf)) {
+                                                           uint8_t height)
+    : Adafruit_IS31FL3741(width, height) {
 }
 
 Adafruit_IS31FL3741_buffered::~Adafruit_IS31FL3741_buffered(void) {
-  if (!ledbuf_passed_in && ledbuf) {
-    delete ledbuf;
-  }
 }
 
-// TO DO: might simply put a uint8_t[352] in the class rather than the
-// pass-in or malloc. Yes, smaller matrices will waste a few bytes,
-// but it's less troublesome overall.
-
 bool Adafruit_IS31FL3741_buffered::begin(uint8_t addr, TwoWire *theWire) {
-  // If a preallocated buffer was not passed to the constructor, do that
-  // allocation here. In addition to the LED PWM data, there's one extra
-  // byte. First byte is a "bit bucket" destination for clipping (certain
-  // (X,Y) coords can be table-mapped here so conditional branches aren't
-  // needed). LED PWM data then starts at index 1. Buffer is NOT cleared yet.
-  if (!ledbuf_passed_in && !((ledbuf = new uint8_t[WIDTH * HEIGHT * 3 + 1]))) {
-    return false; // alloc fail before even getting to the hard stuff
-  }
-
-  // LED buffer is valid. Initialize underlying I2C magic...
   bool status = Adafruit_IS31FL3741::begin(addr, theWire);
-
-  if (status) {
-    // Good I2C init, clear the LED buffer (whether passed in or alloc'd)
-    memset(ledbuf, 0, WIDTH * HEIGHT * 3 + 1);
-  } else if (!ledbuf_passed_in) {
-    // If I2C init failed AND we allocated ledbuf above, delete it
-    delete ledbuf;
+  if (status) {                        // If I2C initialized OK,
+    memset(ledbuf, 0, sizeof(ledbuf)); // clear the LED buffer
   }
-
   return status;
 }
 
-// This doesn't actually make sense and I’ll probably make it an empty
-// function (to meet GFX virtual func requirements), then have a separate
-// thing (with LED index remapping) to actually draw on the glasses matrix.
 void Adafruit_IS31FL3741_buffered::drawPixel(int16_t x, int16_t y,
                                              uint16_t color) {
 }
 
 void Adafruit_IS31FL3741_buffered::show(void) {
-  uint16_t total_bytes = WIDTH * HEIGHT * 3;
+  uint16_t total_bytes = 351;
   uint8_t *ptr = ledbuf;
   uint8_t chunk = _i2c_dev->maxBufferSize() - 1;
   uint8_t save;
@@ -833,7 +806,7 @@ void Adafruit_IS31FL3741_buffered::show(void) {
   // Page 0 is always written
   selectPage(0);
   uint8_t addr = 0;
-  uint8_t page_bytes = min(total_bytes, 180);
+  uint8_t page_bytes = 180;
   while (page_bytes) { // While there's data to write for page 0...
     uint8_t bytesThisPass = min(page_bytes, chunk);
     save = *ptr;
@@ -845,21 +818,18 @@ void Adafruit_IS31FL3741_buffered::show(void) {
     addr += bytesThisPass;
   }
 
-  // Page 1 is written only if device has a generous complement of LEDs
-  if (total_bytes > 180) {
-    selectPage(1);
-    addr = 0;
-    page_bytes = total_bytes - 180;
-    while (page_bytes) { // While there's data to write for page 1...
-      uint8_t bytesThisPass = min(page_bytes, chunk);
-      save = *ptr;
-      *ptr = addr;
-      _i2c_dev->write(ptr, bytesThisPass + 1); // +1 for addr
-      *ptr = save;
-      page_bytes -= bytesThisPass;
-      ptr += bytesThisPass;
-      addr += bytesThisPass;
-    }
+  selectPage(1);
+  addr = 0;
+  page_bytes = 171;
+  while (page_bytes) { // While there's data to write for page 1...
+    uint8_t bytesThisPass = min(page_bytes, chunk);
+    save = *ptr;
+    *ptr = addr;
+    _i2c_dev->write(ptr, bytesThisPass + 1); // +1 for addr
+    *ptr = save;
+    page_bytes -= bytesThisPass;
+    ptr += bytesThisPass;
+    addr += bytesThisPass;
   }
 }
 
@@ -893,6 +863,57 @@ void Adafruit_IS31FL3741_buffered_GlassesMatrix::drawPixel(int16_t x, int16_t y,
       _is31->ledbuf[ridx + 1] = ((color >> 8) & 0xF8) | (color >> 13);    // 5->8 bits R
       _is31->ledbuf[gidx + 1] = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03); // 6->8 bits G
       _is31->ledbuf[bidx + 1] = (color << 3) | ((color >> 2) & 0x07);          // 5->8 bits B
+    }
+  }
+}
+
+#define GAMMA 2.3
+
+Adafruit_IS31FL3741_buffered_GlassesMatrix_smooth::Adafruit_IS31FL3741_buffered_GlassesMatrix_smooth(Adafruit_IS31FL3741_buffered *controller)
+    : Adafruit_IS31FL3741_buffered_GlassesMatrix(controller) {
+  canvas = new GFXcanvas16(18 * 4, 5 * 4);
+  if (canvas == NULL) {
+  }
+  for (int i=0; i<31 * 16; i++) {
+    gammaRB[i] = (uint8_t)(pow((float)i / (float)(31 * 16 - 1), GAMMA) * 255.0);
+  }
+  for (int i=0; i<63 * 16; i++) {
+    gammaG[i] = (uint8_t)(pow((float)i / (float)(63 * 16 - 1), GAMMA) * 255.0);
+  }
+}
+
+void Adafruit_IS31FL3741_buffered_GlassesMatrix_smooth::drawPixel(int16_t x, int16_t y, uint16_t color) {
+  canvas->drawPixel(x, y, color);
+}
+
+void Adafruit_IS31FL3741_buffered_GlassesMatrix_smooth::decimate(void) {
+  uint16_t *src = canvas->getBuffer();
+  uint8_t *ledbuf = &_is31->ledbuf[1];
+  // This works column-major on purpose (less pointer math)
+  for (int x=0; x<18; x++) {
+    uint16_t *ptr = &src[x * 4]; // Top scan line, offset by x
+    for (int y=0; y<5; y++) {
+      uint32_t rsum = 0;
+      uint16_t gsum = 0, bsum = 0;
+      // This works row-major on purpose (less pointer math)
+      for (int yy=0; yy<4; yy++) {
+        for (int xx=0; xx<4; xx++) {
+          uint16_t rgb = ptr[xx];
+          rsum += rgb & 0b1111100000000000;
+          gsum += rgb & 0b0000011111100000;
+          bsum += rgb & 0b0000000000011111;
+        }
+        ptr += canvas->width(); // Advance one scan line
+      }
+      uint16_t base = (x * 5 + y) * 3;
+      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[base]);
+      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[base + 1]);
+      uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[base + 2]);
+      if (ridx != 65535) {
+        ledbuf[ridx] = gammaRB[rsum >> 11];
+        ledbuf[gidx] = gammaG[gsum >> 5];
+        ledbuf[bidx] = gammaRB[bsum];
+      }
     }
   }
 }

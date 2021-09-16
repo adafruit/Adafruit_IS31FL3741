@@ -180,23 +180,17 @@ class Adafruit_IS31FL3741_GlassesLeftRing {
   };
 };
 
-// Idea: don't make this a GFX subclass.
-// Just put the LED buffer and set/get functions there.
-// Higher-level things then do GFX.
 
 class Adafruit_IS31FL3741_buffered : public Adafruit_IS31FL3741 {
 public:
-  Adafruit_IS31FL3741_buffered(uint8_t x = 9, uint8_t y = 13,
-                               uint8_t *buf = NULL);
+  Adafruit_IS31FL3741_buffered(uint8_t x = 9, uint8_t y = 13);
   ~Adafruit_IS31FL3741_buffered(void);
   bool begin(uint8_t addr = IS3741_ADDR_DEFAULT, TwoWire *theWire = &Wire);
 
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void show(void);
 
-//protected:
-  uint8_t *ledbuf;
-  bool ledbuf_passed_in;
+  uint8_t ledbuf[352]; // Intentionally 1 extra byte
 };
 
 class Adafruit_IS31FL3741_buffered_GlassesMatrix : public Adafruit_GFX {
@@ -204,8 +198,20 @@ class Adafruit_IS31FL3741_buffered_GlassesMatrix : public Adafruit_GFX {
   Adafruit_IS31FL3741_buffered_GlassesMatrix(Adafruit_IS31FL3741_buffered *controller = NULL);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
- protected:
+protected:
   Adafruit_IS31FL3741_buffered *_is31;
+};
+
+class Adafruit_IS31FL3741_buffered_GlassesMatrix_smooth : public Adafruit_IS31FL3741_buffered_GlassesMatrix {
+ public:
+  Adafruit_IS31FL3741_buffered_GlassesMatrix_smooth(Adafruit_IS31FL3741_buffered *controller = NULL);
+  void drawPixel(int16_t x, int16_t y, uint16_t color);
+  void decimate();
+  GFXcanvas16 *getCanvas(void) const { return canvas; };
+ protected:
+  GFXcanvas16 *canvas;
+  uint8_t gammaRB[31 * 16];
+  uint8_t gammaG[63 * 16];
 };
 
 #endif
