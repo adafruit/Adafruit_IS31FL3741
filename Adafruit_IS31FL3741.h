@@ -90,49 +90,18 @@ class Adafruit_IS31FL3741_GlassesMatrix : public Adafruit_GFX {
 
 };
 
-
-/**************************************************************************/
-/*!
-    @brief Constructor for Lumissil IS31FL3741 Glasses
-*/
-/**************************************************************************/
-class Adafruit_IS31FL3741_GlassesRightRing {
+class Adafruit_IS31FL3741_GlassesRing {
  public:
-  Adafruit_IS31FL3741_GlassesRightRing(Adafruit_IS31FL3741 *controller);
+  Adafruit_IS31FL3741_GlassesRing(Adafruit_IS31FL3741 *controller, bool isRight);
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
   uint8_t numPixels(void) { return 24; }
-  void setBrightness(uint8_t b) { _brightness = b; }
+  void setBrightness(uint8_t b) { _brightness = b + 1; }
 
  protected:
   Adafruit_IS31FL3741 *_is31 = NULL;
-  uint8_t _brightness = 255;
-  uint16_t ledmap[24][3] = {
-    {287, 31, 30}, // 0
-    {278, 1, 0}, // 1
-    {273, 274, 275}, // 2
-    {282, 283, 284}, // 3
-    {270, 271, 272}, // 4
-    {27, 28, 29}, // 5
-    {23, 24, 25}, // 6
-    {276, 277, 22}, // 7
-    {20, 21, 26}, // 8
-    {50, 51, 56}, // 9
-    {80, 81, 86}, // 10
-    {110, 111, 116}, // 11
-    {140, 141, 146}, // 12
-    {170, 171, 176}, // 13
-    {200, 201, 206}, // 14
-    {230, 231, 236}, // 15
-    {260, 261, 266}, // 16
-    {348, 349, 262}, // 17
-    {233, 234, 235}, // 18
-    {237, 238, 239}, // 19
-    {339, 340, 232}, // 20
-    {327, 328, 329}, // 21
-    {305, 91, 90}, // 22
-    {296, 61, 60}, // 23
-  };
+  uint16_t _brightness = 256; // Internally is 1-256 for math
+  const uint16_t *ring_map;
 };
 
 
@@ -141,43 +110,20 @@ class Adafruit_IS31FL3741_GlassesRightRing {
     @brief Constructor for Lumissil IS31FL3741 Glasses
 */
 /**************************************************************************/
-class Adafruit_IS31FL3741_GlassesLeftRing {
+class Adafruit_IS31FL3741_GlassesRightRing : public Adafruit_IS31FL3741_GlassesRing {
+ public:
+  Adafruit_IS31FL3741_GlassesRightRing(Adafruit_IS31FL3741 *controller);
+};
+
+
+/**************************************************************************/
+/*!
+    @brief Constructor for Lumissil IS31FL3741 Glasses
+*/
+/**************************************************************************/
+class Adafruit_IS31FL3741_GlassesLeftRing : public Adafruit_IS31FL3741_GlassesRing {
  public:
   Adafruit_IS31FL3741_GlassesLeftRing(Adafruit_IS31FL3741 *controller);
-  void setPixelColor(int16_t n, uint32_t color);
-  void fill(uint32_t color);
-  uint8_t numPixels(void) { return 24; }
-  void setBrightness(uint8_t b) { _brightness = b; }
-
- protected:
-  Adafruit_IS31FL3741 *_is31 = NULL;
-  uint8_t _brightness = 255;
-  uint16_t ledmap[24][3] = {
-    {341, 211, 210}, // 0
-    {332, 181, 180}, // 1
-    {323, 151, 150}, // 2
-    {127, 126, 125}, // 3
-    {154, 153, 152}, // 4
-    {163, 162, 161}, // 5
-    {166, 165, 164}, // 6
-    {244, 243, 242}, // 7
-    {259, 258, 257}, // 8
-    {169, 168, 167}, // 9
-    {139, 138, 137}, // 10
-    {109, 108, 107}, // 11
-    {79, 78, 77}, // 12
-    {49, 48, 47}, // 13
-    {199, 198, 197}, // 14
-    {229, 228, 227}, // 15
-    {19, 18, 17}, // 16
-    {4, 3, 2}, // 17
-    {16, 15, 14}, // 18
-    {13, 12, 11}, // 19
-    {10, 9, 8}, // 20
-    {217, 216, 215}, // 21
-    {7, 6, 5}, // 22
-    {350, 241, 240}, // 23
-  };
 };
 
 
@@ -193,6 +139,30 @@ public:
   uint8_t ledbuf[352]; // Intentionally 1 extra byte
 };
 
+class Adafruit_IS31FL3741_buffered_GlassesRing {
+ public:
+  Adafruit_IS31FL3741_buffered_GlassesRing(Adafruit_IS31FL3741_buffered *controller, bool isRight);
+  void setPixelColor(int16_t n, uint32_t color);
+  void fill(uint32_t color);
+  uint8_t numPixels(void) { return 24; }
+  void setBrightness(uint8_t b) { _brightness = b + 1; }
+
+ protected:
+  Adafruit_IS31FL3741_buffered *_is31 = NULL;
+  uint16_t _brightness = 256; // Internally is 1-256 for math
+  const uint16_t *ring_map;
+};
+
+class Adafruit_IS31FL3741_buffered_GlassesLeftRing : public Adafruit_IS31FL3741_buffered_GlassesRing {
+public:
+  Adafruit_IS31FL3741_buffered_GlassesLeftRing(Adafruit_IS31FL3741_buffered *controller);
+};
+
+class Adafruit_IS31FL3741_buffered_GlassesRightRing : public Adafruit_IS31FL3741_buffered_GlassesRing {
+public:
+  Adafruit_IS31FL3741_buffered_GlassesRightRing(Adafruit_IS31FL3741_buffered *controller);
+};
+
 class Adafruit_IS31FL3741_buffered_GlassesMatrix : public Adafruit_GFX {
  public:
   Adafruit_IS31FL3741_buffered_GlassesMatrix(Adafruit_IS31FL3741_buffered *controller = NULL);
@@ -206,12 +176,10 @@ class Adafruit_IS31FL3741_buffered_GlassesMatrix_smooth : public Adafruit_IS31FL
  public:
   Adafruit_IS31FL3741_buffered_GlassesMatrix_smooth(Adafruit_IS31FL3741_buffered *controller = NULL);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
-  void decimate();
+  void scale();
   GFXcanvas16 *getCanvas(void) const { return canvas; };
  protected:
   GFXcanvas16 *canvas;
-  uint8_t gammaRB[31 * 16];
-  uint8_t gammaG[63 * 16];
 };
 
 #endif
