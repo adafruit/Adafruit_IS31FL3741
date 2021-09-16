@@ -47,11 +47,22 @@ public:
     @param red 8-bit red color
     @param green 8-bit green color
     @param blue 8-bit blue color
-    @returns Packed 16-bit RGB565 c
+    @returns Packed 16-bit RGB565 color
   */
   static uint16_t color565(uint8_t red, uint8_t green, uint8_t blue) {
     return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
   };
+  /*!
+    @brief Converter for RGB888-format color (packed) to RGB565-format
+    @param color 24-bit value (0x00RRGGBB)
+    @returns Packed 16-bit RGB565 color (0bRRRRRGGGGGGBBBBB)
+  */
+  static uint16_t color565(uint32_t color) {
+    return ((color >> 8) & 0xF800) | ((color >> 5) & 0x07E0) |
+           ((color >> 3) & 0x001F);
+  };
+
+  static uint32_t ColorHSV(uint16_t hue, uint8_t sat, uint8_t val);
 
 protected:
   bool selectPage(uint8_t page);
