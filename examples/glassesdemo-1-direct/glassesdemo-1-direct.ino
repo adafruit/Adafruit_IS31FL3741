@@ -79,9 +79,9 @@ void loop() {
   ledmatrix.setCursor(text_x, text_y);
   for (int i = 0; i < (int)strlen(text); i++) {
     // Get 24-bit color for this character, cycling through color wheel
-    uint32_t color24 = ledcontroller.colorHSV(65536 * i / strlen(text));
+    uint32_t color24 = ledcontroller.ColorHSV(65536 * i / strlen(text));
     // Remap 24-bit color to '565' color used by Adafruit_GFX
-    uint16_t color565 = ledcontroller.color565(color24);
+    uint16_t color565 = ledcontroller.Color565(color24);
     ledmatrix.setTextColor(color565); // Set text color
     ledmatrix.print(text[i]);         // and print one character
   }
@@ -93,13 +93,13 @@ void loop() {
 
   // Animate the LED rings with a color wheel. Unlike the matrix (which uses
   // GFX library's "565" color, the rings use NeoPixel-style RGB colors
-  // (three 8-bit values, or one 24-bit value as returned here by colorHSV()).
+  // (three 8-bit values, or one 24-bit value as returned here by ColorHSV()).
   for (int i=0; i < leftring.numPixels(); i++) {
-    leftring.setPixelColor(i, ledcontroller.colorHSV(
+    leftring.setPixelColor(i, ledcontroller.ColorHSV(
       ring_hue + i * 65536 / leftring.numPixels()));
   }
   for (int i=0; i < rightring.numPixels(); i++) {
-    rightring.setPixelColor(i, ledcontroller.colorHSV(
+    rightring.setPixelColor(i, ledcontroller.ColorHSV(
       ring_hue - i * 65536 / rightring.numPixels()));
   }
   ring_hue += 2000; // Shift color a bit on next frame - makes it spin

@@ -37,7 +37,7 @@ void loop() {
   for (int i = 0; i < (int)strlen(adafruit); i++) {
     // set the color thru the rainbow
     uint32_t color888 = Wheel((256UL * i) / strlen(adafruit));  // Wheel gives us 888 color
-    uint16_t color565 = matrix.color565(color888>>16, color888>>8, color888); // so we have to convert it to 565 here!
+    uint16_t color565 = matrix.Color565(color888>>16, color888>>8, color888); // so we have to convert it to 565 here!
     
     matrix.setTextColor(color565, 0); // backound is '0' to erase previous text!
     

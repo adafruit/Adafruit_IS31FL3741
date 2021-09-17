@@ -296,7 +296,7 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 /*!
   @brief   Convert hue, saturation and value into a packed 32-bit RGB color
-           that can be passed to setPixelColor() or color565(). Swiped
+           that can be passed to setPixelColor() or Color565(). Swiped
            directly from Adafruit_NeoPixel.
   @param   hue  An unsigned 16-bit value, 0 to 65535, representing one full
                 loop of the color wheel, which allows 16-bit hues to "roll
@@ -311,7 +311,7 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
            Result is linearly but not perceptually correct, so you may want
            to pass the result through a gamma function.
 */
-uint32_t Adafruit_IS31FL3741::colorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
+uint32_t Adafruit_IS31FL3741::ColorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
 
   uint8_t r, g, b;
 
