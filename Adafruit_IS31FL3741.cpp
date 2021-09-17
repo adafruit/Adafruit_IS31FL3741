@@ -311,7 +311,7 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
            Result is linearly but not perceptually correct, so you may want
            to pass the result through a gamma function.
 */
-uint32_t Adafruit_IS31FL3741::ColorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
+uint32_t Adafruit_IS31FL3741::colorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
 
   uint8_t r, g, b;
 
@@ -775,9 +775,9 @@ void Adafruit_IS31FL3741_GlassesRing::setPixelColor(int16_t n, uint32_t color) {
     g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
     b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
     n *= 3;
-    _is31->setLEDPWM(pgm_read_word(&right_ring_map[n]), b);
-    _is31->setLEDPWM(pgm_read_word(&right_ring_map[n + 1]), r);
-    _is31->setLEDPWM(pgm_read_word(&right_ring_map[n + 2]), g);
+    _is31->setLEDPWM(pgm_read_word(&ring_map[n]), b);
+    _is31->setLEDPWM(pgm_read_word(&ring_map[n + 1]), r);
+    _is31->setLEDPWM(pgm_read_word(&ring_map[n + 2]), g);
   }
 }
 
@@ -1077,8 +1077,8 @@ void Adafruit_IS31FL3741_GlassesMatrix_buffered::scale(void) {
     @param isRight     true if right ring, false if left.
 */
 /**************************************************************************/
-Adafruit_IS31FL3741_buffered_GlassesRing::
-    Adafruit_IS31FL3741_buffered_GlassesRing(
+Adafruit_IS31FL3741_GlassesRing_buffered::
+    Adafruit_IS31FL3741_GlassesRing_buffered(
         Adafruit_IS31FL3741_buffered *controller, bool isRight)
     : _is31(controller) {
   ring_map = isRight ? right_ring_map : left_ring_map;
@@ -1092,7 +1092,7 @@ Adafruit_IS31FL3741_buffered_GlassesRing::
     @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
 /**************************************************************************/
-void Adafruit_IS31FL3741_buffered_GlassesRing::setPixelColor(int16_t n,
+void Adafruit_IS31FL3741_GlassesRing_buffered::setPixelColor(int16_t n,
                                                              uint32_t color) {
   if ((n >= 0) && (n < 24)) {
     uint8_t *ledbuf = _is31->getBuffer();
@@ -1100,9 +1100,9 @@ void Adafruit_IS31FL3741_buffered_GlassesRing::setPixelColor(int16_t n,
     uint8_t g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
     uint8_t b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
     n *= 3;
-    ledbuf[pgm_read_word(&right_ring_map[n])] = b;
-    ledbuf[pgm_read_word(&right_ring_map[n + 1])] = r;
-    ledbuf[pgm_read_word(&right_ring_map[n + 2])] = g;
+    ledbuf[pgm_read_word(&ring_map[n])] = b;
+    ledbuf[pgm_read_word(&ring_map[n + 1])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + 2])] = g;
   }
 }
 
@@ -1113,7 +1113,7 @@ void Adafruit_IS31FL3741_buffered_GlassesRing::setPixelColor(int16_t n,
     @param color  RGB888 (24-bit) color, a la NeoPixel.
 */
 /**************************************************************************/
-void Adafruit_IS31FL3741_buffered_GlassesRing::fill(uint32_t color) {
+void Adafruit_IS31FL3741_GlassesRing_buffered::fill(uint32_t color) {
   uint8_t *ledbuf = _is31->getBuffer();
   uint8_t r = (((uint16_t)((color >> 16) & 0xFF)) * _brightness) >> 8;
   uint8_t g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
@@ -1132,10 +1132,10 @@ void Adafruit_IS31FL3741_buffered_GlassesRing::fill(uint32_t color) {
     @param controller  Pointer to Adafruit_IS31FL3741_buffered object.
 */
 /**************************************************************************/
-Adafruit_IS31FL3741_buffered_GlassesLeftRing::
-    Adafruit_IS31FL3741_buffered_GlassesLeftRing(
+Adafruit_IS31FL3741_GlassesLeftRing_buffered::
+    Adafruit_IS31FL3741_GlassesLeftRing_buffered(
         Adafruit_IS31FL3741_buffered *controller)
-    : Adafruit_IS31FL3741_buffered_GlassesRing(controller, false) {}
+    : Adafruit_IS31FL3741_GlassesRing_buffered(controller, false) {}
 
 /**************************************************************************/
 /*!
@@ -1143,7 +1143,7 @@ Adafruit_IS31FL3741_buffered_GlassesLeftRing::
     @param controller  Pointer to Adafruit_IS31FL3741_buffered object.
 */
 /**************************************************************************/
-Adafruit_IS31FL3741_buffered_GlassesRightRing::
-    Adafruit_IS31FL3741_buffered_GlassesRightRing(
+Adafruit_IS31FL3741_GlassesRightRing_buffered::
+    Adafruit_IS31FL3741_GlassesRightRing_buffered(
         Adafruit_IS31FL3741_buffered *controller)
-    : Adafruit_IS31FL3741_buffered_GlassesRing(controller, true) {}
+    : Adafruit_IS31FL3741_GlassesRing_buffered(controller, true) {}

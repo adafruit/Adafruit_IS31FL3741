@@ -62,7 +62,7 @@ public:
            ((color >> 3) & 0x001F);
   };
 
-  static uint32_t ColorHSV(uint16_t hue, uint8_t sat, uint8_t val);
+  static uint32_t colorHSV(uint16_t hue, uint8_t sat = 255, uint8_t val = 255);
 
 protected:
   bool selectPage(uint8_t page);
@@ -227,9 +227,9 @@ protected:
            right classes below create distinct subclasses for that.
 */
 /**************************************************************************/
-class Adafruit_IS31FL3741_buffered_GlassesRing {
+class Adafruit_IS31FL3741_GlassesRing_buffered {
 public:
-  Adafruit_IS31FL3741_buffered_GlassesRing(
+  Adafruit_IS31FL3741_GlassesRing_buffered(
       Adafruit_IS31FL3741_buffered *controller, bool isRight);
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
@@ -260,10 +260,10 @@ protected:
            show() is called.
 */
 /**************************************************************************/
-class Adafruit_IS31FL3741_buffered_GlassesLeftRing
-    : public Adafruit_IS31FL3741_buffered_GlassesRing {
+class Adafruit_IS31FL3741_GlassesLeftRing_buffered
+    : public Adafruit_IS31FL3741_GlassesRing_buffered {
 public:
-  Adafruit_IS31FL3741_buffered_GlassesLeftRing(
+  Adafruit_IS31FL3741_GlassesLeftRing_buffered(
       Adafruit_IS31FL3741_buffered *controller);
 };
 
@@ -274,10 +274,10 @@ public:
            show() is called.
 */
 /**************************************************************************/
-class Adafruit_IS31FL3741_buffered_GlassesRightRing
-    : public Adafruit_IS31FL3741_buffered_GlassesRing {
+class Adafruit_IS31FL3741_GlassesRightRing_buffered
+    : public Adafruit_IS31FL3741_GlassesRing_buffered {
 public:
-  Adafruit_IS31FL3741_buffered_GlassesRightRing(
+  Adafruit_IS31FL3741_GlassesRightRing_buffered(
       Adafruit_IS31FL3741_buffered *controller);
 };
 #endif
