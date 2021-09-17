@@ -69,7 +69,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Constructor for generic IS31FL3741 breakout version.  
+<p>Class for generic IS31FL3741 breakout.  
  <a href="class_adafruit___i_s31_f_l3741.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_adafruit___i_s31_f_l3741_8h_source.html">Adafruit_IS31FL3741.h</a>&gt;</code></p>
@@ -79,15 +79,16 @@ Inheritance diagram for Adafruit_IS31FL3741:</div>
  <div class="center">
   <img src="class_adafruit___i_s31_f_l3741.png" usemap="#Adafruit_5FIS31FL3741_map" alt=""/>
   <map id="Adafruit_5FIS31FL3741_map" name="Adafruit_5FIS31FL3741_map">
-<area href="class_adafruit___i_s31_f_l3741___e_v_b.html" title="Constructor for Lumissil IS31FL3741 EVB. " alt="Adafruit_IS31FL3741_EVB" shape="rect" coords="0,112,164,136"/>
-<area href="class_adafruit___i_s31_f_l3741___q_t.html" title="Constructor for Lumissil IS31FL3741 QT. " alt="Adafruit_IS31FL3741_QT" shape="rect" coords="174,112,338,136"/>
+<area href="class_adafruit___i_s31_f_l3741__buffered.html" title="Class for Lumissil IS31FL3741 Glasses with LED data being buffered on the microcontroller and sent on..." alt="Adafruit_IS31FL3741_buffered" shape="rect" coords="0,112,187,136"/>
+<area href="class_adafruit___i_s31_f_l3741___e_v_b.html" title="Class for Lumissil IS31FL3741 EVB. " alt="Adafruit_IS31FL3741_EVB" shape="rect" coords="197,112,384,136"/>
+<area href="class_adafruit___i_s31_f_l3741___q_t.html" title="Class for Lumissil IS31FL3741 QT. " alt="Adafruit_IS31FL3741_QT" shape="rect" coords="394,112,581,136"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a0deedf0527b50c9b6a4fb75d3b5c2901"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a0deedf0527b50c9b6a4fb75d3b5c2901">Adafruit_IS31FL3741</a> (uint8_t x=9, uint8_t y=13)</td></tr>
-<tr class="memdesc:a0deedf0527b50c9b6a4fb75d3b5c2901"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for breakout version.  <a href="#a0deedf0527b50c9b6a4fb75d3b5c2901">More...</a><br /></td></tr>
+<tr class="memdesc:a0deedf0527b50c9b6a4fb75d3b5c2901"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for IS31FL3741 breakout.  <a href="#a0deedf0527b50c9b6a4fb75d3b5c2901">More...</a><br /></td></tr>
 <tr class="separator:a0deedf0527b50c9b6a4fb75d3b5c2901"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a237e233ab8731312175a04b1fc00b42a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a237e233ab8731312175a04b1fc00b42a">begin</a> (uint8_t addr=IS3741_ADDR_DEFAULT, TwoWire *theWire=&amp;Wire)</td></tr>
 <tr class="memdesc:a237e233ab8731312175a04b1fc00b42a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize hardware and clear display.  <a href="#a237e233ab8731312175a04b1fc00b42a">More...</a><br /></td></tr>
@@ -114,20 +115,26 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a4808592c6c49261e7eb395aaac93ef93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimized function to set the PWM scaling for ALL the LEDs.  <a href="#a4808592c6c49261e7eb395aaac93ef93">More...</a><br /></td></tr>
 <tr class="separator:a4808592c6c49261e7eb395aaac93ef93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9c6aa806058eae2f6152b87ff033ccd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#ad9c6aa806058eae2f6152b87ff033ccd">setLEDPWM</a> (uint16_t lednum, uint8_t pwm)</td></tr>
-<tr class="memdesc:ad9c6aa806058eae2f6152b87ff033ccd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Low level accesssor - sets a 8-bit PWM pixel value to the internal memory location. Does not handle rotation, x/y or any rearrangements!  <a href="#ad9c6aa806058eae2f6152b87ff033ccd">More...</a><br /></td></tr>
+<tr class="memdesc:ad9c6aa806058eae2f6152b87ff033ccd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Low level accessor - sets a 8-bit PWM pixel value to the internal memory location. Does not handle rotation, x/y or any rearrangements!  <a href="#ad9c6aa806058eae2f6152b87ff033ccd">More...</a><br /></td></tr>
 <tr class="separator:ad9c6aa806058eae2f6152b87ff033ccd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b5c674e68749159bc3f48fd20581c8a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a7b5c674e68749159bc3f48fd20581c8a">fill</a> (uint8_t fillpwm=0)</td></tr>
 <tr class="memdesc:a7b5c674e68749159bc3f48fd20581c8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets all LEDs PWM to the same value - great for clearing the whole display at once!  <a href="#a7b5c674e68749159bc3f48fd20581c8a">More...</a><br /></td></tr>
 <tr class="separator:a7b5c674e68749159bc3f48fd20581c8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa48c6853b23e83d4af71baf7d406e0c0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#aa48c6853b23e83d4af71baf7d406e0c0">drawPixel</a> (int16_t x, int16_t y, uint16_t color)</td></tr>
-<tr class="memdesc:aa48c6853b23e83d4af71baf7d406e0c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adafruit GFX low level accesssor - sets a 8-bit PWM pixel value handles rotation and pixel arrangement, unlike setLEDPWM.  <a href="#aa48c6853b23e83d4af71baf7d406e0c0">More...</a><br /></td></tr>
+<tr class="memdesc:aa48c6853b23e83d4af71baf7d406e0c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adafruit GFX low level accessor - sets an RGB pixel value, handles rotation and pixel arrangement, unlike setLEDPWM.  <a href="#aa48c6853b23e83d4af71baf7d406e0c0">More...</a><br /></td></tr>
 <tr class="separator:aa48c6853b23e83d4af71baf7d406e0c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a2191f6fb609ee4ef4b151434e2bd4c0f"><td class="memItemLeft" align="right" valign="top">static uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a2191f6fb609ee4ef4b151434e2bd4c0f">color565</a> (uint8_t red, uint8_t green, uint8_t blue)</td></tr>
-<tr class="memdesc:a2191f6fb609ee4ef4b151434e2bd4c0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converter for RGB888-format color to RGB565-format.  <a href="#a2191f6fb609ee4ef4b151434e2bd4c0f">More...</a><br /></td></tr>
-<tr class="separator:a2191f6fb609ee4ef4b151434e2bd4c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad775e359fed05770985ed2ba98303084"><td class="memItemLeft" align="right" valign="top">static uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#ad775e359fed05770985ed2ba98303084">color565</a> (uint8_t red, uint8_t green, uint8_t blue)</td></tr>
+<tr class="memdesc:ad775e359fed05770985ed2ba98303084"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converter for RGB888-format color to RGB565-format.  <a href="#ad775e359fed05770985ed2ba98303084">More...</a><br /></td></tr>
+<tr class="separator:ad775e359fed05770985ed2ba98303084"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6f40317a585f8ad3e4b701804bc1f8f"><td class="memItemLeft" align="right" valign="top">static uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#ac6f40317a585f8ad3e4b701804bc1f8f">color565</a> (uint32_t color)</td></tr>
+<tr class="memdesc:ac6f40317a585f8ad3e4b701804bc1f8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converter for RGB888-format color (packed) to RGB565-format.  <a href="#ac6f40317a585f8ad3e4b701804bc1f8f">More...</a><br /></td></tr>
+<tr class="separator:ac6f40317a585f8ad3e4b701804bc1f8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fe0030f36db85bb6f4db212081aff04"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a4fe0030f36db85bb6f4db212081aff04">ColorHSV</a> (uint16_t hue, uint8_t sat=255, uint8_t val=255)</td></tr>
+<tr class="memdesc:a4fe0030f36db85bb6f4db212081aff04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert hue, saturation and value into a packed 32-bit RGB color that can be passed to setPixelColor() or Color565(). Swiped directly from Adafruit_NeoPixel.  <a href="#a4fe0030f36db85bb6f4db212081aff04">More...</a><br /></td></tr>
+<tr class="separator:a4fe0030f36db85bb6f4db212081aff04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -137,13 +144,17 @@ Protected Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
-<tr class="memitem:aa6718e1bac8b04b7cfb4d8f32a8fcec1"><td class="memItemLeft" align="right" valign="top"><a id="aa6718e1bac8b04b7cfb4d8f32a8fcec1"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#aa6718e1bac8b04b7cfb4d8f32a8fcec1">_page</a> = -1</td></tr>
-<tr class="memdesc:aa6718e1bac8b04b7cfb4d8f32a8fcec1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cached value of the page we're currently addressing. <br /></td></tr>
-<tr class="separator:aa6718e1bac8b04b7cfb4d8f32a8fcec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2c29be03f70f4d981f32fd9dbac598d"><td class="memItemLeft" align="right" valign="top"><a id="ae2c29be03f70f4d981f32fd9dbac598d"></a>
+int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#ae2c29be03f70f4d981f32fd9dbac598d">_page</a> = -1</td></tr>
+<tr class="memdesc:ae2c29be03f70f4d981f32fd9dbac598d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cached value of the page we're currently addressing. <br /></td></tr>
+<tr class="separator:ae2c29be03f70f4d981f32fd9dbac598d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4a8323e7a87efef2990b5be7fdd730f"><td class="memItemLeft" align="right" valign="top"><a id="ab4a8323e7a87efef2990b5be7fdd730f"></a>
+Adafruit_I2CDevice *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#ab4a8323e7a87efef2990b5be7fdd730f">_i2c_dev</a> = NULL</td></tr>
+<tr class="memdesc:ab4a8323e7a87efef2990b5be7fdd730f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to I2C device. <br /></td></tr>
+<tr class="separator:ab4a8323e7a87efef2990b5be7fdd730f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Constructor for generic IS31FL3741 breakout version. </p>
+<div class="textblock"><p>Class for generic IS31FL3741 breakout. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a0deedf0527b50c9b6a4fb75d3b5c2901"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0deedf0527b50c9b6a4fb75d3b5c2901">&#9670;&nbsp;</a></span>Adafruit_IS31FL3741()</h2>
@@ -171,11 +182,11 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
       </table>
 </div><div class="memdoc">
 
-<p>Constructor for breakout version. </p>
+<p>Constructor for IS31FL3741 breakout. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">width</td><td>Desired width of led display </td></tr>
-    <tr><td class="paramname">height</td><td>Desired height of led display </td></tr>
+    <tr><td class="paramname">width</td><td>Desired width of led display, in RGB pixels </td></tr>
+    <tr><td class="paramname">height</td><td>Desired height of led display, in RGB pixels </td></tr>
   </table>
   </dd>
 </dl>
@@ -212,8 +223,8 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Initialize hardware and clear display. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">addr</td><td>The I2C address we expect to find the chip at </td></tr>
-    <tr><td class="paramname">theWire</td><td>The TwoWire I2C bus device to use, defaults to &amp;Wire </td></tr>
+    <tr><td class="paramname">addr</td><td>I2C address we expect to find the chip at </td></tr>
+    <tr><td class="paramname">theWire</td><td>Pointer to TwoWire I2C bus device to use, defaults to to &amp;Wire. </td></tr>
   </table>
   </dd>
 </dl>
@@ -429,7 +440,7 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
       </table>
 </div><div class="memdoc">
 
-<p>Low level accesssor - sets a 8-bit PWM pixel value to the internal memory location. Does not handle rotation, x/y or any rearrangements! </p>
+<p>Low level accessor - sets a 8-bit PWM pixel value to the internal memory location. Does not handle rotation, x/y or any rearrangements! </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">lednum</td><td>The offset from 0 to 350 that corresponds to the LED </td></tr>
@@ -500,20 +511,20 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
       </table>
 </div><div class="memdoc">
 
-<p>Adafruit GFX low level accesssor - sets a 8-bit PWM pixel value handles rotation and pixel arrangement, unlike setLEDPWM. </p>
+<p>Adafruit GFX low level accessor - sets an RGB pixel value, handles rotation and pixel arrangement, unlike setLEDPWM. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>The x position, starting with 0 for left-most side </td></tr>
     <tr><td class="paramname">y</td><td>The y position, starting with 0 for top-most side </td></tr>
-    <tr><td class="paramname">color</td><td>Despite being a 16-bit value, takes 0 (off) to 255 (max on) </td></tr>
+    <tr><td class="paramname">color</td><td>16-bit RGB565 packed color (expands to 888 for LEDs). </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="a2191f6fb609ee4ef4b151434e2bd4c0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2191f6fb609ee4ef4b151434e2bd4c0f">&#9670;&nbsp;</a></span>color565()</h2>
+<a id="ad775e359fed05770985ed2ba98303084"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad775e359fed05770985ed2ba98303084">&#9670;&nbsp;</a></span>color565() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -522,7 +533,7 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t Adafruit_IS31FL3741::color565 </td>
+          <td class="memname">static uint16_t Adafruit_IS31FL3741::color565 </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
           <td class="paramname"><em>red</em>, </td>
@@ -547,7 +558,7 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -561,7 +572,99 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Packed 16-bit RGB565 c </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Packed 16-bit RGB565 color </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Yes, the name is unfortunate &ndash; have lowercase <a class="el" href="class_adafruit___i_s31_f_l3741.html#ad775e359fed05770985ed2ba98303084" title="Converter for RGB888-format color to RGB565-format. ">color565()</a> here, and uppercase <a class="el" href="class_adafruit___i_s31_f_l3741.html#a4fe0030f36db85bb6f4db212081aff04" title="Convert hue, saturation and value into a packed 32-bit RGB color that can be passed to setPixelColor(...">ColorHSV()</a> later. This is for compatibility with existing code from Adafruit_GFX and Adafruit_NeoPixel, which were separately developed and used differing cases. The idea here is to help re-use existing GFX code, so don't "fix." </dd></dl>
+
+</div>
+</div>
+<a id="ac6f40317a585f8ad3e4b701804bc1f8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6f40317a585f8ad3e4b701804bc1f8f">&#9670;&nbsp;</a></span>color565() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint16_t Adafruit_IS31FL3741::color565 </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>color</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converter for RGB888-format color (packed) to RGB565-format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">color</td><td>24-bit value (0x00RRGGBB) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Packed 16-bit RGB565 color (0bRRRRRGGGGGGBBBBB) </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>See notes above re: naming. </dd></dl>
+
+</div>
+</div>
+<a id="a4fe0030f36db85bb6f4db212081aff04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fe0030f36db85bb6f4db212081aff04">&#9670;&nbsp;</a></span>ColorHSV()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Adafruit_IS31FL3741::ColorHSV </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>hue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>sat</em> = <code>255</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>val</em> = <code>255</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Convert hue, saturation and value into a packed 32-bit RGB color that can be passed to setPixelColor() or Color565(). Swiped directly from Adafruit_NeoPixel. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">hue</td><td>An unsigned 16-bit value, 0 to 65535, representing one full loop of the color wheel, which allows 16-bit hues to "roll
+              over" while still doing the expected thing (and allowing more precision than the wheel() function that was common to prior NeoPixel examples). </td></tr>
+    <tr><td class="paramname">sat</td><td>Saturation, 8-bit value, 0 (min or pure grayscale) to 255 (max or pure hue). Default of 255 if unspecified. </td></tr>
+    <tr><td class="paramname">val</td><td>Value (brightness), 8-bit value, 0 (min / black / off) to 255 (max or full brightness). Default of 255 if unspecified. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Packed 32-bit RGB with the most significant byte set to 0. Result is linearly but not perceptually correct, so you may want to pass the result through a gamma function. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Yes, the name is unfortunate &ndash; have uppercase <a class="el" href="class_adafruit___i_s31_f_l3741.html#a4fe0030f36db85bb6f4db212081aff04" title="Convert hue, saturation and value into a packed 32-bit RGB color that can be passed to setPixelColor(...">ColorHSV()</a> here, and lowercase <a class="el" href="class_adafruit___i_s31_f_l3741.html#ad775e359fed05770985ed2ba98303084" title="Converter for RGB888-format color to RGB565-format. ">color565()</a> elsewhere. This is for compatibility with existing code from Adafruit_NeoPixel amd Adafruit_GFX, which were separately developed and used differing cases. The idea here is to help re-use existing NeoPixel code, so don't "fix." </dd></dl>
 
 </div>
 </div>
