@@ -79,9 +79,9 @@ void loop() {
   ledmatrix.setCursor(text_x, text_y);
   for (int i = 0; i < (int)strlen(text); i++) {
     // Get 24-bit color for this character, cycling through color wheel
-    uint32_t color24 = ledcontroller.ColorHSV(65536 * i / strlen(text));
+    uint32_t color888 = ledcontroller.ColorHSV(65536 * i / strlen(text));
     // Remap 24-bit color to '565' color used by Adafruit_GFX
-    uint16_t color565 = ledcontroller.Color565(color24);
+    uint16_t color565 = ledcontroller.color565(color888);
     ledmatrix.setTextColor(color565); // Set text color
     ledmatrix.print(text[i]);         // and print one character
   }

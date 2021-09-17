@@ -310,6 +310,11 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
   @return  Packed 32-bit RGB with the most significant byte set to 0.
            Result is linearly but not perceptually correct, so you may want
            to pass the result through a gamma function.
+  @note  Yes, the name is unfortunate -- have uppercase ColorHSV() here,
+         and lowercase color565() elsewhere. This is for compatibility with
+         existing code from Adafruit_NeoPixel amd Adafruit_GFX, which were
+         separately developed and used differing cases. The idea here is to
+         help re-use existing NeoPixel code, so don't "fix."
 */
 uint32_t Adafruit_IS31FL3741::ColorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
 
