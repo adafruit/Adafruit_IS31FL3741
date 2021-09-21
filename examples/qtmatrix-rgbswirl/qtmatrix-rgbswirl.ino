@@ -1,0 +1,55 @@
+// Rainbow swirl example for the Adafruit IS31FL3741 13x9 PWM RGB LED
+// Matrix Driver w/STEMMA QT / Qwiic connector. This is the simplest
+// version and should fit on small microcontrollers like Arduino Uno.
+// Tradeoff is that animation isn't always as smooth as seen in the
+// buffered example. Each LED changes state immediately when accessed,
+// there is no show() or display() function as with NeoPixels or some
+// OLED screens.
+
+#include <Adafruit_IS31FL3741.h>
+
+Adafruit_IS31FL3741_QT ledmatrix;
+
+// Some boards have just one I2C interface, but some have more...
+TwoWire *i2c = &Wire; // e.g. change this to &Wire1 for QT Py RP2040
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("Adafruit QT RGB Matrix Simple RGB Swirl Test");
+
+  if (! ledmatrix.begin(IS3741_ADDR_DEFAULT, i2c)) {
+    Serial.println("IS41 not found");
+    while (1);
+  }
+  
+  Serial.println("IS41 found!");
+
+  // By default the LED controller communicates over I2C at 400 KHz.
+  // Arduino Uno can usually do 800 KHz, and 32-bit microcontrollers 1 MHz.
+  i2c->setClock(800000);
+
+  // Set brightness to max and bring controller out of shutdown state
+  ledmatrix.setLEDscaling(0xFF);
+  ledmatrix.setGlobalCurrent(0xFF);
+  Serial.print("Global current set to: ");
+  Serial.println(ledmatrix.getGlobalCurrent());
+  ledmatrix.enable(true); // bring out of shutdown
+}
+
+uint16_t hue_offset = 0;
+
+void loop() {
+  uint32_t i = 0;
+  for (int y=0; y<9; y++) {
+    for (int x=0; x<13; x++) {
+      uint32_t color888 = ledmatrix.ColorHSV(i * 65536 / 117 + hue_offset);
+      uint16_t color565 = ledmatrix.color565(color888);
+      ledmatrix.drawPixel(x, y, color565);
+      i++;
+    }
+  }
+
+  hue_offset += 256;
+
+  ledmatrix.setGlobalCurrent(hue_offset / 256); // Demonstrate global current
+}

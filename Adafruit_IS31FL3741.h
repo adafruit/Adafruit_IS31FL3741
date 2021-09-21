@@ -203,6 +203,18 @@ protected:
 
 /**************************************************************************/
 /*!
+    @brief Class for Lumissil IS31FL3741 QT (buffered).
+*/
+/**************************************************************************/
+class Adafruit_IS31FL3741_QT_buffered : public Adafruit_IS31FL3741_buffered {
+public:
+  Adafruit_IS31FL3741_QT_buffered(void);
+  void drawPixel(int16_t x, int16_t y, uint16_t color);
+  void fill(uint16_t color);
+};
+
+/**************************************************************************/
+/*!
     @brief Class for Lumissil IS31FL3741 Glasses (matrix portion) with LED
            data being buffered on the microcontroller and sent only when
            show() is called.
