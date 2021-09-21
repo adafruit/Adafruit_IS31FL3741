@@ -517,15 +517,15 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
       }
     }
 
-    int8_t r_off = 0, g_off = 1, b_off = 2;
+    int8_t r_off, g_off, b_off;
     if ((col == 12) || (col % 2 == 1)) { // odds + last col
+      b_off = 2;
+      r_off = 1;
+      g_off = 0;
+    } else { // evens;
+      b_off = 0;
       r_off = 2;
       g_off = 1;
-      b_off = 0;
-    } else { // evens;
-      r_off = 0;
-      g_off = 2;
-      b_off = 1;
     }
 
     // Serial.println(offset, HEX);
@@ -533,6 +533,118 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
     setLEDPWM(offset + r_off, r);
     setLEDPWM(offset + g_off, g);
     setLEDPWM(offset + b_off, b);
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief Constructor for QT version (13 x 9 LEDs), buffered
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_QT_buffered::Adafruit_IS31FL3741_QT_buffered(void)
+    : Adafruit_IS31FL3741_buffered(13, 9) {}
+
+/**************************************************************************/
+/*!
+    @brief Adafruit GFX low level accessor - sets an RGB pixel value,
+           handles rotation and pixel arrangement, unlike setLEDPWM.
+    @param x The x position, starting with 0 for left-most side
+    @param y The y position, starting with 0 for top-most side
+    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
+                                                uint16_t color) {
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < width())) {
+    switch (getRotation()) {
+    case 1:
+      _swap_int16_t(x, y);
+      x = WIDTH - 1 - x;
+      break;
+    case 2:
+      x = WIDTH - 1 - x;
+      y = HEIGHT - 1 - y;
+      break;
+    case 3:
+      _swap_int16_t(x, y);
+      y = HEIGHT - 1 - y;
+      break;
+    }
+
+    // Expand GFX's RGB565 color to RGB888 for LEDs
+    uint8_t r = ((color >> 8) & 0xF8) | (color >> 13);
+    uint8_t g = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
+    uint8_t b = ((color << 3) & 0xF8) | ((color >> 2) & 0x07);
+
+    /*
+    Serial.print("("); Serial.print(x);
+    Serial.print(", "); Serial.print(y);
+    Serial.print(") -> 0x");
+    */
+
+    uint8_t col = x;
+    uint8_t row = y;
+
+    // remap the row
+    static const uint8_t rowmap[] = {8, 5, 4, 3, 2, 1, 0, 7, 6};
+    row = rowmap[y];
+
+    uint16_t offset = 0;
+
+    if (row <= 5) {
+      if (col < 10) {
+        offset = 0x1E * row + col * 3;
+      } else {
+        offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
+      }
+    } else {
+      if (col < 10) {
+        offset = 0xB4 + (row - 6) * 0x1E + col * 3;
+      } else {
+        offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
+      }
+    }
+
+    int8_t r_off, g_off, b_off;
+    if ((col == 12) || (col % 2 == 1)) { // odds + last col
+      b_off = 2;
+      r_off = 1;
+      g_off = 0;
+    } else { // evens;
+      b_off = 0;
+      r_off = 2;
+      g_off = 1;
+    }
+
+    // Serial.println(offset, HEX);
+
+    // Expand 5/6 bits of color components to 8 bits and store:
+    uint8_t *ptr = &ledbuf[1 + offset];
+    ptr[b_off] = (color << 3) | ((color >> 2) & 0x07);
+    ptr[r_off] = ((color >> 8) & 0xF8) | (color >> 13);
+    ptr[g_off] = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief Sets all pixels of buffered QT matrix.
+    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_QT_buffered::fill(uint16_t color) {
+  // If high and low bytes of color are the same...
+  if ((color >> 8) == (color & 0xFF)) {
+    // Can just memset the whole pixel buffer to that byte
+    memset(&ledbuf[1], color & 0xFF, 351);
+  } else {
+    // Otherwise, fill must be done pixel-by-pixel due to
+    // different mappings & offsets in parts of the matrix.
+    for (uint8_t y = 0; y < height(); y++) {
+      for (uint8_t x = 0; x < width(); x++) {
+        drawPixel(x, y, color);
+      }
+    }
   }
 }
 

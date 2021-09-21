@@ -1,6 +1,9 @@
+// Example for ISSI AIS31FL3741 evaluation board. Fairly minimal, see the
+// qtmatrix or ledglasses examples for more graphic-like examples.
+
 #include <Adafruit_IS31FL3741.h>
 
-Adafruit_IS31FL3741 ledmatrix = Adafruit_IS31FL3741();
+Adafruit_IS31FL3741 ledmatrix;
 
 void setup() {
   Serial.begin(115200);

@@ -42,7 +42,7 @@ void setup() {
 
   // By default the LED controller communicates over I2C at 400 KHz.
   // Arduino Uno can usually do 800 KHz, and 32-bit microcontrollers 1 MHz.
-  Wire.setClock(800000);
+  i2c->setClock(800000);
 
   // Set brightness to max and bring controller out of shutdown state
   ledcontroller.setLEDscaling(0xFF);
