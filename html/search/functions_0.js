@@ -11,5 +11,6 @@ var searchData=
   ['adafruit_5fis31fl3741_5fglassesrightring_5fbuffered',['Adafruit_IS31FL3741_GlassesRightRing_buffered',['../class_adafruit___i_s31_f_l3741___glasses_right_ring__buffered.html#aa9dbbcaf17cdf66a813de46b62a1077d',1,'Adafruit_IS31FL3741_GlassesRightRing_buffered']]],
   ['adafruit_5fis31fl3741_5fglassesring',['Adafruit_IS31FL3741_GlassesRing',['../class_adafruit___i_s31_f_l3741___glasses_ring.html#a8f9a274b57c805f36cc69ace3fb85564',1,'Adafruit_IS31FL3741_GlassesRing']]],
   ['adafruit_5fis31fl3741_5fglassesring_5fbuffered',['Adafruit_IS31FL3741_GlassesRing_buffered',['../class_adafruit___i_s31_f_l3741___glasses_ring__buffered.html#ab2f031c4a3c479b204629972c18983a4',1,'Adafruit_IS31FL3741_GlassesRing_buffered']]],
-  ['adafruit_5fis31fl3741_5fqt',['Adafruit_IS31FL3741_QT',['../class_adafruit___i_s31_f_l3741___q_t.html#a62dd028b7a6d31efa85f8bde9db67d7c',1,'Adafruit_IS31FL3741_QT']]]
+  ['adafruit_5fis31fl3741_5fqt',['Adafruit_IS31FL3741_QT',['../class_adafruit___i_s31_f_l3741___q_t.html#a62dd028b7a6d31efa85f8bde9db67d7c',1,'Adafruit_IS31FL3741_QT']]],
+  ['adafruit_5fis31fl3741_5fqt_5fbuffered',['Adafruit_IS31FL3741_QT_buffered',['../class_adafruit___i_s31_f_l3741___q_t__buffered.html#a83a0984c19b2218bab55f072e8738145',1,'Adafruit_IS31FL3741_QT_buffered']]]
 ];
