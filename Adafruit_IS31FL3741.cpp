@@ -640,14 +640,13 @@ void Adafruit_IS31FL3741_QT_buffered::fill(uint16_t color) {
   } else {
     // Otherwise, fill must be done pixel-by-pixel due to
     // different mappings & offsets in parts of the matrix.
-    for (uint8_t y=0; y<height(); y++) {
-      for (uint8_t x=0; x<width(); x++) {
+    for (uint8_t y = 0; y < height(); y++) {
+      for (uint8_t x = 0; x < width(); x++) {
         drawPixel(x, y, color);
       }
     }
   }
 }
-
 
 // LED GLASSES -------------------------------------------------------------
 
