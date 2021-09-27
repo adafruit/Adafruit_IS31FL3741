@@ -410,7 +410,7 @@ Adafruit_IS31FL3741_EVB::Adafruit_IS31FL3741_EVB(void)
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
-  if ((x >= 0) && (y >= 0) && (x < width()) && (y < width())) {
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
     switch (getRotation()) {
     case 1:
       _swap_int16_t(x, y);
@@ -467,7 +467,7 @@ Adafruit_IS31FL3741_QT::Adafruit_IS31FL3741_QT(void)
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
-  if ((x >= 0) && (y >= 0) && (x < width()) && (y < width())) {
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
     switch (getRotation()) {
     case 1:
       _swap_int16_t(x, y);
@@ -555,7 +555,7 @@ Adafruit_IS31FL3741_QT_buffered::Adafruit_IS31FL3741_QT_buffered(void)
 /**************************************************************************/
 void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
                                                 uint16_t color) {
-  if ((x >= 0) && (y >= 0) && (x < width()) && (y < width())) {
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
     switch (getRotation()) {
     case 1:
       _swap_int16_t(x, y);
@@ -767,7 +767,7 @@ static const uint16_t PROGMEM glassesmatrix_ledmap[18 * 5 * 3] = {
 /**************************************************************************/
 void Adafruit_IS31FL3741_GlassesMatrix::drawPixel(int16_t x, int16_t y,
                                                   uint16_t color) {
-  if ((x >= 0) && (y >= 0) && (x < width()) && (y < width())) {
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
     switch (getRotation()) {
     case 1:
       _swap_int16_t(x, y);
