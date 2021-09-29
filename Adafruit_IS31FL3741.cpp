@@ -760,22 +760,7 @@ void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
   }
 }
 
-// LED GLASSES (DIRECT) ----------------------------------------------------
-
-// This is olde style but kept around for backwards compatibility.
-// The Adafruit_EyeLights classes are simpler going forward.
-
-/**************************************************************************/
-/*!
-    @brief  Constructor for LED glasses (matrix portion, 18x5 LEDs)
-    @param  controller  Pointer to core object (underlying hardware).
-*/
-/**************************************************************************/
-Adafruit_IS31FL3741_GlassesMatrix::Adafruit_IS31FL3741_GlassesMatrix(
-    Adafruit_IS31FL3741 *controller)
-    : Adafruit_GFX(18, 5) {
-  _is31 = controller;
-}
+// LED GLASSES -----
 
 // Remap table for pixel positions to LED indices, for next function
 // THESE ARE IN BRG ORDER
@@ -872,42 +857,6 @@ static const uint16_t PROGMEM glassesmatrix_ledmap[18 * 5 * 3] = {
     276,   277,   22,    // (17,4) / 7
 };
 
-/**************************************************************************/
-/*!
-    @brief         Adafruit GFX low level accessor - sets an RGB pixel value,
-                   handles rotation and pixel arrangement, unlike setLEDPWM.
-    @param  x      The x position, starting with 0 for left-most side
-    @param  y      The y position, starting with 0 for top-most side
-    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
-*/
-/**************************************************************************/
-void Adafruit_IS31FL3741_GlassesMatrix::drawPixel(int16_t x, int16_t y,
-                                                  uint16_t color) {
-  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
-    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
-    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
-
-    x = (x * 5 + y) * 3; // Starting index into the led table above
-    uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x]);
-    if (bidx != 65535) {
-      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + 1]);
-      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + 2]);
-      _is31->setLEDPWM(bidx, b);
-      _is31->setLEDPWM(ridx, r);
-      _is31->setLEDPWM(gidx, g);
-    }
-
-    /*
-    Serial.print("("); Serial.print(x);
-    Serial.print(", "); Serial.print(y);
-    Serial.print(") -> [");
-    Serial.print(ridx); Serial.print(", ");
-    Serial.print(gidx); Serial.print(", ");
-    Serial.print(bidx); Serial.println("]");
-    */
-  }
-}
-
 // Remap tables for pixel positions to LED indices, for next functions
 // THESE ARE IN BRG ORDER
 static const uint16_t PROGMEM left_ring_map[24 * 3] = {
@@ -963,6 +912,331 @@ static const uint16_t PROGMEM right_ring_map[24 * 3] = {
     305, 91,  90,  // 22
     296, 61,  60,  // 23
 };
+
+// GFXcanvas16 is RGB565 color while the LEDs are RGB888, so during 1:3
+// downsampling we recover some intermediate shades and apply gamma
+// correction for better linearity. Tables are used to avoid floating-point
+// math. They appear large here but reside in flash, not too bad.
+// To regenerate tables (e.g. different gamma), in Python:
+// print(str([int((x / (31*9)) ** 2.4 * 255 + 0.5) for x in range(31*9+1)]))
+// Then edit braces and clang-format result. For green, use 63 instead of 31.
+// Red & blue table is 280 bytes, green table is 568 bytes. 848 total.
+static const uint8_t PROGMEM gammaRB[] = {
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+    1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,
+    3,   3,   4,   4,   4,   4,   4,   5,   5,   5,   5,   5,   6,   6,   6,
+    6,   7,   7,   7,   7,   8,   8,   8,   9,   9,   9,   10,  10,  10,  11,
+    11,  11,  12,  12,  12,  13,  13,  13,  14,  14,  15,  15,  16,  16,  16,
+    17,  17,  18,  18,  19,  19,  20,  20,  21,  21,  22,  22,  23,  23,  24,
+    24,  25,  26,  26,  27,  27,  28,  29,  29,  30,  30,  31,  32,  32,  33,
+    34,  34,  35,  36,  36,  37,  38,  39,  39,  40,  41,  42,  42,  43,  44,
+    45,  45,  46,  47,  48,  49,  50,  50,  51,  52,  53,  54,  55,  56,  57,
+    58,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  69,  70,  71,
+    72,  73,  74,  75,  77,  78,  79,  80,  81,  82,  83,  84,  86,  87,  88,
+    89,  90,  91,  93,  94,  95,  96,  98,  99,  100, 101, 103, 104, 105, 107,
+    108, 109, 111, 112, 113, 115, 116, 117, 119, 120, 122, 123, 125, 126, 127,
+    129, 130, 132, 133, 135, 136, 138, 140, 141, 143, 144, 146, 147, 149, 151,
+    152, 154, 155, 157, 159, 160, 162, 164, 165, 167, 169, 171, 172, 174, 176,
+    178, 179, 181, 183, 185, 187, 189, 190, 192, 194, 196, 198, 200, 202, 204,
+    205, 207, 209, 211, 213, 215, 217, 219, 221, 223, 225, 227, 229, 232, 234,
+    236, 238, 240, 242, 244, 246, 248, 251, 253, 255};
+static const uint8_t PROGMEM gammaG[] = {
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,
+    1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+    1,   1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,
+    2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3,   3,   3,
+    3,   3,   3,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,
+    4,   5,   5,   5,   5,   5,   5,   5,   5,   5,   6,   6,   6,   6,   6,
+    6,   6,   6,   7,   7,   7,   7,   7,   7,   7,   7,   8,   8,   8,   8,
+    8,   8,   8,   9,   9,   9,   9,   9,   9,   10,  10,  10,  10,  10,  10,
+    10,  11,  11,  11,  11,  11,  12,  12,  12,  12,  12,  12,  13,  13,  13,
+    13,  13,  14,  14,  14,  14,  14,  15,  15,  15,  15,  15,  16,  16,  16,
+    16,  16,  17,  17,  17,  17,  18,  18,  18,  18,  18,  19,  19,  19,  19,
+    20,  20,  20,  20,  21,  21,  21,  21,  22,  22,  22,  22,  23,  23,  23,
+    24,  24,  24,  24,  25,  25,  25,  25,  26,  26,  26,  27,  27,  27,  27,
+    28,  28,  28,  29,  29,  29,  30,  30,  30,  30,  31,  31,  31,  32,  32,
+    32,  33,  33,  33,  34,  34,  34,  35,  35,  35,  36,  36,  36,  37,  37,
+    37,  38,  38,  39,  39,  39,  40,  40,  40,  41,  41,  41,  42,  42,  43,
+    43,  43,  44,  44,  45,  45,  45,  46,  46,  46,  47,  47,  48,  48,  49,
+    49,  49,  50,  50,  51,  51,  51,  52,  52,  53,  53,  54,  54,  54,  55,
+    55,  56,  56,  57,  57,  58,  58,  58,  59,  59,  60,  60,  61,  61,  62,
+    62,  63,  63,  64,  64,  65,  65,  66,  66,  67,  67,  68,  68,  69,  69,
+    70,  70,  71,  71,  72,  72,  73,  73,  74,  74,  75,  75,  76,  76,  77,
+    77,  78,  78,  79,  80,  80,  81,  81,  82,  82,  83,  83,  84,  85,  85,
+    86,  86,  87,  87,  88,  89,  89,  90,  90,  91,  92,  92,  93,  93,  94,
+    95,  95,  96,  96,  97,  98,  98,  99,  99,  100, 101, 101, 102, 103, 103,
+    104, 105, 105, 106, 106, 107, 108, 108, 109, 110, 110, 111, 112, 112, 113,
+    114, 114, 115, 116, 116, 117, 118, 118, 119, 120, 121, 121, 122, 123, 123,
+    124, 125, 126, 126, 127, 128, 128, 129, 130, 131, 131, 132, 133, 134, 134,
+    135, 136, 136, 137, 138, 139, 140, 140, 141, 142, 143, 143, 144, 145, 146,
+    146, 147, 148, 149, 150, 150, 151, 152, 153, 154, 154, 155, 156, 157, 158,
+    158, 159, 160, 161, 162, 163, 163, 164, 165, 166, 167, 168, 168, 169, 170,
+    171, 172, 173, 174, 174, 175, 176, 177, 178, 179, 180, 181, 181, 182, 183,
+    184, 185, 186, 187, 188, 189, 189, 190, 191, 192, 193, 194, 195, 196, 197,
+    198, 199, 200, 201, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211,
+    212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226,
+    227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241,
+    242, 243, 244, 245, 246, 248, 249, 250, 251, 252, 253, 254, 255};
+
+
+// NEW EYELIGHTS CODE ----
+
+/**************************************************************************/
+/*!
+    @brief  Constructor for EyeLights LED ring. Not invoked by user code.
+    @param  parent   void* pointer to parent EyeLights object this is
+                     attached to (may be direct or buffered, hence void*
+                     rather than specific type).
+    @param  isRight  true if right ring, false if left.
+*/
+/**************************************************************************/
+Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(void *parent,
+                                                           bool isRight)
+    : parent(parent), ring_map(isRight ? right_ring_map : left_ring_map) {}
+
+/**************************************************************************/
+/*!
+    @brief  Set color of one pixel of one direct (unbuffered) EyeLights ring.
+    @param  n      Index of pixel to set (0-23).
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
+  if ((n >= 0) && (n < 24)) {
+    Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
+    _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+    n *= 3;
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->bOffset]), b);
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief Fill all pixels of one EyeLights ring to same color.
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring::fill(uint32_t color) {
+  Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
+  _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+  for (uint8_t n = 0; n < 24 * 3; n += 3) {
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->bOffset]), b);
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Set color of one pixel of one buffered EyeLights ring.
+    @param  n      Index of pixel to set (0-23).
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
+                                                     uint32_t color) {
+  if ((n >= 0) && (n < 24)) {
+    Adafruit_EyeLights_buffered *eyelights =
+      (Adafruit_EyeLights_buffered *)parent;
+    uint8_t *ledbuf = eyelights->getBuffer();
+    _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+    n *= 3;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->bOffset])] = b;
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Fill all pixels of one EyeLights ring to same color.
+            No immediate effect on LEDs; must follow up with show().
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
+  Adafruit_EyeLights_buffered *eyelights =
+    (Adafruit_EyeLights_buffered *)parent;
+  uint8_t *ledbuf = eyelights->getBuffer();
+  _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+  for (uint8_t n = 0; n < 24 * 3; n += 3) {
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->bOffset])] = b;
+  }
+}
+
+void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
+    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
+    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
+    x = (x * 5 + y) * 3; // Starting index into the led table above
+    uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x + rOffset]);
+    if (bidx != 65535) {
+      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + gOffset]);
+      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + bOffset]);
+      setLEDPWM(ridx, r);
+      setLEDPWM(gidx, g);
+      setLEDPWM(bidx, b);
+    }
+  }
+}
+
+void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y,
+                                            uint16_t color) {
+  if ((x >= 0) && (x < width()) && (y >= 0) && (y < height())) {
+    _IS31_ROTATE_(x, y); // Handle GFX-style soft rotation
+    x = (x * 5 + y) * 3; // Base index into ledmap
+    uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x + rOffset]);
+    if (bidx != 65535) {
+      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + gOffset]);
+      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + bOffset]);
+      uint8_t *ledbuf = getBuffer();
+      _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
+      ledbuf[ridx] = r;
+      ledbuf[gidx] = g;
+      ledbuf[bidx] = b;
+    }
+  }
+}
+
+void Adafruit_EyeLights::scale(void) {
+  if (canvas) {
+    uint16_t *src = canvas->getBuffer();
+    // Outer x/y loops are column-major on purpose (less pointer math)
+    for (int x = 0; x < 18; x++) {
+      uint16_t *ptr = &src[x * 3]; // Entry along top scan line w/x offset
+      for (int y = 0; y < 5; y++) {
+        uint16_t rsum = 0, gsum = 0, bsum = 0;
+        // Inner x/y loops are row-major on purpose (less pointer math)
+        for (uint8_t yy = 0; yy < 3; yy++) {
+          for (uint8_t xx = 0; xx < 3; xx++) {
+            uint16_t rgb = ptr[xx];
+            rsum += rgb >> 11;         // Accumulate 5 bits red,
+            gsum += (rgb >> 5) & 0x3F; // 6 bits green,
+            bsum += rgb & 0x1F;        // 5 bits blue
+          }
+          ptr += canvas->width(); // Advance one scan line
+        }
+        uint16_t base = (x * 5 + y) * 3; // Offset into ledmap
+        uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[base + rOffset]);
+        if (bidx != 65535) {
+          uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[base + gOffset]);
+          uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[base + bOffset]);
+          setLEDPWM(ridx, pgm_read_byte(&gammaRB[rsum]));
+          setLEDPWM(gidx, pgm_read_byte(&gammaG[gsum]));
+          setLEDPWM(bidx, pgm_read_byte(&gammaRB[bsum]));
+        }
+      }
+    }
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Scales associated canvas (if one was requested via constructor)
+            1:3 with antialiasing & gamma correction. No immediate effect
+            on LEDs; must follow up with show(). Note that this overwrites
+            ALL pixels within the matrix area, including those shared with
+            the rings. This is different than using normal drawing
+            operations directly to the low-resolution matrix, where these
+            ops are "transparent" and empty pixels don't overwrite the
+            rings.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_buffered::scale(void) {
+  if (canvas) {
+    uint16_t *src = canvas->getBuffer();
+    uint8_t *ledbuf = getBuffer();
+    // Outer x/y loops are column-major on purpose (less pointer math)
+    for (int x = 0; x < 18; x++) {
+      uint16_t *ptr = &src[x * 3]; // Entry along top scan line w/x offset
+      for (int y = 0; y < 5; y++) {
+        uint16_t rsum = 0, gsum = 0, bsum = 0;
+        // Inner x/y loops are row-major on purpose (less pointer math)
+        for (uint8_t yy = 0; yy < 3; yy++) {
+          for (uint8_t xx = 0; xx < 3; xx++) {
+            uint16_t rgb = ptr[xx];
+            rsum += rgb >> 11;         // Accumulate 5 bits red,
+            gsum += (rgb >> 5) & 0x3F; // 6 bits green,
+            bsum += rgb & 0x1F;        // 5 bits blue
+          }
+          ptr += canvas->width(); // Advance one scan line
+        }
+        uint16_t base = (x * 5 + y) * 3; // Offset into ledmap
+        uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[base + rOffset]);
+        if (bidx != 65535) {
+          uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[base + gOffset]);
+          uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[base + bOffset]);
+          ledbuf[ridx] = pgm_read_byte(&gammaRB[rsum]);
+          ledbuf[gidx] = pgm_read_byte(&gammaG[gsum]);
+          ledbuf[bidx] = pgm_read_byte(&gammaRB[bsum]);
+        }
+      }
+    }
+  }
+}
+
+
+// LED GLASSES (DIRECT) ----------------------------------------------------
+
+// This is olde style but kept around for backwards compatibility.
+// The Adafruit_EyeLights classes are simpler going forward.
+
+/**************************************************************************/
+/*!
+    @brief  Constructor for LED glasses (matrix portion, 18x5 LEDs)
+    @param  controller  Pointer to core object (underlying hardware).
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_GlassesMatrix::Adafruit_IS31FL3741_GlassesMatrix(
+    Adafruit_IS31FL3741 *controller)
+    : Adafruit_GFX(18, 5) {
+  _is31 = controller;
+}
+
+
+/**************************************************************************/
+/*!
+    @brief         Adafruit GFX low level accessor - sets an RGB pixel value,
+                   handles rotation and pixel arrangement, unlike setLEDPWM.
+    @param  x      The x position, starting with 0 for left-most side
+    @param  y      The y position, starting with 0 for top-most side
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_GlassesMatrix::drawPixel(int16_t x, int16_t y,
+                                                  uint16_t color) {
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
+    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
+    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
+
+    x = (x * 5 + y) * 3; // Starting index into the led table above
+    uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x]);
+    if (bidx != 65535) {
+      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + 1]);
+      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + 2]);
+      _is31->setLEDPWM(bidx, b);
+      _is31->setLEDPWM(ridx, r);
+      _is31->setLEDPWM(gidx, g);
+    }
+
+    /*
+    Serial.print("("); Serial.print(x);
+    Serial.print(", "); Serial.print(y);
+    Serial.print(") -> [");
+    Serial.print(ridx); Serial.print(", ");
+    Serial.print(gidx); Serial.print(", ");
+    Serial.print(bidx); Serial.println("]");
+    */
+  }
+}
+
 
 /**************************************************************************/
 /*!
@@ -1089,73 +1363,6 @@ void Adafruit_IS31FL3741_GlassesMatrix_buffered::drawPixel(int16_t x, int16_t y,
   }
 }
 
-// GFXcanvas16 is RGB565 color while the LEDs are RGB888, so during 1:3
-// downsampling we recover some intermediate shades and apply gamma
-// correction for better linearity. Tables are used to avoid floating-point
-// math. They appear large here but reside in flash, not too bad.
-// To regenerate tables (e.g. different gamma), in Python:
-// print(str([int((x / (31*9)) ** 2.4 * 255 + 0.5) for x in range(31*9+1)]))
-// Then edit braces and clang-format result. For green, use 63 instead of 31.
-// Red & blue table is 280 bytes, green table is 568 bytes. 848 total.
-static const uint8_t PROGMEM gammaRB[] = {
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   1,   1,   1,   1,   1,   1,   1,   1,   1,
-    1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,
-    3,   3,   4,   4,   4,   4,   4,   5,   5,   5,   5,   5,   6,   6,   6,
-    6,   7,   7,   7,   7,   8,   8,   8,   9,   9,   9,   10,  10,  10,  11,
-    11,  11,  12,  12,  12,  13,  13,  13,  14,  14,  15,  15,  16,  16,  16,
-    17,  17,  18,  18,  19,  19,  20,  20,  21,  21,  22,  22,  23,  23,  24,
-    24,  25,  26,  26,  27,  27,  28,  29,  29,  30,  30,  31,  32,  32,  33,
-    34,  34,  35,  36,  36,  37,  38,  39,  39,  40,  41,  42,  42,  43,  44,
-    45,  45,  46,  47,  48,  49,  50,  50,  51,  52,  53,  54,  55,  56,  57,
-    58,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  69,  70,  71,
-    72,  73,  74,  75,  77,  78,  79,  80,  81,  82,  83,  84,  86,  87,  88,
-    89,  90,  91,  93,  94,  95,  96,  98,  99,  100, 101, 103, 104, 105, 107,
-    108, 109, 111, 112, 113, 115, 116, 117, 119, 120, 122, 123, 125, 126, 127,
-    129, 130, 132, 133, 135, 136, 138, 140, 141, 143, 144, 146, 147, 149, 151,
-    152, 154, 155, 157, 159, 160, 162, 164, 165, 167, 169, 171, 172, 174, 176,
-    178, 179, 181, 183, 185, 187, 189, 190, 192, 194, 196, 198, 200, 202, 204,
-    205, 207, 209, 211, 213, 215, 217, 219, 221, 223, 225, 227, 229, 232, 234,
-    236, 238, 240, 242, 244, 246, 248, 251, 253, 255};
-static const uint8_t PROGMEM gammaG[] = {
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,
-    1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
-    1,   1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,
-    2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3,   3,   3,
-    3,   3,   3,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,
-    4,   5,   5,   5,   5,   5,   5,   5,   5,   5,   6,   6,   6,   6,   6,
-    6,   6,   6,   7,   7,   7,   7,   7,   7,   7,   7,   8,   8,   8,   8,
-    8,   8,   8,   9,   9,   9,   9,   9,   9,   10,  10,  10,  10,  10,  10,
-    10,  11,  11,  11,  11,  11,  12,  12,  12,  12,  12,  12,  13,  13,  13,
-    13,  13,  14,  14,  14,  14,  14,  15,  15,  15,  15,  15,  16,  16,  16,
-    16,  16,  17,  17,  17,  17,  18,  18,  18,  18,  18,  19,  19,  19,  19,
-    20,  20,  20,  20,  21,  21,  21,  21,  22,  22,  22,  22,  23,  23,  23,
-    24,  24,  24,  24,  25,  25,  25,  25,  26,  26,  26,  27,  27,  27,  27,
-    28,  28,  28,  29,  29,  29,  30,  30,  30,  30,  31,  31,  31,  32,  32,
-    32,  33,  33,  33,  34,  34,  34,  35,  35,  35,  36,  36,  36,  37,  37,
-    37,  38,  38,  39,  39,  39,  40,  40,  40,  41,  41,  41,  42,  42,  43,
-    43,  43,  44,  44,  45,  45,  45,  46,  46,  46,  47,  47,  48,  48,  49,
-    49,  49,  50,  50,  51,  51,  51,  52,  52,  53,  53,  54,  54,  54,  55,
-    55,  56,  56,  57,  57,  58,  58,  58,  59,  59,  60,  60,  61,  61,  62,
-    62,  63,  63,  64,  64,  65,  65,  66,  66,  67,  67,  68,  68,  69,  69,
-    70,  70,  71,  71,  72,  72,  73,  73,  74,  74,  75,  75,  76,  76,  77,
-    77,  78,  78,  79,  80,  80,  81,  81,  82,  82,  83,  83,  84,  85,  85,
-    86,  86,  87,  87,  88,  89,  89,  90,  90,  91,  92,  92,  93,  93,  94,
-    95,  95,  96,  96,  97,  98,  98,  99,  99,  100, 101, 101, 102, 103, 103,
-    104, 105, 105, 106, 106, 107, 108, 108, 109, 110, 110, 111, 112, 112, 113,
-    114, 114, 115, 116, 116, 117, 118, 118, 119, 120, 121, 121, 122, 123, 123,
-    124, 125, 126, 126, 127, 128, 128, 129, 130, 131, 131, 132, 133, 134, 134,
-    135, 136, 136, 137, 138, 139, 140, 140, 141, 142, 143, 143, 144, 145, 146,
-    146, 147, 148, 149, 150, 150, 151, 152, 153, 154, 154, 155, 156, 157, 158,
-    158, 159, 160, 161, 162, 163, 163, 164, 165, 166, 167, 168, 168, 169, 170,
-    171, 172, 173, 174, 174, 175, 176, 177, 178, 179, 180, 181, 181, 182, 183,
-    184, 185, 186, 187, 188, 189, 189, 190, 191, 192, 193, 194, 195, 196, 197,
-    198, 199, 200, 201, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211,
-    212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226,
-    227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241,
-    242, 243, 244, 245, 246, 248, 249, 250, 251, 252, 253, 254, 255};
 
 /**************************************************************************/
 /*!
@@ -1201,6 +1408,7 @@ void Adafruit_IS31FL3741_GlassesMatrix_buffered::scale(void) {
     }
   }
 }
+
 /**************************************************************************/
 /*!
     @brief  Constructor for buffered glasses LED ring. Not invoked by user
@@ -1289,127 +1497,3 @@ Adafruit_IS31FL3741_GlassesRightRing_buffered::
 
 
 
-
-
-// NEW EYELIGHTS CODE
-
-/**************************************************************************/
-/*!
-    @brief  Constructor for EyeLights LED ring. Not invoked by user code.
-    @param  parent   void* pointer to parent EyeLights object this is
-                     attached to (may be direct or buffered, hence void*
-                     rather than specific type).
-    @param  isRight  true if right ring, false if left.
-*/
-/**************************************************************************/
-Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(void *parent,
-                                                           bool isRight)
-    : parent(parent), ring_map(isRight ? right_ring_map : left_ring_map) {}
-
-/**************************************************************************/
-/*!
-    @brief  Set color of one pixel of one direct (unbuffered) EyeLights ring.
-    @param  n      Index of pixel to set (0-23).
-    @param  color  RGB888 (24-bit) color, a la NeoPixel.
-*/
-/**************************************************************************/
-void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
-  if ((n >= 0) && (n < 24)) {
-    Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
-    _IS31_SCALE_RGB_(color, r, g, b, _brightness);
-    n *= 3;
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->bOffset]), b);
-  }
-}
-
-/**************************************************************************/
-/*!
-    @brief Fill all pixels of one EyeLights ring to same color.
-    @param  color  RGB888 (24-bit) color, a la NeoPixel.
-*/
-/**************************************************************************/
-void Adafruit_EyeLights_Ring::fill(uint32_t color) {
-  Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
-  _IS31_SCALE_RGB_(color, r, g, b, _brightness);
-  for (uint8_t n = 0; n < 24 * 3; n += 3) {
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->bOffset]), b);
-  }
-}
-
-/**************************************************************************/
-/*!
-    @brief  Set color of one pixel of one buffered EyeLights ring.
-    @param  n      Index of pixel to set (0-23).
-    @param  color  RGB888 (24-bit) color, a la NeoPixel.
-*/
-/**************************************************************************/
-void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
-                                                     uint32_t color) {
-  if ((n >= 0) && (n < 24)) {
-    Adafruit_EyeLights_buffered *eyelights =
-      (Adafruit_EyeLights_buffered *)parent;
-    uint8_t *ledbuf = eyelights->getBuffer();
-    _IS31_SCALE_RGB_(color, r, g, b, _brightness);
-    n *= 3;
-    ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
-    ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
-    ledbuf[pgm_read_word(&ring_map[n + eyelights->bOffset])] = b;
-  }
-}
-
-/**************************************************************************/
-/*!
-    @brief  Fill all pixels of one EyeLights ring to same color.
-            No immediate effect on LEDs; must follow up with show().
-    @param  color  RGB888 (24-bit) color, a la NeoPixel.
-*/
-/**************************************************************************/
-void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
-  Adafruit_EyeLights_buffered *eyelights =
-    (Adafruit_EyeLights_buffered *)parent;
-  uint8_t *ledbuf = eyelights->getBuffer();
-  _IS31_SCALE_RGB_(color, r, g, b, _brightness);
-  for (uint8_t n = 0; n < 24 * 3; n += 3) {
-    ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
-    ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
-    ledbuf[pgm_read_word(&ring_map[n + eyelights->bOffset])] = b;
-  }
-}
-
-void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {
-  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
-    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
-    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
-    x = (x * 5 + y) * 3; // Starting index into the led table above
-    uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x + rOffset]);
-    if (bidx != 65535) {
-      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + gOffset]);
-      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + bOffset]);
-      setLEDPWM(ridx, r);
-      setLEDPWM(gidx, g);
-      setLEDPWM(bidx, b);
-    }
-  }
-}
-
-void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y,
-                                            uint16_t color) {
-  if ((x >= 0) && (x < width()) && (y >= 0) && (y < height())) {
-    _IS31_ROTATE_(x, y); // Handle GFX-style soft rotation
-    x = (x * 5 + y) * 3; // Base index into ledmap
-    uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x + rOffset]);
-    if (bidx != 65535) {
-      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + gOffset]);
-      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + bOffset]);
-      uint8_t *ledbuf = getBuffer();
-      _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
-      ledbuf[ridx] = r;
-      ledbuf[gidx] = g;
-      ledbuf[bidx] = b;
-    }
-  }
-}

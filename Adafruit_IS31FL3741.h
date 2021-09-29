@@ -329,13 +329,11 @@ public:
       canvas = new GFXcanvas16(18 * 3, 5 * 3);
   }
   ~Adafruit_EyeLights_Base() { delete canvas; }
-  void scale();
   /*!
     @brief    Get pointer to GFX canvas for smooth drawing.
     @returns  GFXcanvas16*  Pointer to GFXcanvas16 object, or NULL.
   */
   GFXcanvas16 *getCanvas(void) const { return canvas; }
-
 protected:
   GFXcanvas16 *canvas = NULL; ///< Pointer to GFX canvas
 };
@@ -353,6 +351,7 @@ public:
         Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(this, false),
         right_ring(this, true) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
+  void scale();
   Adafruit_EyeLights_Ring left_ring;
   Adafruit_EyeLights_Ring right_ring;
 };
@@ -372,12 +371,13 @@ public:
         Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order),
         left_ring(this, false), right_ring(this, true) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
+  void scale();
   Adafruit_EyeLights_Ring_buffered left_ring;
   Adafruit_EyeLights_Ring_buffered right_ring;
 };
 
 /* =======================================================================
-   This is the older (maybe deprecated) way of using Adafruit EyeLights.
+   This is the older (likely deprecated) way of using Adafruit EyeLights.
    It requires a few extra steps of the user for object declarations, and
    doesn't handle different RGB color orders.
    =======================================================================*/
@@ -385,6 +385,8 @@ public:
 /**************************************************************************/
 /*!
     @brief  Class for Adafruit LED Glasses (matrix portion).
+    @note   This class is deprecated but provided for compatibility.
+            New code should use the Adafruit_EyeLights classes.
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesMatrix : public Adafruit_GFX {
@@ -401,6 +403,8 @@ protected:
     @brief  Class for Adafruit LED Glasses (ring portion). Not used by user
             code directly, the left and right classes below create distinct
             subclasses for that.
+    @note   This class is deprecated but provided for compatibility.
+            New code should use the Adafruit_EyeLights classes.
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesRing {
@@ -432,6 +436,8 @@ protected:
 /**************************************************************************/
 /*!
     @brief  Class for Adafruit LED Glasses (left ring).
+    @note   This class is deprecated but provided for compatibility.
+            New code should use the Adafruit_EyeLights classes.
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesLeftRing
@@ -443,6 +449,8 @@ public:
 /**************************************************************************/
 /*!
     @brief  Class for Adafruit LED Glasses (right ring).
+    @note   This class is deprecated but provided for compatibility.
+            New code should use the Adafruit_EyeLights classes.
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesRightRing
@@ -456,6 +464,8 @@ public:
     @brief  Class for Adafruit LED Glasses (matrix portion) with LED data
             being buffered on the microcontroller and sent only when show()
             is called.
+    @note   This class is deprecated but provided for compatibility.
+            New code should use the Adafruit_EyeLights classes.
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesMatrix_buffered : public Adafruit_GFX {
@@ -481,6 +491,8 @@ protected:
             being buffered on the microcontroller and sent only when show()
             is called. Not used by user code directly, the left and right
             classes below create distinct subclasses for that.
+    @note   This class is deprecated but provided for compatibility.
+            New code should use the Adafruit_EyeLights classes.
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesRing_buffered {
@@ -514,6 +526,8 @@ protected:
     @brief  Class for Lumissil IS31FL3741 Glasses (left ring) with LED
             data being buffered on the microcontroller and sent only when
             show() is called.
+    @note   This class is deprecated but provided for compatibility.
+            New code should use the Adafruit_EyeLights classes.
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesLeftRing_buffered
@@ -528,6 +542,8 @@ public:
     @brief  Class for Adafruit LED Glasses (right ring) with LED data being
             buffered on the microcontroller and sent only when show() is
             called.
+    @note   This class is deprecated but provided for compatibility.
+            New code should use the Adafruit_EyeLights classes.
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesRightRing_buffered
