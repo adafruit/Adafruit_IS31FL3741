@@ -39,7 +39,7 @@
 class Adafruit_IS31FL3741 {
 public:
   /*!
-    @brief Constructor for IS31FL3741 LED driver.
+    @brief  Constructor for IS31FL3741 LED driver.
   */
   Adafruit_IS31FL3741() {}
   bool begin(uint8_t addr = IS3741_ADDR_DEFAULT, TwoWire *theWire = &Wire);
@@ -78,7 +78,7 @@ public:
   */
   static uint16_t color565(uint8_t red, uint8_t green, uint8_t blue) {
     return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
-  };
+  }
 
   /*!
     @brief    Converter for RGB888-format color (packed) to RGB565-format.
@@ -89,7 +89,7 @@ public:
   static uint16_t color565(uint32_t color) {
     return ((color >> 8) & 0xF800) | ((color >> 5) & 0x07E0) |
            ((color >> 3) & 0x001F);
-  };
+  }
 
   static uint32_t ColorHSV(uint16_t hue, uint8_t sat = 255, uint8_t val = 255);
 
@@ -121,7 +121,7 @@ public:
     @brief    Return address of LED buffer.
     @returns  uint8_t*  Pointer to first LED position in buffer.
   */
-  uint8_t *getBuffer(void) { return &ledbuf[1]; }; // See notes in show()
+  uint8_t *getBuffer(void) { return &ledbuf[1]; } // See notes in show()
 protected:
   uint8_t ledbuf[352]; ///< LEDs in RAM. +1 byte is intentional, see show()
 };
@@ -144,10 +144,9 @@ public:
   Adafruit_IS31FL3741_ColorOrder(uint8_t order)
       : rOffset((order >> 4) & 3), gOffset((order >> 2) & 3),
         bOffset(order & 3) {}
-protected:
-  uint8_t rOffset;
-  uint8_t gOffset;
-  uint8_t bOffset;
+  uint8_t rOffset; ///< Index of red element within RGB triplet
+  uint8_t gOffset; ///< Index of green element within RGB triplet
+  uint8_t bOffset; ///< Index of blue element within RGB triplet
 };
 
 /**************************************************************************/
@@ -201,7 +200,8 @@ public:
    varieties. These "complete" items are then instantiated in user code.
    There are two of each -- a direct (unbuffered) and buffered version.
    It's done this way (rather than a single class with a buffer flag) to
-   avoid malloc() -- object & buffer just go on heap or stack as needed.
+   avoid dynamic allocation -- object & buffer just go on heap or stack
+   as needed (the optional canvas in glasses is an exception).
    =======================================================================*/
 
 /**************************************************************************/
@@ -254,27 +254,22 @@ public:
 
 /* =======================================================================
    This is the newer and simpler way (to the user) of using Adafruit
-   EyeLights LED glasses. Declaring an object (direct or buffered) gets
-   you the matrix and rings automatically; no need to instantiate as
-   separate objects, nor does one need to explicitly declare a base
-   Adafruit_IS31FL3741 object. Internally the code has a few more layers
-   but the user doesn't need to see that.
+   EyeLights LED glasses. Declaring an EyeLights object (direct or
+   buffered) gets you the matrix and rings automatically; no need to
+   instantiate as separate objects, nor does one need to explicitly
+   declare a base Adafruit_IS31FL3741 object and pass it in. Internally
+   the code has a few more layers but the user doesn't need to see that.
    =======================================================================*/
 
 /**************************************************************************/
 /*!
     @brief  Base class for EyeLights LED ring. Holds a few items that are
             common to direct or buffered instances, left or right ring.
-    @note   This inherits from ColorOrder because the ring color-setting
-            functions require R/G/B order knowledge, but that information
-            is over in a sibling class...so, a duplicate copy resides here,
-            initialized alongside the sibling. Maybe that's kludgey, but
-            eh, it's 3 bytes, even a pointer-to-other-object is bigger.
 */
 /**************************************************************************/
 class Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring_Base(void *ptr, bool isRight);
+  Adafruit_EyeLights_Ring_Base(void *parent, bool isRight);
   /*!
     @brief    Return number of LEDs in ring (a la NeoPixel)
     @returns  int  Always 24.
@@ -291,8 +286,8 @@ public:
 
 protected:
   uint16_t _brightness = 256; ///< Internally 1-256 for math
-  void *parent;               ///< Pointer to EyeLights (or buffered) object
-  const uint16_t *ring_map;   ///< Pointer to lookup table
+  void *parent;               ///< Pointer back to EyeLights object
+  const uint16_t *ring_map;   ///< Pointer to LED index lookup table
 };
 
 /**************************************************************************/
@@ -302,8 +297,8 @@ protected:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring : public Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring(void *ptr, bool isRight)
-      : Adafruit_EyeLights_Ring_Base(ptr, isRight) {}
+  Adafruit_EyeLights_Ring(void *parent, bool isRight)
+      : Adafruit_EyeLights_Ring_Base(parent, isRight) {}
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
 };
@@ -315,8 +310,8 @@ public:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring_buffered : public Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring_buffered(void *ptr, bool isRight)
-      : Adafruit_EyeLights_Ring_Base(ptr, isRight) {}
+  Adafruit_EyeLights_Ring_buffered(void *parent, bool isRight)
+      : Adafruit_EyeLights_Ring_Base(parent, isRight) {}
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
 };
@@ -329,14 +324,17 @@ public:
 /**************************************************************************/
 class Adafruit_EyeLights_Base {
 public:
-  Adafruit_EyeLights_Base(bool withCanvas);
-  ~Adafruit_EyeLights_Base();
+  Adafruit_EyeLights_Base(bool withCanvas) {
+    if (withCanvas)
+      canvas = new GFXcanvas16(18 * 3, 5 * 3);
+  }
+  ~Adafruit_EyeLights_Base() { delete canvas; }
   void scale();
   /*!
     @brief    Get pointer to GFX canvas for smooth drawing.
     @returns  GFXcanvas16*  Pointer to GFXcanvas16 object, or NULL.
   */
-  GFXcanvas16 *getCanvas(void) const { return canvas; };
+  GFXcanvas16 *getCanvas(void) const { return canvas; }
 
 protected:
   GFXcanvas16 *canvas = NULL; ///< Pointer to GFX canvas
@@ -350,7 +348,10 @@ protected:
 class Adafruit_EyeLights : public Adafruit_EyeLights_Base,
                            public Adafruit_IS31FL3741_colorGFX {
 public:
-  Adafruit_EyeLights(bool withCanvas = false, uint8_t order = IS3741_RGB);
+  Adafruit_EyeLights(bool withCanvas = false, uint8_t order = IS3741_RGB)
+      : Adafruit_EyeLights_Base(withCanvas),
+        Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(this, false),
+        right_ring(this, true) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   Adafruit_EyeLights_Ring left_ring;
   Adafruit_EyeLights_Ring right_ring;
@@ -366,14 +367,17 @@ class Adafruit_EyeLights_buffered
       public Adafruit_IS31FL3741_colorGFX_buffered {
 public:
   Adafruit_EyeLights_buffered(bool withCanvas = false,
-                              uint8_t order = IS3741_RGB);
+                              uint8_t order = IS3741_RGB)
+      : Adafruit_EyeLights_Base(withCanvas),
+        Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order),
+        left_ring(this, false), right_ring(this, true) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   Adafruit_EyeLights_Ring_buffered left_ring;
   Adafruit_EyeLights_Ring_buffered right_ring;
 };
 
 /* =======================================================================
-   This is the older and maybe deprecated way of using Adafruit EyeLights.
+   This is the older (maybe deprecated) way of using Adafruit EyeLights.
    It requires a few extra steps of the user for object declarations, and
    doesn't handle different RGB color orders.
    =======================================================================*/
@@ -438,7 +442,7 @@ public:
 
 /**************************************************************************/
 /*!
-    @brief Class for Adafruit LED Glasses (right ring).
+    @brief  Class for Adafruit LED Glasses (right ring).
 */
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesRightRing
@@ -464,7 +468,7 @@ public:
     @brief    Get pointer to GFX canvas for smooth drawing.
     @returns  GFXcanvas16*  Pointer to GFXcanvas16 object, or NULL.
   */
-  GFXcanvas16 *getCanvas(void) const { return canvas; };
+  GFXcanvas16 *getCanvas(void) const { return canvas; }
 
 protected:
   Adafruit_IS31FL3741_buffered *_is31; ///< Pointer to core object

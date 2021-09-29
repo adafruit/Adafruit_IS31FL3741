@@ -535,9 +535,9 @@ Adafruit_IS31FL3741_EVB::Adafruit_IS31FL3741_EVB(uint8_t order)
 /*!
     @brief  Adafruit GFX low level accessor - sets an RGB pixel value,
             handles rotation and pixel arrangement.
-    @param  x    The x position, starting with 0 for left-most side
-    @param  y    The y position, starting with 0 for top-most side
-    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+    @param  x      The x position, starting with 0 for left-most side
+    @param  y      The y position, starting with 0 for top-most side
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
@@ -565,7 +565,6 @@ void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
 /*!
     @brief  Constructor for Lumissil IS31FL3741 "official" evaluation board,
             13x9 pixels, buffered.
-
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_EVB_buffered::Adafruit_IS31FL3741_EVB_buffered(
@@ -576,9 +575,9 @@ Adafruit_IS31FL3741_EVB_buffered::Adafruit_IS31FL3741_EVB_buffered(
 /*!
     @brief  Adafruit GFX low level accessor - sets an RGB pixel value,
             handles rotation and pixel arrangement.
-    @param  x    The x position, starting with 0 for left-most side
-    @param  y    The y position, starting with 0 for top-most side
-    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+    @param  x      The x position, starting with 0 for left-most side
+    @param  y      The y position, starting with 0 for top-most side
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_EVB_buffered::drawPixel(int16_t x, int16_t y,
@@ -617,9 +616,9 @@ Adafruit_IS31FL3741_QT::Adafruit_IS31FL3741_QT(uint8_t order)
 /*!
     @brief  Adafruit GFX low level accessor - sets an RGB pixel value,
             handles rotation and pixel arrangement.
-    @param  x     The x position, starting with 0 for left-most side.
-    @param  y     The y position, starting with 0 for top-most side.
-    @param  color 16-bit RGB565 packed color (expands to 888 for LEDs).
+    @param  x      The x position, starting with 0 for left-most side.
+    @param  y      The y position, starting with 0 for top-most side.
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
@@ -680,7 +679,7 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 /**************************************************************************/
 /*!
-    @brief Constructor for STEMMA QT version (13 x 9 LEDs), buffered.
+    @brief  Constructor for STEMMA QT version (13 x 9 LEDs), buffered.
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_QT_buffered::Adafruit_IS31FL3741_QT_buffered(uint8_t order)
@@ -688,11 +687,11 @@ Adafruit_IS31FL3741_QT_buffered::Adafruit_IS31FL3741_QT_buffered(uint8_t order)
 
 /**************************************************************************/
 /*!
-    @brief Adafruit GFX low level accessor - sets an RGB pixel value,
-           handles rotation and pixel arrangement, unlike setLEDPWM.
-    @param x The x position, starting with 0 for left-most side
-    @param y The y position, starting with 0 for top-most side
-    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+    @brief         Adafruit GFX low level accessor - sets an RGB pixel value,
+                   handles rotation and pixel arrangement, unlike setLEDPWM.
+    @param  x      The x position, starting with 0 for left-most side
+    @param  y      The y position, starting with 0 for top-most side
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
@@ -759,7 +758,7 @@ void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
 
 /**************************************************************************/
 /*!
-    @brief Constructor for LED glasses (matrix portion, 18x5 LEDs)
+    @brief  Constructor for LED glasses (matrix portion, 18x5 LEDs)
     @param  controller  Pointer to core object (underlying hardware).
 */
 /**************************************************************************/
@@ -866,11 +865,11 @@ static const uint16_t PROGMEM glassesmatrix_ledmap[18 * 5 * 3] = {
 
 /**************************************************************************/
 /*!
-    @brief Adafruit GFX low level accessor - sets an RGB pixel value,
-           handles rotation and pixel arrangement, unlike setLEDPWM.
-    @param x The x position, starting with 0 for left-most side
-    @param y The y position, starting with 0 for top-most side
-    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+    @brief         Adafruit GFX low level accessor - sets an RGB pixel value,
+                   handles rotation and pixel arrangement, unlike setLEDPWM.
+    @param  x      The x position, starting with 0 for left-most side
+    @param  y      The y position, starting with 0 for top-most side
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_GlassesMatrix::drawPixel(int16_t x, int16_t y,
@@ -958,10 +957,10 @@ static const uint16_t PROGMEM right_ring_map[24 * 3] = {
 
 /**************************************************************************/
 /*!
-    @brief Constructor for glasses LED ring. Not invoked by user code;
-           use one of the subsequent subclasses for that.
-    @param controller  Pointer to Adafruit_IS31FL3741 object.
-    @param isRight     true if right ring, false if left.
+    @brief  Constructor for glasses LED ring. Not invoked by user code;
+            use one of the subsequent subclasses for that.
+    @param  controller  Pointer to Adafruit_IS31FL3741 object.
+    @param  isRight     true if right ring, false if left.
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_GlassesRing::Adafruit_IS31FL3741_GlassesRing(
@@ -972,7 +971,7 @@ Adafruit_IS31FL3741_GlassesRing::Adafruit_IS31FL3741_GlassesRing(
 
 /**************************************************************************/
 /*!
-    @brief Set color of one pixel of one glasses ring.
+    @brief  Set color of one pixel of one glasses ring.
     @param  n      Index of pixel to set (0-23).
     @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
@@ -993,7 +992,7 @@ void Adafruit_IS31FL3741_GlassesRing::setPixelColor(int16_t n, uint32_t color) {
 /**************************************************************************/
 /*!
     @brief Fill all pixels of one glasses ring to same color.
-    @param color  RGB888 (24-bit) color, a la NeoPixel.
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_GlassesRing::fill(uint32_t color) {
@@ -1011,8 +1010,8 @@ void Adafruit_IS31FL3741_GlassesRing::fill(uint32_t color) {
 
 /**************************************************************************/
 /*!
-    @brief Constructor for glasses left LED ring.
-    @param controller  Pointer to Adafruit_IS31FL3741 object.
+    @brief  Constructor for glasses left LED ring.
+    @param  controller  Pointer to Adafruit_IS31FL3741 object.
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_GlassesLeftRing::Adafruit_IS31FL3741_GlassesLeftRing(
@@ -1021,8 +1020,8 @@ Adafruit_IS31FL3741_GlassesLeftRing::Adafruit_IS31FL3741_GlassesLeftRing(
 
 /**************************************************************************/
 /*!
-    @brief Constructor for glasses right LED ring.
-    @param controller  Pointer to Adafruit_IS31FL3741 object.
+    @brief  Constructor for glasses right LED ring.
+    @param  controller  Pointer to Adafruit_IS31FL3741 object.
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_GlassesRightRing::Adafruit_IS31FL3741_GlassesRightRing(
@@ -1033,7 +1032,7 @@ Adafruit_IS31FL3741_GlassesRightRing::Adafruit_IS31FL3741_GlassesRightRing(
 
 /**************************************************************************/
 /*!
-    @brief Constructor for buffered LED glasses (matrix portion, 18x5 LEDs)
+    @brief  Constructor for buffered LED glasses (matrix portion, 18x5 LEDs)
     @param  controller  Pointer to Adafruit_IS31FL3741_buffered object.
     @param  withCanvas  If true, allocate an additional GFXcanvas16 object
                         that's 3X the size of the LED matrix -- using the
@@ -1057,9 +1056,9 @@ Adafruit_IS31FL3741_GlassesMatrix_buffered::
     @brief  Adafruit GFX low level accessor for buffered glasses matrix -
             sets an RGB pixel value, handles rotation and pixel arrangement.
             No immediate effect on LEDs; must follow up with show().
-    @param x     X position, starting with 0 for left-most side
-    @param y     Y position, starting with 0 for top-most side
-    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+    @param  x      X position, starting with 0 for left-most side
+    @param  y      Y position, starting with 0 for top-most side
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_GlassesMatrix_buffered::drawPixel(int16_t x, int16_t y,
@@ -1195,10 +1194,10 @@ void Adafruit_IS31FL3741_GlassesMatrix_buffered::scale(void) {
 }
 /**************************************************************************/
 /*!
-    @brief Constructor for buffered glasses LED ring. Not invoked by user
-           code; use one of the subsequent subclasses for that.
-    @param controller  Pointer to Adafruit_IS31FL3741 object.
-    @param isRight     true if right ring, false if left.
+    @brief  Constructor for buffered glasses LED ring. Not invoked by user
+            code; use one of the subsequent subclasses for that.
+    @param  controller  Pointer to Adafruit_IS31FL3741 object.
+    @param  isRight     true if right ring, false if left.
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_GlassesRing_buffered::
@@ -1210,8 +1209,8 @@ Adafruit_IS31FL3741_GlassesRing_buffered::
 
 /**************************************************************************/
 /*!
-    @brief Set color of one pixel of one buffered glasses ring.
-           No immediate effect on LEDs; must follow up with show().
+    @brief  Set color of one pixel of one buffered glasses ring.
+            No immediate effect on LEDs; must follow up with show().
     @param  n      Index of pixel to set (0-23).
     @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
@@ -1237,9 +1236,9 @@ void Adafruit_IS31FL3741_GlassesRing_buffered::setPixelColor(int16_t n,
 
 /**************************************************************************/
 /*!
-    @brief Fill all pixels of one glasses ring to same color.
-           No immediate effect on LEDs; must follow up with show().
-    @param color  RGB888 (24-bit) color, a la NeoPixel.
+    @brief  Fill all pixels of one glasses ring to same color.
+            No immediate effect on LEDs; must follow up with show().
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_GlassesRing_buffered::fill(uint32_t color) {
@@ -1258,8 +1257,8 @@ void Adafruit_IS31FL3741_GlassesRing_buffered::fill(uint32_t color) {
 
 /**************************************************************************/
 /*!
-    @brief Constructor for buffered glasses left LED ring.
-    @param controller  Pointer to Adafruit_IS31FL3741_buffered object.
+    @brief  Constructor for buffered glasses left LED ring.
+    @param  controller  Pointer to Adafruit_IS31FL3741_buffered object.
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_GlassesLeftRing_buffered::
@@ -1269,8 +1268,8 @@ Adafruit_IS31FL3741_GlassesLeftRing_buffered::
 
 /**************************************************************************/
 /*!
-    @brief Constructor for buffered glasses right LED ring.
-    @param controller  Pointer to Adafruit_IS31FL3741_buffered object.
+    @brief  Constructor for buffered glasses right LED ring.
+    @param  controller  Pointer to Adafruit_IS31FL3741_buffered object.
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_GlassesRightRing_buffered::
@@ -1278,27 +1277,24 @@ Adafruit_IS31FL3741_GlassesRightRing_buffered::
         Adafruit_IS31FL3741_buffered *controller)
     : Adafruit_IS31FL3741_GlassesRing_buffered(controller, true) {}
 
-
-
-
-
-
 // NEW EYELIGHTS CODE
 
 /**************************************************************************/
 /*!
     @brief  Constructor for EyeLights LED ring. Not invoked by user code.
+    @param  parent   void* pointer to parent EyeLights object this is
+                     attached to (may be direct or buffered, hence void*
+                     rather than specific type).
     @param  isRight  true if right ring, false if left.
-    @param  ptr      void* pointer to EyeLights object this is attached to.
 */
 /**************************************************************************/
-Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(void *ptr,
+Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(void *parent,
                                                            bool isRight)
-    : parent(ptr), ring_map(isRight ? right_ring_map : left_ring_map) {}
+    : parent(parent), ring_map(isRight ? right_ring_map : left_ring_map) {}
 
 /**************************************************************************/
 /*!
-    @brief  Set color of one pixel of one direct (unbuffered) glasses ring.
+    @brief  Set color of one pixel of one direct (unbuffered) EyeLights ring.
     @param  n      Index of pixel to set (0-23).
     @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
@@ -1310,46 +1306,31 @@ void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
     g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
     b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
     n *= 3;
-    Adafruit_EyeLights *is31 = (Adafruit_EyeLights *)parent;
-    is31->setLEDPWM(pgm_read_word(&ring_map[n]), b);
-    is31->setLEDPWM(pgm_read_word(&ring_map[n + 1]), r);
-    is31->setLEDPWM(pgm_read_word(&ring_map[n + 2]), g);
+    Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n]), b);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + 1]), r);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + 2]), g);
   }
 }
 
-
-
-
-
-void Adafruit_EyeLights_Ring::fill(uint32_t color) {}
+void Adafruit_EyeLights_Ring::fill(uint32_t color) {
+  // TO DO
+}
 
 void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
-                                                     uint32_t color) {}
-
-void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {}
-
-Adafruit_EyeLights_Base::Adafruit_EyeLights_Base(bool withCanvas) {
-  if (withCanvas) {
-    canvas = new GFXcanvas16(18 * 3, 5 * 3); // 3X size canvas
-  }
+                                                     uint32_t color) {
+  // TO DO
 }
 
-Adafruit_EyeLights_Base::~Adafruit_EyeLights_Base() {
-  delete canvas;
+void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
+  // TO DO
 }
 
-Adafruit_EyeLights::Adafruit_EyeLights(bool withCanvas, uint8_t order)
-    : Adafruit_EyeLights_Base(withCanvas),
-      Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(this, false),
-      right_ring(this, true) {}
-
-void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {}
-
-Adafruit_EyeLights_buffered::Adafruit_EyeLights_buffered(bool withCanvas,
-                                                         uint8_t order)
-    : Adafruit_EyeLights_Base(withCanvas),
-      Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order),
-      left_ring(this, false), right_ring(this, true) {}
+void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {
+  // TO DO
+}
 
 void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y,
-                                            uint16_t color) {}
+                                            uint16_t color) {
+  // TO DO
+}
