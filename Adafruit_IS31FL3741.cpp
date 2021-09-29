@@ -1315,15 +1315,12 @@ Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(void *parent,
 /**************************************************************************/
 void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
   if ((n >= 0) && (n < 24)) {
-    uint8_t r, g, b;
-    r = (((uint16_t)((color >> 16) & 0xFF)) * _brightness) >> 8;
-    g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
-    b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
-    n *= 3;
     Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n]), b);
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + 1]), r);
-    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + 2]), g);
+    _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+    n *= 3;
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->bOffset]), b);
   }
 }
 
@@ -1334,7 +1331,13 @@ void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
 */
 /**************************************************************************/
 void Adafruit_EyeLights_Ring::fill(uint32_t color) {
-  // TO DO
+  Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
+  _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+  for (uint8_t n = 0; n < 24 * 3; n += 3) {
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->bOffset]), b);
+  }
 }
 
 /**************************************************************************/
@@ -1346,7 +1349,16 @@ void Adafruit_EyeLights_Ring::fill(uint32_t color) {
 /**************************************************************************/
 void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
                                                      uint32_t color) {
-  // TO DO
+  if ((n >= 0) && (n < 24)) {
+    Adafruit_EyeLights_buffered *eyelights =
+      (Adafruit_EyeLights_buffered *)parent;
+    uint8_t *ledbuf = eyelights->getBuffer();
+    _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+    n *= 3;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->bOffset])] = b;
+  }
 }
 
 /**************************************************************************/
@@ -1357,10 +1369,10 @@ void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
 */
 /**************************************************************************/
 void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
-  _IS31_SCALE_RGB_(color, r, g, b, _brightness);
   Adafruit_EyeLights_buffered *eyelights =
     (Adafruit_EyeLights_buffered *)parent;
   uint8_t *ledbuf = eyelights->getBuffer();
+  _IS31_SCALE_RGB_(color, r, g, b, _brightness);
   for (uint8_t n = 0; n < 24 * 3; n += 3) {
     ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
     ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
@@ -1369,10 +1381,35 @@ void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
 }
 
 void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {
-  // TO DO
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
+    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
+    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
+    x = (x * 5 + y) * 3; // Starting index into the led table above
+    uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x + rOffset]);
+    if (bidx != 65535) {
+      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + gOffset]);
+      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + bOffset]);
+      setLEDPWM(ridx, r);
+      setLEDPWM(gidx, g);
+      setLEDPWM(bidx, b);
+    }
+  }
 }
 
 void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y,
                                             uint16_t color) {
-  // TO DO
+  if ((x >= 0) && (x < width()) && (y >= 0) && (y < height())) {
+    _IS31_ROTATE_(x, y); // Handle GFX-style soft rotation
+    x = (x * 5 + y) * 3; // Base index into ledmap
+    uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x + rOffset]);
+    if (bidx != 65535) {
+      uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + gOffset]);
+      uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + bOffset]);
+      uint8_t *ledbuf = getBuffer();
+      _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
+      ledbuf[ridx] = r;
+      ledbuf[gidx] = g;
+      ledbuf[bidx] = b;
+    }
+  }
 }
