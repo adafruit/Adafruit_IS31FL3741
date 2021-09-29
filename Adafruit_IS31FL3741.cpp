@@ -1,10 +1,3 @@
-
-/*
-Create a new class, Adafruit_EyeLights, that incorporates the matrix+rings
-in a single one-time initialized thing, rather than separate objects for
-the subparts.
-*/
-
 #include <Adafruit_IS31FL3741.h>
 
 // GFX drawPixel() for various classes are all doing certain things
@@ -1285,21 +1278,48 @@ Adafruit_IS31FL3741_GlassesRightRing_buffered::
         Adafruit_IS31FL3741_buffered *controller)
     : Adafruit_IS31FL3741_GlassesRing_buffered(controller, true) {}
 
+
+
+
+
+
 // NEW EYELIGHTS CODE
 
 /**************************************************************************/
 /*!
     @brief  Constructor for EyeLights LED ring. Not invoked by user code.
     @param  isRight  true if right ring, false if left.
-    @param  order    RGB color order, one of the IS3741_* color defines.
+    @param  ptr      void* pointer to EyeLights object this is attached to.
 */
 /**************************************************************************/
 Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(bool isRight,
-                                                           uint8_t order)
-    : Adafruit_IS31FL3741_ColorOrder(order),
-      ring_map(isRight ? right_ring_map : left_ring_map) {}
+                                                           void *ptr)
+    : ring_map(isRight ? right_ring_map : left_ring_map), spex(ptr) {}
 
-void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {}
+/**************************************************************************/
+/*!
+    @brief  Set color of one pixel of one direct (unbuffered) glasses ring.
+    @param  n      Index of pixel to set (0-23).
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
+  if ((n >= 0) && (n < 24)) {
+    uint8_t r, g, b;
+    r = (((uint16_t)((color >> 16) & 0xFF)) * _brightness) >> 8;
+    g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
+    b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
+    n *= 3;
+    Adafruit_IS31FL3741 *foo = (Adafruit_IS31FL3741 *)spex;
+    foo->setLEDPWM(pgm_read_word(&ring_map[n]), b);
+    foo->setLEDPWM(pgm_read_word(&ring_map[n + 1]), r);
+    foo->setLEDPWM(pgm_read_word(&ring_map[n + 2]), g);
+  }
+}
+
+
+
+
 
 void Adafruit_EyeLights_Ring::fill(uint32_t color) {}
 
@@ -1308,12 +1328,20 @@ void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
 
 void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {}
 
-Adafruit_EyeLights_Base::Adafruit_EyeLights_Base(bool withCanvas) {}
+Adafruit_EyeLights_Base::Adafruit_EyeLights_Base(bool withCanvas) {
+  if (withCanvas) {
+    canvas = new GFXcanvas16(18 * 3, 5 * 3); // 3X size canvas
+  }
+}
+
+Adafruit_EyeLights_Base::~Adafruit_EyeLights_Base() {
+  delete canvas;
+}
 
 Adafruit_EyeLights::Adafruit_EyeLights(bool withCanvas, uint8_t order)
     : Adafruit_EyeLights_Base(withCanvas),
-      Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(false, order),
-      right_ring(true, order) {}
+      Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(false, this),
+      right_ring(true, this) {}
 
 void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {}
 
@@ -1321,7 +1349,7 @@ Adafruit_EyeLights_buffered::Adafruit_EyeLights_buffered(bool withCanvas,
                                                          uint8_t order)
     : Adafruit_EyeLights_Base(withCanvas),
       Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order),
-      left_ring(false, order), right_ring(true, order) {}
+      left_ring(false, this), right_ring(true, this) {}
 
 void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y,
                                             uint16_t color) {}

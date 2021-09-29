@@ -144,7 +144,6 @@ public:
   Adafruit_IS31FL3741_ColorOrder(uint8_t order)
       : rOffset((order >> 4) & 3), gOffset((order >> 2) & 3),
         bOffset(order & 3) {}
-
 protected:
   uint8_t rOffset;
   uint8_t gOffset;
@@ -273,9 +272,9 @@ public:
             eh, it's 3 bytes, even a pointer-to-other-object is bigger.
 */
 /**************************************************************************/
-class Adafruit_EyeLights_Ring_Base : public Adafruit_IS31FL3741_ColorOrder {
+class Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring_Base(bool isRight, uint8_t order);
+  Adafruit_EyeLights_Ring_Base(bool isRight, void *ptr);
   /*!
     @brief    Return number of LEDs in ring (a la NeoPixel)
     @returns  int  Always 24.
@@ -293,6 +292,7 @@ public:
 protected:
   uint16_t _brightness = 256; ///< Internally 1-256 for math
   const uint16_t *ring_map;   ///< Pointer to lookup table
+  void *spex;                 ///< Pointer to glasses object
 };
 
 /**************************************************************************/
@@ -302,8 +302,8 @@ protected:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring : public Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring(bool isRight, uint8_t order)
-      : Adafruit_EyeLights_Ring_Base(isRight, order) {}
+  Adafruit_EyeLights_Ring(bool isRight, void *ptr)
+      : Adafruit_EyeLights_Ring_Base(isRight, ptr) {}
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
 };
@@ -315,8 +315,8 @@ public:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring_buffered : public Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring_buffered(bool isRight, uint8_t order)
-      : Adafruit_EyeLights_Ring_Base(isRight, order) {}
+  Adafruit_EyeLights_Ring_buffered(bool isRight, void *ptr)
+      : Adafruit_EyeLights_Ring_Base(isRight, ptr) {}
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
 };
@@ -330,6 +330,7 @@ public:
 class Adafruit_EyeLights_Base {
 public:
   Adafruit_EyeLights_Base(bool withCanvas);
+  ~Adafruit_EyeLights_Base();
   void scale();
   /*!
     @brief    Get pointer to GFX canvas for smooth drawing.
@@ -353,8 +354,6 @@ public:
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   Adafruit_EyeLights_Ring left_ring;
   Adafruit_EyeLights_Ring right_ring;
-
-protected:
 };
 
 /**************************************************************************/
