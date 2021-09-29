@@ -981,7 +981,6 @@ static const uint8_t PROGMEM gammaG[] = {
     227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241,
     242, 243, 244, 245, 246, 248, 249, 250, 251, 252, 253, 254, 255};
 
-
 // NEW EYELIGHTS CODE ----
 
 /**************************************************************************/
@@ -1042,7 +1041,7 @@ void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
                                                      uint32_t color) {
   if ((n >= 0) && (n < 24)) {
     Adafruit_EyeLights_buffered *eyelights =
-      (Adafruit_EyeLights_buffered *)parent;
+        (Adafruit_EyeLights_buffered *)parent;
     uint8_t *ledbuf = eyelights->getBuffer();
     _IS31_SCALE_RGB_(color, r, g, b, _brightness);
     n *= 3;
@@ -1061,7 +1060,7 @@ void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
 /**************************************************************************/
 void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
   Adafruit_EyeLights_buffered *eyelights =
-    (Adafruit_EyeLights_buffered *)parent;
+      (Adafruit_EyeLights_buffered *)parent;
   uint8_t *ledbuf = eyelights->getBuffer();
   _IS31_SCALE_RGB_(color, r, g, b, _brightness);
   for (uint8_t n = 0; n < 24 * 3; n += 3) {
@@ -1075,7 +1074,7 @@ void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {
   if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
     _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
     _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
-    x = (x * 5 + y) * 3; // Starting index into the led table above
+    x = (x * 5 + y) * 3;           // Starting index into the led table above
     uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x + rOffset]);
     if (bidx != 65535) {
       uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + gOffset]);
@@ -1182,7 +1181,6 @@ void Adafruit_EyeLights_buffered::scale(void) {
   }
 }
 
-
 // LED GLASSES (DIRECT) ----------------------------------------------------
 
 // This is olde style but kept around for backwards compatibility.
@@ -1199,7 +1197,6 @@ Adafruit_IS31FL3741_GlassesMatrix::Adafruit_IS31FL3741_GlassesMatrix(
     : Adafruit_GFX(18, 5) {
   _is31 = controller;
 }
-
 
 /**************************************************************************/
 /*!
@@ -1236,7 +1233,6 @@ void Adafruit_IS31FL3741_GlassesMatrix::drawPixel(int16_t x, int16_t y,
     */
   }
 }
-
 
 /**************************************************************************/
 /*!
@@ -1362,7 +1358,6 @@ void Adafruit_IS31FL3741_GlassesMatrix_buffered::drawPixel(int16_t x, int16_t y,
     }
   }
 }
-
 
 /**************************************************************************/
 /*!
@@ -1493,7 +1488,3 @@ Adafruit_IS31FL3741_GlassesRightRing_buffered::
     Adafruit_IS31FL3741_GlassesRightRing_buffered(
         Adafruit_IS31FL3741_buffered *controller)
     : Adafruit_IS31FL3741_GlassesRing_buffered(controller, true) {}
-
-
-
-
