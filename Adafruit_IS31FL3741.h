@@ -274,7 +274,7 @@ public:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring_Base(bool isRight, void *ptr);
+  Adafruit_EyeLights_Ring_Base(void *ptr, bool isRight);
   /*!
     @brief    Return number of LEDs in ring (a la NeoPixel)
     @returns  int  Always 24.
@@ -291,8 +291,8 @@ public:
 
 protected:
   uint16_t _brightness = 256; ///< Internally 1-256 for math
+  void *parent;               ///< Pointer to EyeLights (or buffered) object
   const uint16_t *ring_map;   ///< Pointer to lookup table
-  void *spex;                 ///< Pointer to glasses object
 };
 
 /**************************************************************************/
@@ -302,8 +302,8 @@ protected:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring : public Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring(bool isRight, void *ptr)
-      : Adafruit_EyeLights_Ring_Base(isRight, ptr) {}
+  Adafruit_EyeLights_Ring(void *ptr, bool isRight)
+      : Adafruit_EyeLights_Ring_Base(ptr, isRight) {}
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
 };
@@ -315,8 +315,8 @@ public:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring_buffered : public Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring_buffered(bool isRight, void *ptr)
-      : Adafruit_EyeLights_Ring_Base(isRight, ptr) {}
+  Adafruit_EyeLights_Ring_buffered(void *ptr, bool isRight)
+      : Adafruit_EyeLights_Ring_Base(ptr, isRight) {}
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
 };

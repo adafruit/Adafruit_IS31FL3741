@@ -659,13 +659,13 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
     // TO DO: incorporate RGB order here
     int8_t r_off, g_off, b_off;
     if ((col == 12) || (col % 2 == 1)) { // odds + last col
-      b_off = 2;
       r_off = 1;
       g_off = 0;
+      b_off = 2;
     } else { // evens;
-      b_off = 0;
       r_off = 2;
       g_off = 1;
+      b_off = 0;
     }
 
     // Serial.println(offset, HEX);
@@ -733,13 +733,13 @@ void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
     // TO DO: incorporate RGB order here
     int8_t r_off, g_off, b_off;
     if ((col == 12) || (col % 2 == 1)) { // odds + last col
-      b_off = 2;
       r_off = 1;
       g_off = 0;
+      b_off = 2;
     } else { // evens;
-      b_off = 0;
       r_off = 2;
       g_off = 1;
+      b_off = 0;
     }
 
     // Serial.println(offset, HEX);
@@ -1292,9 +1292,9 @@ Adafruit_IS31FL3741_GlassesRightRing_buffered::
     @param  ptr      void* pointer to EyeLights object this is attached to.
 */
 /**************************************************************************/
-Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(bool isRight,
-                                                           void *ptr)
-    : ring_map(isRight ? right_ring_map : left_ring_map), spex(ptr) {}
+Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(void *ptr,
+                                                           bool isRight)
+    : parent(ptr), ring_map(isRight ? right_ring_map : left_ring_map) {}
 
 /**************************************************************************/
 /*!
@@ -1310,10 +1310,10 @@ void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
     g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
     b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
     n *= 3;
-    Adafruit_IS31FL3741 *foo = (Adafruit_IS31FL3741 *)spex;
-    foo->setLEDPWM(pgm_read_word(&ring_map[n]), b);
-    foo->setLEDPWM(pgm_read_word(&ring_map[n + 1]), r);
-    foo->setLEDPWM(pgm_read_word(&ring_map[n + 2]), g);
+    Adafruit_EyeLights *is31 = (Adafruit_EyeLights *)parent;
+    is31->setLEDPWM(pgm_read_word(&ring_map[n]), b);
+    is31->setLEDPWM(pgm_read_word(&ring_map[n + 1]), r);
+    is31->setLEDPWM(pgm_read_word(&ring_map[n + 2]), g);
   }
 }
 
@@ -1340,8 +1340,8 @@ Adafruit_EyeLights_Base::~Adafruit_EyeLights_Base() {
 
 Adafruit_EyeLights::Adafruit_EyeLights(bool withCanvas, uint8_t order)
     : Adafruit_EyeLights_Base(withCanvas),
-      Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(false, this),
-      right_ring(true, this) {}
+      Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(this, false),
+      right_ring(this, true) {}
 
 void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {}
 
@@ -1349,7 +1349,7 @@ Adafruit_EyeLights_buffered::Adafruit_EyeLights_buffered(bool withCanvas,
                                                          uint8_t order)
     : Adafruit_EyeLights_Base(withCanvas),
       Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order),
-      left_ring(false, this), right_ring(true, this) {}
+      left_ring(this, false), right_ring(this, true) {}
 
 void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y,
                                             uint16_t color) {}
