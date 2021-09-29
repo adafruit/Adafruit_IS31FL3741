@@ -1,4 +1,18 @@
+
+/*
+Create a new class, Adafruit_EyeLights, that incorporates the matrix+rings
+in a single one-time initialized thing, rather than separate objects for
+the subparts.
+*/
+
 #include <Adafruit_IS31FL3741.h>
+
+// GFX drawPixel() for various classes are all doing certain things
+// similarly, but not exactly 100%. These #defines encompass the similar
+// parts, done this way (rather than functions) to avoid call overhead in
+// lowest-level functions. Don't fret about this being "too big," as most
+// projects will likely only invoke a single class, it's not like every
+// variant gets instantiated.
 
 #ifndef _swap_int16_t
 #define _swap_int16_t(a, b)                                                    \
@@ -9,23 +23,38 @@
   }
 #endif
 
-/**************************************************************************/
-/*!
-    @brief Constructor for IS31FL3741 breakout.
-    @param width  Desired width of led display, in RGB pixels
-    @param height Desired height of led display, in RGB pixels
-*/
-/**************************************************************************/
-Adafruit_IS31FL3741::Adafruit_IS31FL3741(uint8_t width, uint8_t height)
-    : Adafruit_GFX(width, height) {}
+// This does GFX-style "soft rotation" in each drawPixel():
+#define _IS31_ROTATE_(_X_, _Y_)                                                \
+  switch (getRotation()) {                                                     \
+  case 1:                                                                      \
+    _swap_int16_t(_X_, _Y_);                                                   \
+    _X_ = WIDTH - 1 - _X_;                                                     \
+    break;                                                                     \
+  case 2:                                                                      \
+    _X_ = WIDTH - 1 - _X_;                                                     \
+    _Y_ = HEIGHT - 1 - _Y_;                                                    \
+    break;                                                                     \
+  case 3:                                                                      \
+    _swap_int16_t(_X_, _Y_);                                                   \
+    _Y_ = HEIGHT - 1 - _Y_;                                                    \
+    break;                                                                     \
+  }
+
+// This expands a GFX-style RGB565 color to RGB888 in 3 uint8_t variables,
+// declared here, i.e. at the corresponding position in the drawPixel() func.
+#define _IS31_EXPAND_(_COLOR_, _R_, _G_, _B_)                                  \
+  uint8_t _R_ = ((_COLOR_ >> 8) & 0xF8) | (_COLOR_ >> 13);                     \
+  uint8_t _G_ = ((_COLOR_ >> 3) & 0xFC) | ((_COLOR_ >> 9) & 0x03);             \
+  uint8_t _B_ = ((_COLOR_ << 3) & 0xF8) | ((_COLOR_ >> 2) & 0x07);
+
+// IS31FL3741 (DIRECT) -----------------------------------------------------
 
 /**************************************************************************/
 /*!
-    @brief Initialize hardware and clear display
-    @param addr    I2C address we expect to find the chip at
-    @param theWire Pointer to TwoWire I2C bus device to use,
-                   defaults to to &Wire.
-    @returns True on success, false if chip isnt found
+    @brief    Initialize I2C and IS31FL3741 hardware.
+    @param    addr     I2C address where we expect to find the chip.
+    @param    theWire  Pointer to TwoWire I2C bus to use, defaults to &Wire.
+    @returns  true on success, false if chip isn't found.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::begin(uint8_t addr, TwoWire *theWire) {
@@ -40,7 +69,6 @@ bool Adafruit_IS31FL3741::begin(uint8_t addr, TwoWire *theWire) {
     Adafruit_BusIO_Register id_reg =
         Adafruit_BusIO_Register(_i2c_dev, IS3741_IDREGISTER);
     if ((id_reg.read() == (addr * 2)) && reset()) {
-      setRotation(0);
       return true; // Success!
     }
   }
@@ -50,8 +78,8 @@ bool Adafruit_IS31FL3741::begin(uint8_t addr, TwoWire *theWire) {
 
 /**************************************************************************/
 /*!
-    @brief Perform a software reset, will update all registers to POR values
-    @returns False if I2C command not acknowledged
+    @brief    Perform software reset, update all registers to POR values.
+    @returns  true if I2C command acknowledged, false on error.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::reset(void) {
@@ -63,9 +91,9 @@ bool Adafruit_IS31FL3741::reset(void) {
 
 /**************************************************************************/
 /*!
-    @brief Enables or disables via the shutdown register bit
-    @param en Set to true to enable
-    @returns False if I2C command not acknowledged
+    @brief    Enable/disable output via the shutdown register bit.
+    @param    en  true to enable, false to disable.
+    @returns  true if I2C command acknowledged, false on error.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::enable(bool en) {
@@ -79,9 +107,9 @@ bool Adafruit_IS31FL3741::enable(bool en) {
 
 /**************************************************************************/
 /*!
-    @brief Set the global current-mirror from 0 (off) to 255 (brightest)
-    @param current Scaler from 0 to 255
-    @returns False if I2C command not acknowledged
+    @brief    Set global current-mirror from 0 (off) to 255 (brightest).
+    @param    current  8-bit level, 0 to 255.
+    @returns  true if I2C command acknowledged, false on error.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::setGlobalCurrent(uint8_t current) {
@@ -93,8 +121,8 @@ bool Adafruit_IS31FL3741::setGlobalCurrent(uint8_t current) {
 
 /**************************************************************************/
 /*!
-    @brief Get the global current-mirror from 0 (off) to 255 (brightest)
-    @returns Current scaler from 0 to 255
+    @brief    Get the global current-mirror register setting.
+    @returns  0 (off) to 255 (brightest)
 */
 /**************************************************************************/
 uint8_t Adafruit_IS31FL3741::getGlobalCurrent(void) {
@@ -106,8 +134,8 @@ uint8_t Adafruit_IS31FL3741::getGlobalCurrent(void) {
 
 /**************************************************************************/
 /*!
-    @brief Allows changing of command register by writing 0xC5 to 0xFE
-    @returns True if I2C command succeeded.
+    @brief    Allows changing of command register by writing 0xC5 to 0xFE.
+    @returns  true if I2C command acknowledged, false on error.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::unlock(void) {
@@ -118,180 +146,155 @@ bool Adafruit_IS31FL3741::unlock(void) {
 
 /**************************************************************************/
 /*!
-    @brief Switch to a given bank/page in the chip memory for future reads
-    @param page The IS41 page to switch to
-    @returns False if I2C command failed to be ack'd or invalid page
+    @brief    Select a given bank/page in the chip memory for subsequent
+              reads/writes.
+    @param    page  The IS41 page to switch to (0 to 4).
+    @returns  true if I2C command acknowledged, false on invalid page or
+              I2C error.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::selectPage(uint8_t page) {
-  if (page > 4)
-    return false;
+  if (page < 5) {        // Valid page number?
+    if (page == _page) { // If it matches the existing setting...
+      return true;       // nice, we can skip re-setting the page!
+    }
+    _page = page; // Cache this page value
 
-  if (_page == page) {
-    // nice, we can skip re-setting the page!
-    return true;
+    unlock();
+    Adafruit_BusIO_Register cmd_reg =
+        Adafruit_BusIO_Register(_i2c_dev, IS3741_COMMANDREGISTER);
+    return cmd_reg.write(page);
   }
-
-  _page = page; // cache this value
-
-  unlock();
-  Adafruit_BusIO_Register cmd_reg =
-      Adafruit_BusIO_Register(_i2c_dev, IS3741_COMMANDREGISTER);
-  return cmd_reg.write(page);
+  return false; // Invalid page
 }
 
 /**************************************************************************/
 /*!
-    @brief Set the PWM scaling for a single LED
-    @param lednum The individual LED to scale - from 0 to 351
-    @param scale Scaler from 0 to 255
-    @returns False if I2C command not acknowledged
+    @brief    Set either the PWM or scaling level for a single LED; used by
+              the setLEDPWM() and setLEDscaling() functions, not directly.
+    @param    first_page  Determines whether scaling or PWM will be set:
+                          0 for PWM, 2 for scaling.
+    @param    lednum      The individual LED to set: 0 to 350.
+    @param    value       PWM or scaling value from 0 to 255.
+    @returns  true if I2C command acknowledged, false if LED index is out
+              of range or if I2C error.
+    @note     This refers to individual LED registers as controlled by the
+              driver, *not* RGB pixels -- that's a different thing handled
+              in subclasses as needed.
+*/
+/**************************************************************************/
+bool Adafruit_IS31FL3741::setLEDvalue(uint8_t first_page, uint16_t lednum,
+                                      uint8_t value) {
+  if (lednum < 351) {
+    uint8_t cmd[2];
+    cmd[1] = value;
+    if (lednum < 180) {
+      cmd[0] = (uint8_t)lednum;
+      selectPage(first_page);
+    } else {
+      cmd[0] = (uint8_t)(lednum - 180);
+      selectPage(first_page + 1);
+    }
+    return _i2c_dev->write(cmd, 2);
+  }
+  return false;
+}
+
+/**************************************************************************/
+/*!
+    @brief    Fill two pages of IS31FL3741 registers related to PWM levels
+              or scaling; used by the fill() and setLEDscaling() functions,
+              not directly.
+    @param    first_page  First of two successive pages to fill; usually
+                          0 or 2.
+    @param    value       Setting from 0 to 255.
+    @returns  true if I2C transfers completed successfully, false on error.
+*/
+/**************************************************************************/
+bool Adafruit_IS31FL3741::fillTwoPages(uint8_t first_page, uint8_t value) {
+  // The maximum I2C transfer size can be queried at run-time, but not
+  // compile-time. Since we want a simple static-size buffer declared here,
+  // we'll use the "safe bet" 32 byte transfer size, as requesting a large
+  // chunk on the stack would be problematic for small devices like AVR.
+  // So it's not completely optimal, but not pessimal either.
+  uint8_t buf[32];
+  // Buffer is initially filled with scale setting, then we'll replace
+  // just the first byte with a register address on each pass.
+  memset(buf, value, sizeof buf);
+
+  uint8_t page_bytes = 180; // First of two pages is 180 bytes of stuff
+  for (uint8_t page = 0; page < 2; page++) { // Two pages,
+    selectPage(first_page + page);           // starting at first_page
+    uint8_t addr = 0;    // Writes always start at reg 0 within page
+    while (page_bytes) { // While there's data to write for page...
+      uint8_t bytesThisPass = min(page_bytes, 31);
+      buf[0] = addr;
+      if (!_i2c_dev->write(buf, bytesThisPass + 1)) // +1 for addr
+        return false;
+      page_bytes -= bytesThisPass;
+      addr += bytesThisPass;
+    }
+    page_bytes = 171; // Subsequent page is smaller
+  }
+
+  return true;
+}
+
+/**************************************************************************/
+/*!
+    @brief    Set the scaling level for a single LED.
+    @param    lednum  The individual LED to set: 0 to 350.
+    @param    scale   Level from 0 to 255.
+    @returns  true if I2C command acknowledged, false if LED index is out
+              of range or if I2C error.
+    @note     This refers to individual LED registers as controlled by the
+              driver, *not* RGB pixels -- that's a different thing handled
+              in subclasses as needed.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::setLEDscaling(uint16_t lednum, uint8_t scale) {
-  uint8_t cmd[2] = {(uint8_t)lednum, scale}; // we'll fix the lednum later
-
-  if (lednum < 180) {
-    selectPage(2);
-    return _i2c_dev->write(cmd, 2);
-  } else if (lednum < 351) {
-    selectPage(3);
-    cmd[0] = lednum - 180; // fix it for higher numbers!
-    return _i2c_dev->write(cmd, 2);
-  }
-  return false; // failed
+  return setLEDvalue(2, lednum, scale); // Scaling is on pages 2/3
 }
 
 /**************************************************************************/
 /*!
-    @brief Optimized function to set the PWM scaling for ALL the LEDs
-    @param scale Scaler from 0 to 255
-    @returns False if I2C command not acknowledged
+    @brief    Set the scaling level for all LEDs. Optimized for fewer
+              I2C transfers vs. setting each individually.
+    @param    scale  Level from 0 to 255.
+    @returns  true if I2C transfers completed successfully, false on error.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::setLEDscaling(uint8_t scale) {
-  uint16_t ledaddr = 0;
-
-  // write 30 bytes of scale at a time
-  uint8_t buff[31];
-  memset(buff, scale, 31);
-
-  selectPage(2);
-  while (ledaddr < 180) {
-    buff[0] = (uint8_t)ledaddr;
-    if (!_i2c_dev->write(buff, 31))
-      return false;
-
-    ledaddr += 30;
-  }
-
-  selectPage(3);
-  while (ledaddr < 351) {
-    buff[0] = (uint8_t)(ledaddr - 180);
-    if (!_i2c_dev->write(buff, 31))
-      return false;
-    ledaddr += 30;
-  }
-  return true;
+  return fillTwoPages(2, scale); // Fill pages 2 & 3 with value
 }
 
 /**************************************************************************/
 /*!
-    @brief Sets all LEDs PWM to the same value - great for clearing the
-           whole display at once!
-    @param fillpwm The PWM value to set all LEDs to, defaults to 0
-    @returns False if I2C command not acknowledged
-*/
-/**************************************************************************/
-bool Adafruit_IS31FL3741::fill(uint8_t fillpwm) {
-  uint16_t ledaddr = 0;
-
-  // write 30 bytes of scale at a time
-  uint8_t buff[31];
-  memset(buff, fillpwm, 31);
-
-  selectPage(0);
-  while (ledaddr < 180) {
-    buff[0] = (uint8_t)ledaddr;
-    if (!_i2c_dev->write(buff, 31))
-      return false;
-
-    ledaddr += 30;
-  }
-
-  selectPage(1);
-  while (ledaddr < 351) {
-    buff[0] = (uint8_t)(ledaddr - 180);
-    if (!_i2c_dev->write(buff, 31))
-      return false;
-    ledaddr += 30;
-  }
-  return true;
-}
-
-/**************************************************************************/
-/*!
-    @brief Low level accessor - sets a 8-bit PWM pixel value to the
-           internal memory location. Does not handle rotation, x/y or any
-           rearrangements!
-    @param lednum The offset from 0 to 350 that corresponds to the LED
-    @param pwm brightness, from 0 (off) to 255 (max on)
-    @returns False if I2C command not acknowledged
+    @brief    Set the PWM level for a single LED.
+    @param    lednum  The individual LED to set: 0 to 350.
+    @param    pwm     Level from 0 to 255.
+    @returns  true if I2C command acknowledged, false if LED index is out
+              of range or if I2C error.
+    @note     This refers to individual LED registers as controlled by the
+              driver, *not* RGB pixels -- that's a different thing handled
+              in subclasses as needed.
 */
 /**************************************************************************/
 bool Adafruit_IS31FL3741::setLEDPWM(uint16_t lednum, uint8_t pwm) {
-  uint8_t cmd[2] = {(uint8_t)lednum, pwm}; // we'll fix the lednum later
-
-  // Serial.print("Setting led 0x"); Serial.print(lednum, HEX); Serial.print("
-  // -> "); Serial.println(pwm);
-
-  if (lednum < 180) {
-    selectPage(0);
-    return _i2c_dev->write(cmd, 2);
-  } else if (lednum < 351) {
-    selectPage(1);
-    cmd[0] = lednum - 180; // fix it for higher numbers!
-    return _i2c_dev->write(cmd, 2);
-  }
-  return false; // Pixel index out of range
+  return setLEDvalue(0, lednum, pwm); // PWM is on pages 0/1
 }
 
 /**************************************************************************/
 /*!
-    @brief Adafruit GFX low level accessor - sets an RGB pixel value,
-           handles rotation and pixel arrangement, unlike setLEDPWM.
-    @param x The x position, starting with 0 for left-most side
-    @param y The y position, starting with 0 for top-most side
-    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+    @brief    Set the PWM value for all LEDs - great for clearing the whole
+              display at once. Optimized for fewer I2C transfers vs. setting
+              each individually.
+    @param    fillpwm   PWM level from 0 to 255, default is 0 (off).
+    @returns  true if I2C transfers completed successfully, false on error.
 */
 /**************************************************************************/
-void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
-  // check rotation, move pixel around if necessary
-  switch (getRotation()) {
-  case 1:
-    _swap_int16_t(x, y);
-    x = WIDTH - 1 - x;
-    break;
-  case 2:
-    x = WIDTH - 1 - x;
-    y = HEIGHT - 1 - y;
-    break;
-  case 3:
-    _swap_int16_t(x, y);
-    y = HEIGHT - 1 - y;
-    break;
-  }
-
-  if ((x >= 0) && (x < WIDTH) && (y >= 0) && (y < HEIGHT)) {
-    // Expand GFX's RGB565 color to RGB888 for LEDs
-    uint8_t r = ((color >> 8) & 0xF8) | (color >> 13);
-    uint8_t g = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
-    uint8_t b = ((color << 3) & 0xF8) | ((color >> 2) & 0x07);
-    uint16_t offset = (x + WIDTH * y) * 3;
-    setLEDPWM(offset, b);
-    setLEDPWM(offset + 1, g);
-    setLEDPWM(offset + 2, r);
-  }
+bool Adafruit_IS31FL3741::fill(uint8_t fillpwm) {
+  return fillTwoPages(0, fillpwm); // Fill pages 0 & 1 with value
 }
 
 /*!
@@ -310,11 +313,11 @@ void Adafruit_IS31FL3741::drawPixel(int16_t x, int16_t y, uint16_t color) {
   @return  Packed 32-bit RGB with the most significant byte set to 0.
            Result is linearly but not perceptually correct, so you may want
            to pass the result through a gamma function.
-  @note  Yes, the name is unfortunate -- have uppercase ColorHSV() here,
-         and lowercase color565() elsewhere. This is for compatibility with
-         existing code from Adafruit_NeoPixel amd Adafruit_GFX, which were
-         separately developed and used differing cases. The idea here is to
-         help re-use existing NeoPixel code, so don't "fix."
+  @note    Yes, the name is unfortunate -- have uppercase ColorHSV() here,
+           and lowercase color565() elsewhere. This is for compatibility
+           with existing code from Adafruit_NeoPixel amd Adafruit_GFX, which
+           were separately developed and used differing cases. The idea here
+           is to help re-use existing Arduino sketch code, so don't "fix."
 */
 uint32_t Adafruit_IS31FL3741::ColorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
 
@@ -392,101 +395,243 @@ uint32_t Adafruit_IS31FL3741::ColorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
          (((((b * s1) >> 8) + s2) * v1) >> 8);
 }
 
-/**************************************************************************/
-/*!
-    @brief Constructor for EVB version (9 x 13 LEDs)
-*/
-/**************************************************************************/
-Adafruit_IS31FL3741_EVB::Adafruit_IS31FL3741_EVB(void)
-    : Adafruit_IS31FL3741(13, 9) {}
+// IS31FL3741 (BUFFERED) ---------------------------------------------------
 
 /**************************************************************************/
 /*!
-    @brief Adafruit GFX low level accessor - sets an RGB pixel value,
-           handles rotation and pixel arrangement, unlike setLEDPWM.
-    @param x The x position, starting with 0 for left-most side
-    @param y The y position, starting with 0 for top-most side
+    @brief  Constructor for buffered IS31FL3741. LED data is stored in RAM
+            and only pushed to device when show() is explicitly called.
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_buffered::Adafruit_IS31FL3741_buffered()
+    : Adafruit_IS31FL3741() {}
+
+/**************************************************************************/
+/*!
+    @brief    Initialize I2C and IS31FL3741 hardware, clear LED buffer.
+    @param    addr     I2C address where we expect to find the chip.
+    @param    theWire  Pointer to TwoWire I2C bus to use, defaults to &Wire.
+    @returns  true on success, false if chip isn't found.
+*/
+/**************************************************************************/
+bool Adafruit_IS31FL3741_buffered::begin(uint8_t addr, TwoWire *theWire) {
+  bool status = Adafruit_IS31FL3741::begin(addr, theWire);
+  if (status) {                        // If I2C initialized OK,
+    memset(ledbuf, 0, sizeof(ledbuf)); // clear the LED buffer
+  }
+  return status;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Push buffered LED data from RAM to device.
+    @note   This looks a lot like the base class' fillTwoPages() function,
+            but works differently and they are not interchangeable or
+            refactorable into a single function. This relies on the LED
+            buffer that's part of the Adafruit_IS31FL3741_buffered object
+            and does some temporary element swaps to make larger transfers
+            if the host device allows. Really, don't.
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_buffered::show(void) {
+  uint16_t total_bytes = 351;
+  uint8_t *ptr = ledbuf;
+  uint8_t chunk = _i2c_dev->maxBufferSize() - 1;
+
+  uint8_t page_bytes = 180; // First page is 180 bytes of stuff
+  for (uint8_t page = 0; page < 2; page++) {
+    selectPage(page);
+    uint8_t addr = 0;    // Writes always start at reg 0 within page
+    while (page_bytes) { // While there's data to write for page...
+      uint8_t bytesThisPass = min(page_bytes, chunk);
+      // To avoid needing an extra I2C write buffer here (whose size may
+      // vary by architecture, not knowable at compile-time), save the
+      // ledbuf value at ptr, overwrite with the current register address,
+      // write straight from ledbuf and then restore the saved value.
+      // This is why there's an extra leading byte used in ledbuf.
+      // All the LED-setting functions use getBuffer(), which returns
+      // a pointer to the first LED at position #1, not #0.
+      uint8_t save = *ptr;
+      *ptr = addr;
+      _i2c_dev->write(ptr, bytesThisPass + 1); // +1 for addr
+      *ptr = save;
+      page_bytes -= bytesThisPass;
+      ptr += bytesThisPass;
+      addr += bytesThisPass;
+    }
+    page_bytes = 171; // Subsequent page is smaller
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Constructor for GFX-subclassed IS31FL3741, so a common fill()
+            function can be used across subclasses.
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_colorGFX::Adafruit_IS31FL3741_colorGFX(uint8_t width, uint8_t height,
+                                                 uint8_t order)
+    : Adafruit_IS31FL3741(), Adafruit_IS31FL3741_ColorOrder(order),
+      Adafruit_GFX(width, height) {}
+
+/**************************************************************************/
+/*!
+    @brief  Sets all pixels of a GFX-subclassed, unbuffered object.
+            Saves us implementing this in every subclass.
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_colorGFX::fill(uint16_t color) {
+  // Fill must be done pixel-by-pixel due to different mappings & offsets
+  // for each matrix type.
+  for (uint8_t y = 0; y < height(); y++) {
+    for (uint8_t x = 0; x < width(); x++) {
+      drawPixel(x, y, color);
+    }
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Constructor for buffered-and-GFX-subclassed IS31FL3741,
+            so a common fill() function can be used across subclasses.
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_colorGFX_buffered::Adafruit_IS31FL3741_colorGFX_buffered(
+    uint8_t width, uint8_t height, uint8_t order)
+    : Adafruit_IS31FL3741_buffered(), Adafruit_IS31FL3741_ColorOrder(order),
+      Adafruit_GFX(width, height) {}
+
+/**************************************************************************/
+/*!
+    @brief  Sets all pixels of a buffered-and-GFX-subclassed object.
+            Saves us implementing this in every subclass.
+    @param  color  16-bit RGB565 packed color (expands to 888 for LEDs).
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_colorGFX_buffered::fill(uint16_t color) {
+  // If high and low bytes of color are the same...
+  if ((color >> 8) == (color & 0xFF)) {
+    // Can just memset the whole pixel buffer to that byte
+    memset(&ledbuf[1], color & 0xFF, 351);
+  } else {
+    // Otherwise, fill must be done pixel-by-pixel due to
+    // different mappings & offsets in parts of the matrix.
+    for (uint8_t y = 0; y < height(); y++) {
+      for (uint8_t x = 0; x < width(); x++) {
+        drawPixel(x, y, color);
+      }
+    }
+  }
+}
+
+// LUMISSIL EVAL BOARD (DIRECT) --------------------------------------------
+
+/**************************************************************************/
+/*!
+    @brief  Constructor for Lumissil IS31FL3741 "official" evaluation board,
+            13x9 pixels, direct (unbuffered).
+
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_EVB::Adafruit_IS31FL3741_EVB(uint8_t order)
+    : Adafruit_IS31FL3741_colorGFX(13, 9, order) {}
+
+/**************************************************************************/
+/*!
+    @brief  Adafruit GFX low level accessor - sets an RGB pixel value,
+            handles rotation and pixel arrangement.
+    @param  x    The x position, starting with 0 for left-most side
+    @param  y    The y position, starting with 0 for top-most side
     @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
   if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
-    switch (getRotation()) {
-    case 1:
-      _swap_int16_t(x, y);
-      x = WIDTH - 1 - x;
-      break;
-    case 2:
-      x = WIDTH - 1 - x;
-      y = HEIGHT - 1 - y;
-      break;
-    case 3:
-      _swap_int16_t(x, y);
-      y = HEIGHT - 1 - y;
-      break;
-    }
+    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
+    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
 
-    // Expand GFX's RGB565 color to RGB888 for LEDs
-    uint8_t r = ((color >> 8) & 0xF8) | (color >> 13);
-    uint8_t g = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
-    uint8_t b = ((color << 3) & 0xF8) | ((color >> 2) & 0x07);
-
-    uint16_t offset;
-    if (x > 9) {
-      offset = (x + 80 + y * 3) * 3;
-    } else {
-      offset = (x + y * 10) * 3;
-    }
+    // Map x/y to device-specific pixel layout
+    uint16_t offset = ((x > 9) ? (x + 80 + y * 3) : (x + y * 10)) * 3;
     /*
     Serial.print("("); Serial.print(x);
     Serial.print(", "); Serial.print(y);
     Serial.print(") -> "); Serial.println(offset);
     */
 
-    setLEDPWM(offset, b);
-    setLEDPWM(offset + 1, g);
-    setLEDPWM(offset + 2, r);
+    setLEDPWM(offset + rOffset, r);
+    setLEDPWM(offset + gOffset, g);
+    setLEDPWM(offset + bOffset, b);
   }
 }
 
-/**************************************************************************/
-/*!
-    @brief Constructor for QT version (13 x 9 LEDs)
-*/
-/**************************************************************************/
-Adafruit_IS31FL3741_QT::Adafruit_IS31FL3741_QT(void)
-    : Adafruit_IS31FL3741(13, 9) {}
+// LUMISSIL EVAL BOARD (BUFFERED) ------------------------------------------
 
 /**************************************************************************/
 /*!
-    @brief Adafruit GFX low level accessor - sets an RGB pixel value,
-           handles rotation and pixel arrangement, unlike setLEDPWM.
-    @param x The x position, starting with 0 for left-most side
-    @param y The y position, starting with 0 for top-most side
+    @brief  Constructor for Lumissil IS31FL3741 "official" evaluation board,
+            13x9 pixels, buffered.
+
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_EVB_buffered::Adafruit_IS31FL3741_EVB_buffered(
+    uint8_t order)
+    : Adafruit_IS31FL3741_colorGFX_buffered(13, 9, order) {}
+
+/**************************************************************************/
+/*!
+    @brief  Adafruit GFX low level accessor - sets an RGB pixel value,
+            handles rotation and pixel arrangement.
+    @param  x    The x position, starting with 0 for left-most side
+    @param  y    The y position, starting with 0 for top-most side
     @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3741_EVB_buffered::drawPixel(int16_t x, int16_t y,
+                                                 uint16_t color) {
+  if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
+    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
+    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
+
+    // Map x/y to device-specific pixel layout
+    uint16_t offset = ((x > 9) ? (x + 80 + y * 3) : (x + y * 10)) * 3;
+    /*
+    Serial.print("("); Serial.print(x);
+    Serial.print(", "); Serial.print(y);
+    Serial.print(") -> "); Serial.println(offset);
+    */
+
+    uint8_t *ptr = &ledbuf[1 + offset];
+    ptr[rOffset] = r;
+    ptr[gOffset] = g;
+    ptr[bOffset] = b;
+  }
+}
+
+// STEMMA QT MATRIX (DIRECT) -----------------------------------------------
+
+/**************************************************************************/
+/*!
+    @brief  Constructor for STEMMA QT version (13 x 9 LEDs), direct
+            (unbuffered).
+*/
+/**************************************************************************/
+Adafruit_IS31FL3741_QT::Adafruit_IS31FL3741_QT(uint8_t order)
+    : Adafruit_IS31FL3741_colorGFX(13, 9, order) {}
+
+/**************************************************************************/
+/*!
+    @brief  Adafruit GFX low level accessor - sets an RGB pixel value,
+            handles rotation and pixel arrangement.
+    @param  x     The x position, starting with 0 for left-most side.
+    @param  y     The y position, starting with 0 for top-most side.
+    @param  color 16-bit RGB565 packed color (expands to 888 for LEDs).
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
   if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
-    switch (getRotation()) {
-    case 1:
-      _swap_int16_t(x, y);
-      x = WIDTH - 1 - x;
-      break;
-    case 2:
-      x = WIDTH - 1 - x;
-      y = HEIGHT - 1 - y;
-      break;
-    case 3:
-      _swap_int16_t(x, y);
-      y = HEIGHT - 1 - y;
-      break;
-    }
-
-    // Expand GFX's RGB565 color to RGB888 for LEDs
-    uint8_t r = ((color >> 8) & 0xF8) | (color >> 13);
-    uint8_t g = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
-    uint8_t b = ((color << 3) & 0xF8) | ((color >> 2) & 0x07);
+    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
+    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
 
     /*
     Serial.print("("); Serial.print(x);
@@ -517,6 +662,7 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
       }
     }
 
+    // TO DO: incorporate RGB order here
     int8_t r_off, g_off, b_off;
     if ((col == 12) || (col % 2 == 1)) { // odds + last col
       b_off = 2;
@@ -536,13 +682,15 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
   }
 }
 
+// STEMMA QT MATRIX (BUFFERED) ---------------------------------------------
+
 /**************************************************************************/
 /*!
-    @brief Constructor for QT version (13 x 9 LEDs), buffered
+    @brief Constructor for STEMMA QT version (13 x 9 LEDs), buffered.
 */
 /**************************************************************************/
-Adafruit_IS31FL3741_QT_buffered::Adafruit_IS31FL3741_QT_buffered(void)
-    : Adafruit_IS31FL3741_buffered(13, 9) {}
+Adafruit_IS31FL3741_QT_buffered::Adafruit_IS31FL3741_QT_buffered(uint8_t order)
+    : Adafruit_IS31FL3741_colorGFX_buffered(13, 9, order) {}
 
 /**************************************************************************/
 /*!
@@ -556,25 +704,8 @@ Adafruit_IS31FL3741_QT_buffered::Adafruit_IS31FL3741_QT_buffered(void)
 void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
                                                 uint16_t color) {
   if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
-    switch (getRotation()) {
-    case 1:
-      _swap_int16_t(x, y);
-      x = WIDTH - 1 - x;
-      break;
-    case 2:
-      x = WIDTH - 1 - x;
-      y = HEIGHT - 1 - y;
-      break;
-    case 3:
-      _swap_int16_t(x, y);
-      y = HEIGHT - 1 - y;
-      break;
-    }
-
-    // Expand GFX's RGB565 color to RGB888 for LEDs
-    uint8_t r = ((color >> 8) & 0xF8) | (color >> 13);
-    uint8_t g = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
-    uint8_t b = ((color << 3) & 0xF8) | ((color >> 2) & 0x07);
+    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
+    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
 
     /*
     Serial.print("("); Serial.print(x);
@@ -605,6 +736,7 @@ void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
       }
     }
 
+    // TO DO: incorporate RGB order here
     int8_t r_off, g_off, b_off;
     if ((col == 12) || (col % 2 == 1)) { // odds + last col
       b_off = 2;
@@ -620,35 +752,16 @@ void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
 
     // Expand 5/6 bits of color components to 8 bits and store:
     uint8_t *ptr = &ledbuf[1 + offset];
-    ptr[b_off] = (color << 3) | ((color >> 2) & 0x07);
-    ptr[r_off] = ((color >> 8) & 0xF8) | (color >> 13);
-    ptr[g_off] = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
+    ptr[r_off] = r;
+    ptr[g_off] = g;
+    ptr[b_off] = b;
   }
 }
 
-/**************************************************************************/
-/*!
-    @brief Sets all pixels of buffered QT matrix.
-    @param color 16-bit RGB565 packed color (expands to 888 for LEDs).
-*/
-/**************************************************************************/
-void Adafruit_IS31FL3741_QT_buffered::fill(uint16_t color) {
-  // If high and low bytes of color are the same...
-  if ((color >> 8) == (color & 0xFF)) {
-    // Can just memset the whole pixel buffer to that byte
-    memset(&ledbuf[1], color & 0xFF, 351);
-  } else {
-    // Otherwise, fill must be done pixel-by-pixel due to
-    // different mappings & offsets in parts of the matrix.
-    for (uint8_t y = 0; y < height(); y++) {
-      for (uint8_t x = 0; x < width(); x++) {
-        drawPixel(x, y, color);
-      }
-    }
-  }
-}
+// LED GLASSES (DIRECT) ----------------------------------------------------
 
-// LED GLASSES -------------------------------------------------------------
+// This is olde style but kept around for backwards compatibility.
+// The Adafruit_EyeLights classes are simpler going forward.
 
 /**************************************************************************/
 /*!
@@ -663,6 +776,7 @@ Adafruit_IS31FL3741_GlassesMatrix::Adafruit_IS31FL3741_GlassesMatrix(
 }
 
 // Remap table for pixel positions to LED indices, for next function
+// THESE ARE IN BRG ORDER
 static const uint16_t PROGMEM glassesmatrix_ledmap[18 * 5 * 3] = {
     65535, 65535, 65535, // (0,0) (clipped, corner)
     10,    9,     8,     // (0,0) / right ring pixel 20
@@ -768,25 +882,8 @@ static const uint16_t PROGMEM glassesmatrix_ledmap[18 * 5 * 3] = {
 void Adafruit_IS31FL3741_GlassesMatrix::drawPixel(int16_t x, int16_t y,
                                                   uint16_t color) {
   if ((x >= 0) && (y >= 0) && (x < width()) && (y < height())) {
-    switch (getRotation()) {
-    case 1:
-      _swap_int16_t(x, y);
-      x = WIDTH - 1 - x;
-      break;
-    case 2:
-      x = WIDTH - 1 - x;
-      y = HEIGHT - 1 - y;
-      break;
-    case 3:
-      _swap_int16_t(x, y);
-      y = HEIGHT - 1 - y;
-      break;
-    }
-
-    // Expand GFX's RGB565 color to RGB888 for LEDs
-    uint8_t r = ((color >> 8) & 0xF8) | (color >> 13);
-    uint8_t g = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
-    uint8_t b = ((color << 3) & 0xF8) | ((color >> 2) & 0x07);
+    _IS31_ROTATE_(x, y);           // Handle GFX-style soft rotation
+    _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
 
     x = (x * 5 + y) * 3; // Starting index into the led table above
     uint16_t bidx = pgm_read_word(&glassesmatrix_ledmap[x]);
@@ -810,6 +907,7 @@ void Adafruit_IS31FL3741_GlassesMatrix::drawPixel(int16_t x, int16_t y,
 }
 
 // Remap tables for pixel positions to LED indices, for next functions
+// THESE ARE IN BRG ORDER
 static const uint16_t PROGMEM left_ring_map[24 * 3] = {
     341, 211, 210, // 0
     332, 181, 180, // 1
@@ -941,77 +1039,6 @@ Adafruit_IS31FL3741_GlassesRightRing::Adafruit_IS31FL3741_GlassesRightRing(
 
 /**************************************************************************/
 /*!
-    @brief Constructor for buffered IS31FL3741. LED data is stored in RAM
-           and only pushed to device when show() is explicitly called.
-    @param  width   Width in pixels (do not use, leave args empty)
-    @param  height  Height in pixels (do not use, leave args empty)
-*/
-/**************************************************************************/
-Adafruit_IS31FL3741_buffered::Adafruit_IS31FL3741_buffered(uint8_t width,
-                                                           uint8_t height)
-    : Adafruit_IS31FL3741(width, height) {}
-
-/**************************************************************************/
-/*!
-    @brief Destructor for buffered IS31FL3741.
-*/
-/**************************************************************************/
-Adafruit_IS31FL3741_buffered::~Adafruit_IS31FL3741_buffered(void) {}
-
-/**************************************************************************/
-/*!
-    @brief Initialize hardware and clear LED buffer.
-    @param addr    I2C address we expect to find the chip at.
-    @param theWire Pointer to TwoWire I2C bus device to use,
-                   defaults to to &Wire.
-    @returns True on success, false if chip isnt found.
-*/
-/**************************************************************************/
-bool Adafruit_IS31FL3741_buffered::begin(uint8_t addr, TwoWire *theWire) {
-  bool status = Adafruit_IS31FL3741::begin(addr, theWire);
-  if (status) {                        // If I2C initialized OK,
-    memset(ledbuf, 0, sizeof(ledbuf)); // clear the LED buffer
-  }
-  return status;
-}
-
-/**************************************************************************/
-/*!
-    @brief Push buffered LED data from RAM to device.
-*/
-/**************************************************************************/
-void Adafruit_IS31FL3741_buffered::show(void) {
-  uint16_t total_bytes = 351;
-  uint8_t *ptr = ledbuf;
-  uint8_t chunk = _i2c_dev->maxBufferSize() - 1;
-
-  uint8_t page_bytes = 180; // First page is 180 bytes of stuff
-  for (uint8_t page = 0; page < 2; page++) {
-    selectPage(page);
-    uint8_t addr = 0;    // Writes always start at reg 0 within page
-    while (page_bytes) { // While there's data to write for page...
-      uint8_t bytesThisPass = min(page_bytes, chunk);
-      // To avoid needing an extra I2C write buffer here (whose size may
-      // vary by architecture, not knowable at compile-time), save the
-      // ledbuf value at ptr, overwrite with the current register address,
-      // write straight from ledbuf and then restore the saved value.
-      // This is why there's an extra leading byte used in ledbuf.
-      // All the LED-setting functions use getBuffer(), which returns
-      // a pointer to the first LED at position #1, not #0.
-      uint8_t save = *ptr;
-      *ptr = addr;
-      _i2c_dev->write(ptr, bytesThisPass + 1); // +1 for addr
-      *ptr = save;
-      page_bytes -= bytesThisPass;
-      ptr += bytesThisPass;
-      addr += bytesThisPass;
-    }
-    page_bytes = 171; // Subsequent page is smaller
-  }
-}
-
-/**************************************************************************/
-/*!
     @brief Constructor for buffered LED glasses (matrix portion, 18x5 LEDs)
     @param  controller  Pointer to Adafruit_IS31FL3741_buffered object.
     @param  withCanvas  If true, allocate an additional GFXcanvas16 object
@@ -1043,20 +1070,7 @@ Adafruit_IS31FL3741_GlassesMatrix_buffered::
 /**************************************************************************/
 void Adafruit_IS31FL3741_GlassesMatrix_buffered::drawPixel(int16_t x, int16_t y,
                                                            uint16_t color) {
-  switch (getRotation()) {
-  case 1:
-    _swap_int16_t(x, y);
-    x = WIDTH - 1 - x;
-    break;
-  case 2:
-    x = WIDTH - 1 - x;
-    y = HEIGHT - 1 - y;
-    break;
-  case 3:
-    _swap_int16_t(x, y);
-    y = HEIGHT - 1 - y;
-    break;
-  }
+  _IS31_ROTATE_(x, y); // Handle GFX-style soft rotation
 
   if ((x >= 0) && (x < WIDTH) && (y >= 0) && (y < HEIGHT)) {
     x = (x * 5 + y) * 3; // Base index into ledmap
@@ -1065,10 +1079,10 @@ void Adafruit_IS31FL3741_GlassesMatrix_buffered::drawPixel(int16_t x, int16_t y,
       uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[x + 1]);
       uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[x + 2]);
       uint8_t *ledbuf = _is31->getBuffer();
-      // Expand 5/6 bits of color components to 8 bits and store:
-      ledbuf[bidx] = (color << 3) | ((color >> 2) & 0x07);
-      ledbuf[ridx] = ((color >> 8) & 0xF8) | (color >> 13);
-      ledbuf[gidx] = ((color >> 3) & 0xFC) | ((color >> 9) & 0x03);
+      _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
+      ledbuf[ridx] = r;
+      ledbuf[gidx] = g;
+      ledbuf[bidx] = b;
     }
   }
 }
@@ -1177,9 +1191,9 @@ void Adafruit_IS31FL3741_GlassesMatrix_buffered::scale(void) {
         if (bidx != 65535) {
           uint16_t ridx = pgm_read_word(&glassesmatrix_ledmap[base + 1]);
           uint16_t gidx = pgm_read_word(&glassesmatrix_ledmap[base + 2]);
-          ledbuf[bidx] = pgm_read_byte(&gammaRB[bsum]);
           ledbuf[ridx] = pgm_read_byte(&gammaRB[rsum]);
           ledbuf[gidx] = pgm_read_byte(&gammaG[gsum]);
+          ledbuf[bidx] = pgm_read_byte(&gammaRB[bsum]);
         }
       }
     }
@@ -1216,9 +1230,14 @@ void Adafruit_IS31FL3741_GlassesRing_buffered::setPixelColor(int16_t n,
     uint8_t g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
     uint8_t b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
     n *= 3;
-    ledbuf[pgm_read_word(&ring_map[n])] = b;
-    ledbuf[pgm_read_word(&ring_map[n + 1])] = r;
-    ledbuf[pgm_read_word(&ring_map[n + 2])] = g;
+    // Hmm. r,g,bOffset are in an unrelated class, not in the ring object
+    // or the IS31 base class.
+    // I think this version of the code will use fixed values for offsets,
+    // and then the new EyeLights class will handle this correctly.
+    uint8_t rOffset, gOffset, bOffset; // For now
+    ledbuf[pgm_read_word(&ring_map[n + rOffset])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + gOffset])] = g;
+    ledbuf[pgm_read_word(&ring_map[n + bOffset])] = b;
   }
 }
 
@@ -1235,10 +1254,11 @@ void Adafruit_IS31FL3741_GlassesRing_buffered::fill(uint32_t color) {
   uint8_t g = (((uint16_t)((color >> 8) & 0xFF)) * _brightness) >> 8;
   uint8_t b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
 
+  uint8_t rOffset, gOffset, bOffset; // For now, see notes above
   for (uint8_t n = 0; n < 24 * 3; n += 3) {
-    ledbuf[pgm_read_word(&right_ring_map[n])] = b;
-    ledbuf[pgm_read_word(&right_ring_map[n + 1])] = r;
-    ledbuf[pgm_read_word(&right_ring_map[n + 2])] = g;
+    ledbuf[pgm_read_word(&right_ring_map[n + rOffset])] = r;
+    ledbuf[pgm_read_word(&right_ring_map[n + gOffset])] = g;
+    ledbuf[pgm_read_word(&right_ring_map[n + bOffset])] = b;
   }
 }
 
@@ -1263,3 +1283,48 @@ Adafruit_IS31FL3741_GlassesRightRing_buffered::
     Adafruit_IS31FL3741_GlassesRightRing_buffered(
         Adafruit_IS31FL3741_buffered *controller)
     : Adafruit_IS31FL3741_GlassesRing_buffered(controller, true) {}
+
+
+// NEW EYELIGHTS CODE
+
+
+/**************************************************************************/
+/*!
+    @brief  Constructor for EyeLights LED ring. Not invoked by user code.
+    @param  isRight  true if right ring, false if left.
+*/
+/**************************************************************************/
+Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(bool isRight, uint8_t order) : Adafruit_IS31FL3741_ColorOrder(order), ring_map(isRight ? right_ring_map : left_ring_map) {
+}
+
+void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
+}
+
+void Adafruit_EyeLights_Ring::fill(uint32_t color) {
+}
+
+void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n, uint32_t color) {
+}
+
+void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
+}
+
+Adafruit_EyeLights_Base::Adafruit_EyeLights_Base(bool withCanvas) {
+}
+
+Adafruit_EyeLights::Adafruit_EyeLights(bool withCanvas, uint8_t order) : Adafruit_EyeLights_Base(withCanvas), Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(false, order), right_ring(true, order) {
+}
+
+void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {
+}
+
+Adafruit_EyeLights_buffered::Adafruit_EyeLights_buffered(bool withCanvas, uint8_t order) : Adafruit_EyeLights_Base(withCanvas), Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order), left_ring(false, order), right_ring(true, order) {
+}
+
+void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y, uint16_t color) {
+}
+
+
+
+
+
