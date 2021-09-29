@@ -40,6 +40,15 @@
   uint8_t _G_ = ((_COLOR_ >> 3) & 0xFC) | ((_COLOR_ >> 9) & 0x03);             \
   uint8_t _B_ = ((_COLOR_ << 3) & 0xF8) | ((_COLOR_ >> 2) & 0x07);
 
+// This scales a packed 24-bit RGB value by a brightness level (0-255) and
+// places in 3 uint8_t variables declared here, i.e. at the corresponding
+// position in the setPixelColor() function. It's used for NeoPixel-like
+// behavior with the LED rings.
+#define _IS31_SCALE_RGB_(_COLOR_, _R_, _G_, _B_, _BRIGHTNESS_)                 \
+  uint8_t _R_ = (((uint16_t)((_COLOR_ >> 16) & 0xFF)) * _BRIGHTNESS_) >> 8;    \
+  uint8_t _G_ = (((uint16_t)((_COLOR_ >> 8) & 0xFF)) * _BRIGHTNESS_) >> 8;     \
+  uint8_t _B_ = (((uint16_t)(_COLOR_ & 0xFF)) * _BRIGHTNESS_) >> 8;
+
 // IS31FL3741 (DIRECT) -----------------------------------------------------
 
 /**************************************************************************/
@@ -1002,9 +1011,9 @@ void Adafruit_IS31FL3741_GlassesRing::fill(uint32_t color) {
   b = (((uint16_t)(color & 0xFF)) * _brightness) >> 8;
 
   for (uint8_t n = 0; n < 24 * 3; n += 3) {
-    _is31->setLEDPWM(pgm_read_word(&right_ring_map[n]), b);
-    _is31->setLEDPWM(pgm_read_word(&right_ring_map[n + 1]), r);
-    _is31->setLEDPWM(pgm_read_word(&right_ring_map[n + 2]), g);
+    _is31->setLEDPWM(pgm_read_word(&ring_map[n]), b);
+    _is31->setLEDPWM(pgm_read_word(&ring_map[n + 1]), r);
+    _is31->setLEDPWM(pgm_read_word(&ring_map[n + 2]), g);
   }
 }
 
@@ -1249,9 +1258,9 @@ void Adafruit_IS31FL3741_GlassesRing_buffered::fill(uint32_t color) {
 
   uint8_t rOffset, gOffset, bOffset; // For now, see notes above
   for (uint8_t n = 0; n < 24 * 3; n += 3) {
-    ledbuf[pgm_read_word(&right_ring_map[n + rOffset])] = r;
-    ledbuf[pgm_read_word(&right_ring_map[n + gOffset])] = g;
-    ledbuf[pgm_read_word(&right_ring_map[n + bOffset])] = b;
+    ledbuf[pgm_read_word(&ring_map[n + rOffset])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + gOffset])] = g;
+    ledbuf[pgm_read_word(&ring_map[n + bOffset])] = b;
   }
 }
 
@@ -1276,6 +1285,11 @@ Adafruit_IS31FL3741_GlassesRightRing_buffered::
     Adafruit_IS31FL3741_GlassesRightRing_buffered(
         Adafruit_IS31FL3741_buffered *controller)
     : Adafruit_IS31FL3741_GlassesRing_buffered(controller, true) {}
+
+
+
+
+
 
 // NEW EYELIGHTS CODE
 
@@ -1313,17 +1327,45 @@ void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
   }
 }
 
+/**************************************************************************/
+/*!
+    @brief Fill all pixels of one EyeLights ring to same color.
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
+*/
+/**************************************************************************/
 void Adafruit_EyeLights_Ring::fill(uint32_t color) {
   // TO DO
 }
 
+/**************************************************************************/
+/*!
+    @brief  Set color of one pixel of one buffered EyeLights ring.
+    @param  n      Index of pixel to set (0-23).
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
+*/
+/**************************************************************************/
 void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
                                                      uint32_t color) {
   // TO DO
 }
 
+/**************************************************************************/
+/*!
+    @brief  Fill all pixels of one EyeLights ring to same color.
+            No immediate effect on LEDs; must follow up with show().
+    @param  color  RGB888 (24-bit) color, a la NeoPixel.
+*/
+/**************************************************************************/
 void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
-  // TO DO
+  _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+  Adafruit_EyeLights_buffered *eyelights =
+    (Adafruit_EyeLights_buffered *)parent;
+  uint8_t *ledbuf = eyelights->getBuffer();
+  for (uint8_t n = 0; n < 24 * 3; n += 3) {
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->bOffset])] = b;
+  }
 }
 
 void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {
