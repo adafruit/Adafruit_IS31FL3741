@@ -145,7 +145,7 @@ public:
       : rOffset((order >> 4) & 3), gOffset((order >> 2) & 3),
         bOffset(order & 3) {}
 
-//protected:
+protected:
   uint8_t rOffset;
   uint8_t gOffset;
   uint8_t bOffset;
@@ -266,6 +266,11 @@ public:
 /*!
     @brief  Base class for EyeLights LED ring. Holds a few items that are
             common to direct or buffered instances, left or right ring.
+    @note   This inherits from ColorOrder because the ring color-setting
+            functions require R/G/B order knowledge, but that information
+            is over in a sibling class...so, a duplicate copy resides here,
+            initialized alongside the sibling. Maybe that's kludgey, but
+            eh, it's 3 bytes, even a pointer-to-other-object is bigger.
 */
 /**************************************************************************/
 class Adafruit_EyeLights_Ring_Base : public Adafruit_IS31FL3741_ColorOrder {
@@ -284,6 +289,7 @@ public:
     @param  b  Brightness from 0 (off) to 255 (max).
   */
   void setBrightness(uint8_t b) { _brightness = b + 1; }
+
 protected:
   uint16_t _brightness = 256; ///< Internally 1-256 for math
   const uint16_t *ring_map;   ///< Pointer to lookup table
@@ -296,7 +302,8 @@ protected:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring : public Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring(bool isRight, uint8_t order) : Adafruit_EyeLights_Ring_Base(isRight, order) {}
+  Adafruit_EyeLights_Ring(bool isRight, uint8_t order)
+      : Adafruit_EyeLights_Ring_Base(isRight, order) {}
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
 };
@@ -308,7 +315,8 @@ public:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring_buffered : public Adafruit_EyeLights_Ring_Base {
 public:
-  Adafruit_EyeLights_Ring_buffered(bool isRight, uint8_t order) : Adafruit_EyeLights_Ring_Base(isRight, order) {}
+  Adafruit_EyeLights_Ring_buffered(bool isRight, uint8_t order)
+      : Adafruit_EyeLights_Ring_Base(isRight, order) {}
   void setPixelColor(int16_t n, uint32_t color);
   void fill(uint32_t color);
 };
@@ -328,6 +336,7 @@ public:
     @returns  GFXcanvas16*  Pointer to GFXcanvas16 object, or NULL.
   */
   GFXcanvas16 *getCanvas(void) const { return canvas; };
+
 protected:
   GFXcanvas16 *canvas = NULL; ///< Pointer to GFX canvas
 };
@@ -337,12 +346,14 @@ protected:
     @brief  Class for Adafruit EyeLights, direct (unbuffered).
 */
 /**************************************************************************/
-class Adafruit_EyeLights : public Adafruit_EyeLights_Base, public Adafruit_IS31FL3741_colorGFX {
+class Adafruit_EyeLights : public Adafruit_EyeLights_Base,
+                           public Adafruit_IS31FL3741_colorGFX {
 public:
   Adafruit_EyeLights(bool withCanvas = false, uint8_t order = IS3741_RGB);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   Adafruit_EyeLights_Ring left_ring;
   Adafruit_EyeLights_Ring right_ring;
+
 protected:
 };
 
@@ -351,18 +362,21 @@ protected:
     @brief  Class for Adafruit EyeLights, buffered.
 */
 /**************************************************************************/
-class Adafruit_EyeLights_buffered : public Adafruit_EyeLights_Base, public Adafruit_IS31FL3741_colorGFX_buffered {
+class Adafruit_EyeLights_buffered
+    : public Adafruit_EyeLights_Base,
+      public Adafruit_IS31FL3741_colorGFX_buffered {
 public:
-  Adafruit_EyeLights_buffered(bool withCanvas = false, uint8_t order = IS3741_RGB);
+  Adafruit_EyeLights_buffered(bool withCanvas = false,
+                              uint8_t order = IS3741_RGB);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   Adafruit_EyeLights_Ring_buffered left_ring;
   Adafruit_EyeLights_Ring_buffered right_ring;
 };
 
-
 /* =======================================================================
    This is the older and maybe deprecated way of using Adafruit EyeLights.
-   It requires a few extra steps of the user for object declarations.
+   It requires a few extra steps of the user for object declarations, and
+   doesn't handle different RGB color orders.
    =======================================================================*/
 
 /**************************************************************************/

@@ -469,8 +469,9 @@ void Adafruit_IS31FL3741_buffered::show(void) {
             function can be used across subclasses.
 */
 /**************************************************************************/
-Adafruit_IS31FL3741_colorGFX::Adafruit_IS31FL3741_colorGFX(uint8_t width, uint8_t height,
-                                                 uint8_t order)
+Adafruit_IS31FL3741_colorGFX::Adafruit_IS31FL3741_colorGFX(uint8_t width,
+                                                           uint8_t height,
+                                                           uint8_t order)
     : Adafruit_IS31FL3741(), Adafruit_IS31FL3741_ColorOrder(order),
       Adafruit_GFX(width, height) {}
 
@@ -1284,47 +1285,43 @@ Adafruit_IS31FL3741_GlassesRightRing_buffered::
         Adafruit_IS31FL3741_buffered *controller)
     : Adafruit_IS31FL3741_GlassesRing_buffered(controller, true) {}
 
-
 // NEW EYELIGHTS CODE
-
 
 /**************************************************************************/
 /*!
     @brief  Constructor for EyeLights LED ring. Not invoked by user code.
     @param  isRight  true if right ring, false if left.
+    @param  order    RGB color order, one of the IS3741_* color defines.
 */
 /**************************************************************************/
-Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(bool isRight, uint8_t order) : Adafruit_IS31FL3741_ColorOrder(order), ring_map(isRight ? right_ring_map : left_ring_map) {
-}
+Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(bool isRight,
+                                                           uint8_t order)
+    : Adafruit_IS31FL3741_ColorOrder(order),
+      ring_map(isRight ? right_ring_map : left_ring_map) {}
 
-void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
-}
+void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {}
 
-void Adafruit_EyeLights_Ring::fill(uint32_t color) {
-}
+void Adafruit_EyeLights_Ring::fill(uint32_t color) {}
 
-void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n, uint32_t color) {
-}
+void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
+                                                     uint32_t color) {}
 
-void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
-}
+void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {}
 
-Adafruit_EyeLights_Base::Adafruit_EyeLights_Base(bool withCanvas) {
-}
+Adafruit_EyeLights_Base::Adafruit_EyeLights_Base(bool withCanvas) {}
 
-Adafruit_EyeLights::Adafruit_EyeLights(bool withCanvas, uint8_t order) : Adafruit_EyeLights_Base(withCanvas), Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(false, order), right_ring(true, order) {
-}
+Adafruit_EyeLights::Adafruit_EyeLights(bool withCanvas, uint8_t order)
+    : Adafruit_EyeLights_Base(withCanvas),
+      Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(false, order),
+      right_ring(true, order) {}
 
-void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {
-}
+void Adafruit_EyeLights::drawPixel(int16_t x, int16_t y, uint16_t color) {}
 
-Adafruit_EyeLights_buffered::Adafruit_EyeLights_buffered(bool withCanvas, uint8_t order) : Adafruit_EyeLights_Base(withCanvas), Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order), left_ring(false, order), right_ring(true, order) {
-}
+Adafruit_EyeLights_buffered::Adafruit_EyeLights_buffered(bool withCanvas,
+                                                         uint8_t order)
+    : Adafruit_EyeLights_Base(withCanvas),
+      Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order),
+      left_ring(false, order), right_ring(true, order) {}
 
-void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y, uint16_t color) {
-}
-
-
-
-
-
+void Adafruit_EyeLights_buffered::drawPixel(int16_t x, int16_t y,
+                                            uint16_t color) {}
