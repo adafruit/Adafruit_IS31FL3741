@@ -61,6 +61,16 @@ public:
   bool setLEDPWM(uint16_t lednum, uint8_t pwm);
   bool fill(uint8_t fillpwm = 0);
 
+  /*!
+    @brief  Empty function makes direct & buffered code more interchangeable.
+            Direct classes have an immediate effect when setting LED states,
+            only buffered ones need an explicit call to show(), but it gets
+            annoying when moving code back and forth. So this does nothing
+            in the direct case. For code that you KNOW will always be
+            strictly unbuffered, don't call this, it sets a bad precedent.
+  */
+  inline const void show(void) {}
+
   // Although Adafruit_IS31FL3741 itself has no concept of color, most of
   // its subclasses do. These color-related operations go here so that all
   // subclasses have access. Any 'packed' 24-bit colors received or returned
