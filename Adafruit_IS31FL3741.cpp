@@ -553,7 +553,8 @@ void Adafruit_IS31FL3741_EVB::drawPixel(int16_t x, int16_t y, uint16_t color) {
     _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
 
     // Map x/y to device-specific pixel layout
-    uint16_t offset = ((x > 9) ? (x + 80 + y * 3) : (x + y * 10)) * 3;
+    uint16_t offset = ((y > 2) ? (x * 10 + 12 - y) : (92 + x * 3 - y)) * 3;
+
     /*
     Serial.print("("); Serial.print(x);
     Serial.print(", "); Serial.print(y);
@@ -584,7 +585,8 @@ void Adafruit_IS31FL3741_EVB_buffered::drawPixel(int16_t x, int16_t y,
     _IS31_EXPAND_(color, r, g, b); // Expand GFX's RGB565 color to RGB888
 
     // Map x/y to device-specific pixel layout
-    uint16_t offset = ((x > 9) ? (x + 80 + y * 3) : (x + y * 10)) * 3;
+    uint16_t offset = ((y > 2) ? (x * 10 + 12 - y) : (92 + x * 3 - y)) * 3;
+
     /*
     Serial.print("("); Serial.print(x);
     Serial.print(", "); Serial.print(y);

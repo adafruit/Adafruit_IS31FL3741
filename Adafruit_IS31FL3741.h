@@ -220,8 +220,8 @@ public:
     @brief  Constructor for Lumissil IS31FL3741 OEM evaluation board,
             13x9 pixels, direct (unbuffered).
   */
-  Adafruit_IS31FL3741_EVB(uint8_t order = IS3741_RGB)
-      : Adafruit_IS31FL3741_colorGFX(13, 9, order) {}
+  Adafruit_IS31FL3741_EVB(uint8_t order = IS3741_BGR)
+      : Adafruit_IS31FL3741_colorGFX(9, 13, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 
@@ -237,8 +237,8 @@ public:
     @brief  Constructor for Lumissil IS31FL3741 OEM evaluation board,
             13x9 pixels, buffered.
   */
-  Adafruit_IS31FL3741_EVB_buffered(uint8_t order = IS3741_RGB)
-      : Adafruit_IS31FL3741_colorGFX_buffered(13, 9, order) {}
+  Adafruit_IS31FL3741_EVB_buffered(uint8_t order = IS3741_BGR)
+      : Adafruit_IS31FL3741_colorGFX_buffered(9, 13, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 

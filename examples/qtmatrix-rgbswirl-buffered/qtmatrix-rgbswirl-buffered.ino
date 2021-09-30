@@ -21,7 +21,7 @@ void setup() {
     Serial.println("IS41 not found");
     while (1);
   }
-  
+
   Serial.println("IS41 found!");
 
   // By default the LED controller communicates over I2C at 400 KHz.
