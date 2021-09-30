@@ -254,7 +254,7 @@ public:
     @brief  Constructor for STEMMA QT version (13 x 9 LEDs), direct
             (unbuffered).
   */
-  Adafruit_IS31FL3741_QT(uint8_t order = IS3741_RGB)
+  Adafruit_IS31FL3741_QT(uint8_t order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX(13, 9, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
@@ -270,7 +270,7 @@ public:
   /*!
     @brief  Constructor for STEMMA QT version (13 x 9 LEDs), buffered.
   */
-  Adafruit_IS31FL3741_QT_buffered(uint8_t order = IS3741_RGB)
+  Adafruit_IS31FL3741_QT_buffered(uint8_t order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX_buffered(13, 9, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };

@@ -622,46 +622,22 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
     Serial.print(") -> 0x");
     */
 
-    uint8_t col = x;
-    uint8_t row = y;
-
-    // remap the row
+    // Remap the row (y)
     static const uint8_t rowmap[] = {8, 5, 4, 3, 2, 1, 0, 7, 6};
-    row = rowmap[y];
+    y = rowmap[y];
 
-    uint16_t offset = 0;
-
-    if (row <= 5) {
-      if (col < 10) {
-        offset = 0x1E * row + col * 3;
-      } else {
-        offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
-      }
-    } else {
-      if (col < 10) {
-        offset = 0xB4 + (row - 6) * 0x1E + col * 3;
-      } else {
-        offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
-      }
-    }
-
-    // TO DO: incorporate RGB order here
-    int8_t r_off, g_off, b_off;
-    if ((col == 12) || (col % 2 == 1)) { // odds + last col
-      r_off = 1;
-      g_off = 0;
-      b_off = 2;
-    } else { // evens;
-      r_off = 2;
-      g_off = 1;
-      b_off = 0;
-    }
-
+    uint16_t offset = (x + ((x < 10) ? (y * 10) : (80 + y * 3))) * 3;
     // Serial.println(offset, HEX);
 
-    setLEDPWM(offset + r_off, r);
-    setLEDPWM(offset + g_off, g);
-    setLEDPWM(offset + b_off, b);
+    if ((x & 1) || (x == 12)) {       // Odd columns + last column
+      setLEDPWM(offset + rOffset, b); // Flip color order vs constructor
+      setLEDPWM(offset + gOffset, r);
+      setLEDPWM(offset + bOffset, g);
+    } else {                          // Even columns
+      setLEDPWM(offset + rOffset, r); // Color order follows constructor
+      setLEDPWM(offset + gOffset, g);
+      setLEDPWM(offset + bOffset, b);
+    }
   }
 }
 
@@ -688,48 +664,23 @@ void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
     Serial.print(") -> 0x");
     */
 
-    uint8_t col = x;
-    uint8_t row = y;
-
-    // remap the row
+    // Remap the row (y)
     static const uint8_t rowmap[] = {8, 5, 4, 3, 2, 1, 0, 7, 6};
-    row = rowmap[y];
+    y = rowmap[y];
 
-    uint16_t offset = 0;
-
-    if (row <= 5) {
-      if (col < 10) {
-        offset = 0x1E * row + col * 3;
-      } else {
-        offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
-      }
-    } else {
-      if (col < 10) {
-        offset = 0xB4 + (row - 6) * 0x1E + col * 3;
-      } else {
-        offset = 0xB4 + 0x5A + 9 * row + (col - 10) * 3;
-      }
-    }
-
-    // TO DO: incorporate RGB order here
-    int8_t r_off, g_off, b_off;
-    if ((col == 12) || (col % 2 == 1)) { // odds + last col
-      r_off = 1;
-      g_off = 0;
-      b_off = 2;
-    } else { // evens;
-      r_off = 2;
-      g_off = 1;
-      b_off = 0;
-    }
-
+    uint16_t offset = (x + ((x < 10) ? (y * 10) : (80 + y * 3))) * 3;
     // Serial.println(offset, HEX);
 
-    // Expand 5/6 bits of color components to 8 bits and store:
     uint8_t *ptr = &ledbuf[1 + offset];
-    ptr[r_off] = r;
-    ptr[g_off] = g;
-    ptr[b_off] = b;
+    if ((x & 1) || (x == 12)) { // Odd columns + last column
+      ptr[rOffset] = b;         // Flip color order vs constructor
+      ptr[gOffset] = r;
+      ptr[bOffset] = g;
+    } else {            // Even columns
+      ptr[rOffset] = r; // Color order follows constructor
+      ptr[gOffset] = g;
+      ptr[bOffset] = b;
+    }
   }
 }
 

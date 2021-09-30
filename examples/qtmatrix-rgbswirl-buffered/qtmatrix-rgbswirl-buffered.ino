@@ -40,8 +40,8 @@ uint16_t hue_offset = 0;
 
 void loop() {
   uint32_t i = 0;
-  for (int y=0; y<9; y++) {
-    for (int x=0; x<13; x++) {
+  for (int y=0; y<ledmatrix.height(); y++) {
+    for (int x=0; x<ledmatrix.width(); x++) {
       uint32_t color888 = ledmatrix.ColorHSV(i * 65536 / 117 + hue_offset);
       uint16_t color565 = ledmatrix.color565(color888);
       ledmatrix.drawPixel(x, y, color565);
