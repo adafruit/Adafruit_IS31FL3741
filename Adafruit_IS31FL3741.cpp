@@ -629,10 +629,13 @@ void Adafruit_IS31FL3741_QT::drawPixel(int16_t x, int16_t y, uint16_t color) {
     uint16_t offset = (x + ((x < 10) ? (y * 10) : (80 + y * 3))) * 3;
     // Serial.println(offset, HEX);
 
-    if ((x & 1) || (x == 12)) {       // Odd columns + last column
-      setLEDPWM(offset + rOffset, b); // Flip color order vs constructor
-      setLEDPWM(offset + gOffset, r);
-      setLEDPWM(offset + bOffset, g);
+    if ((x & 1) || (x == 12)) { // Odd columns + last column
+      // Rearrange color order vs constructor. Not a simple swap,
+      // needs to pass through table, or essentially (n + 2) % 3.
+      static const uint8_t remap[] = { 2, 0, 1 };
+      setLEDPWM(offset + remap[rOffset], r);
+      setLEDPWM(offset + remap[gOffset], g);
+      setLEDPWM(offset + remap[bOffset], b);
     } else {                          // Even columns
       setLEDPWM(offset + rOffset, r); // Color order follows constructor
       setLEDPWM(offset + gOffset, g);
@@ -673,9 +676,12 @@ void Adafruit_IS31FL3741_QT_buffered::drawPixel(int16_t x, int16_t y,
 
     uint8_t *ptr = &ledbuf[1 + offset];
     if ((x & 1) || (x == 12)) { // Odd columns + last column
-      ptr[rOffset] = b;         // Flip color order vs constructor
-      ptr[gOffset] = r;
-      ptr[bOffset] = g;
+      // Rearrange color order vs constructor. Not a simple swap,
+      // needs to pass through table, or essentially (n + 2) % 3.
+      static const uint8_t remap[] = { 2, 0, 1 };
+      ptr[remap[rOffset]] = r;
+      ptr[remap[gOffset]] = g;
+      ptr[remap[bOffset]] = b;
     } else {            // Even columns
       ptr[rOffset] = r; // Color order follows constructor
       ptr[gOffset] = g;
