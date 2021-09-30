@@ -10,7 +10,7 @@
 // Some boards have just one I2C interface, but some have more...
 TwoWire *i2c = &Wire; // e.g. change this to &Wire1 for QT Py RP2040
 
-// Eyelights glasses object in simplest form
+// EyeLights glasses object in simplest form
 Adafruit_EyeLights glasses;
 
 char text[] = "ADAFRUIT!";    // A message to scroll

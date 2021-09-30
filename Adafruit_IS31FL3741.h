@@ -370,7 +370,7 @@ protected:
 class Adafruit_EyeLights : public Adafruit_EyeLights_Base,
                            public Adafruit_IS31FL3741_colorGFX {
 public:
-  Adafruit_EyeLights(bool withCanvas = false, uint8_t order = IS3741_RGB)
+  Adafruit_EyeLights(bool withCanvas = false, uint8_t order = IS3741_BGR)
       : Adafruit_EyeLights_Base(withCanvas),
         Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(this, false),
         right_ring(this, true) {}
@@ -390,7 +390,7 @@ class Adafruit_EyeLights_buffered
       public Adafruit_IS31FL3741_colorGFX_buffered {
 public:
   Adafruit_EyeLights_buffered(bool withCanvas = false,
-                              uint8_t order = IS3741_RGB)
+                              uint8_t order = IS3741_BGR)
       : Adafruit_EyeLights_Base(withCanvas),
         Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order),
         left_ring(this, false), right_ring(this, true) {}

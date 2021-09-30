@@ -118,6 +118,5 @@ void loop() {
 
   glasses.show(); // Always show() with a buffered controller!
 
-  // There's no delay() in this example, we just let it run full-tilt
-  // because the drawing and scaling takes a bit longer.
+  delay(20); // Pause briefly to limit scrolling speed.
 }
