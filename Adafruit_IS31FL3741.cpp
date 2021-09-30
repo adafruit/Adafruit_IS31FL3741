@@ -479,7 +479,7 @@ void Adafruit_IS31FL3741_buffered::show(void) {
 /**************************************************************************/
 Adafruit_IS31FL3741_colorGFX::Adafruit_IS31FL3741_colorGFX(uint8_t width,
                                                            uint8_t height,
-                                                           uint8_t order)
+                                                           IS3741_order order)
     : Adafruit_IS31FL3741(), Adafruit_IS31FL3741_ColorOrder(order),
       Adafruit_GFX(width, height) {}
 
@@ -507,7 +507,7 @@ void Adafruit_IS31FL3741_colorGFX::fill(uint16_t color) {
 */
 /**************************************************************************/
 Adafruit_IS31FL3741_colorGFX_buffered::Adafruit_IS31FL3741_colorGFX_buffered(
-    uint8_t width, uint8_t height, uint8_t order)
+    uint8_t width, uint8_t height, IS3741_order order)
     : Adafruit_IS31FL3741_buffered(), Adafruit_IS31FL3741_ColorOrder(order),
       Adafruit_GFX(width, height) {}
 

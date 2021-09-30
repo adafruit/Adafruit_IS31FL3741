@@ -19,13 +19,15 @@
 #define IS3741_FUNCREG_RESET 0x3F
 
 // RGB pixel color order permutations
-// Offset:           R          G          B
-#define IS3741_RGB ((0 << 4) | (1 << 2) | (2)) ///< Encode as R,G,B
-#define IS3741_RBG ((0 << 4) | (2 << 2) | (1)) ///< Encode as R,B,G
-#define IS3741_GRB ((1 << 4) | (0 << 2) | (2)) ///< Encode as G,R,B
-#define IS3741_GBR ((2 << 4) | (0 << 2) | (1)) ///< Encode as G,B,R
-#define IS3741_BRG ((1 << 4) | (2 << 2) | (0)) ///< Encode as B,R,G
-#define IS3741_BGR ((2 << 4) | (1 << 2) | (0)) ///< Encode as B,G,R
+typedef enum {
+  // Offset:     R          G          B
+  IS3741_RGB = ((0 << 4) | (1 << 2) | (2)), // Encode as R,G,B
+  IS3741_RBG = ((0 << 4) | (2 << 2) | (1)), // Encode as R,B,G
+  IS3741_GRB = ((1 << 4) | (0 << 2) | (2)), // Encode as G,R,B
+  IS3741_GBR = ((2 << 4) | (0 << 2) | (1)), // Encode as G,B,R
+  IS3741_BRG = ((1 << 4) | (2 << 2) | (0)), // Encode as B,R,G
+  IS3741_BGR = ((2 << 4) | (1 << 2) | (0)), // Encode as B,G,R
+} IS3741_order;
 
 // BASE IS31 CLASSES -------------------------------------------------------
 
@@ -143,9 +145,9 @@ class Adafruit_IS31FL3741_ColorOrder {
 public:
   /*!
     @brief  Constructor for Adafruit_IS31FL3741_ColorOrder
-    @param  order  One of the IS3741_* color defined (e.g. IS3741_RGB).
+    @param  order  One of the IS3741_* color types (e.g. IS3741_RGB).
   */
-  Adafruit_IS31FL3741_ColorOrder(uint8_t order)
+  Adafruit_IS31FL3741_ColorOrder(IS3741_order order)
       : rOffset((order >> 4) & 3), gOffset((order >> 2) & 3),
         bOffset(order & 3) {}
   uint8_t rOffset; ///< Index of red element within RGB triplet
@@ -167,7 +169,8 @@ class Adafruit_IS31FL3741_colorGFX : public Adafruit_IS31FL3741,
                                      public Adafruit_IS31FL3741_ColorOrder,
                                      public Adafruit_GFX {
 public:
-  Adafruit_IS31FL3741_colorGFX(uint8_t width, uint8_t height, uint8_t order);
+  Adafruit_IS31FL3741_colorGFX(uint8_t width, uint8_t height,
+                               IS3741_order order);
   // Overload the base (monochrome) fill() with a GFX RGB565-style color.
   void fill(uint16_t color = 0);
 };
@@ -187,7 +190,7 @@ class Adafruit_IS31FL3741_colorGFX_buffered
       public Adafruit_GFX {
 public:
   Adafruit_IS31FL3741_colorGFX_buffered(uint8_t width, uint8_t height,
-                                        uint8_t order);
+                                        IS3741_order order);
   // Overload the base (monochrome) fill() with a GFX RGB565-style color.
   void fill(uint16_t color = 0);
 };
@@ -220,7 +223,7 @@ public:
     @brief  Constructor for Lumissil IS31FL3741 OEM evaluation board,
             13x9 pixels, direct (unbuffered).
   */
-  Adafruit_IS31FL3741_EVB(uint8_t order = IS3741_BGR)
+  Adafruit_IS31FL3741_EVB(IS3741_order order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX(9, 13, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
@@ -237,7 +240,7 @@ public:
     @brief  Constructor for Lumissil IS31FL3741 OEM evaluation board,
             13x9 pixels, buffered.
   */
-  Adafruit_IS31FL3741_EVB_buffered(uint8_t order = IS3741_BGR)
+  Adafruit_IS31FL3741_EVB_buffered(IS3741_order order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX_buffered(9, 13, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
@@ -254,7 +257,7 @@ public:
     @brief  Constructor for STEMMA QT version (13 x 9 LEDs), direct
             (unbuffered).
   */
-  Adafruit_IS31FL3741_QT(uint8_t order = IS3741_BGR)
+  Adafruit_IS31FL3741_QT(IS3741_order order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX(13, 9, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
@@ -270,7 +273,7 @@ public:
   /*!
     @brief  Constructor for STEMMA QT version (13 x 9 LEDs), buffered.
   */
-  Adafruit_IS31FL3741_QT_buffered(uint8_t order = IS3741_BGR)
+  Adafruit_IS31FL3741_QT_buffered(IS3741_order order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX_buffered(13, 9, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
@@ -370,7 +373,7 @@ protected:
 class Adafruit_EyeLights : public Adafruit_EyeLights_Base,
                            public Adafruit_IS31FL3741_colorGFX {
 public:
-  Adafruit_EyeLights(bool withCanvas = false, uint8_t order = IS3741_BGR)
+  Adafruit_EyeLights(bool withCanvas = false, IS3741_order order = IS3741_BGR)
       : Adafruit_EyeLights_Base(withCanvas),
         Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(this, false),
         right_ring(this, true) {}
@@ -390,7 +393,7 @@ class Adafruit_EyeLights_buffered
       public Adafruit_IS31FL3741_colorGFX_buffered {
 public:
   Adafruit_EyeLights_buffered(bool withCanvas = false,
-                              uint8_t order = IS3741_BGR)
+                              IS3741_order order = IS3741_BGR)
       : Adafruit_EyeLights_Base(withCanvas),
         Adafruit_IS31FL3741_colorGFX_buffered(18, 5, order),
         left_ring(this, false), right_ring(this, true) {}
