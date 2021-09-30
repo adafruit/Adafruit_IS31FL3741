@@ -27,6 +27,8 @@
 #define IS3741_BRG ((1 << 4) | (2 << 2) | (0)) ///< Encode as B,R,G
 #define IS3741_BGR ((2 << 4) | (1 << 2) | (0)) ///< Encode as B,G,R
 
+// BASE IS31 CLASSES -------------------------------------------------------
+
 /**************************************************************************/
 /*!
     @brief  Class for Lumissil IS31FL3741 LED driver. This is the base class
@@ -61,7 +63,7 @@ public:
   // its subclasses do. These color-related operations go here so that all
   // subclasses have access. Any 'packed' 24-bit colors received or returned
   // by these functions are always in 0xRRGGBB order; RGB reordering for
-  // different devices takes place elsewhere, in subclasses.
+  // specific devices takes place elsewhere, in subclasses.
 
   /*!
     @brief    Converter for RGB888-format color (separate) to RGB565-format
@@ -125,6 +127,8 @@ public:
 protected:
   uint8_t ledbuf[352]; ///< LEDs in RAM. +1 byte is intentional, see show()
 };
+
+// INTERMEDIARY CLASSES FOR COLORS AND GFX ---------------------------------
 
 /**************************************************************************/
 /*!
@@ -212,7 +216,12 @@ public:
 /**************************************************************************/
 class Adafruit_IS31FL3741_EVB : public Adafruit_IS31FL3741_colorGFX {
 public:
-  Adafruit_IS31FL3741_EVB(uint8_t order = IS3741_RGB);
+  /*!
+    @brief  Constructor for Lumissil IS31FL3741 OEM evaluation board,
+            13x9 pixels, direct (unbuffered).
+  */
+  Adafruit_IS31FL3741_EVB(uint8_t order = IS3741_RGB)
+      : Adafruit_IS31FL3741_colorGFX(13, 9, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 
@@ -224,7 +233,12 @@ public:
 class Adafruit_IS31FL3741_EVB_buffered
     : public Adafruit_IS31FL3741_colorGFX_buffered {
 public:
-  Adafruit_IS31FL3741_EVB_buffered(uint8_t order = IS3741_RGB);
+  /*!
+    @brief  Constructor for Lumissil IS31FL3741 OEM evaluation board,
+            13x9 pixels, buffered.
+  */
+  Adafruit_IS31FL3741_EVB_buffered(uint8_t order = IS3741_RGB)
+      : Adafruit_IS31FL3741_colorGFX_buffered(13, 9, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 
@@ -236,7 +250,12 @@ public:
 /**************************************************************************/
 class Adafruit_IS31FL3741_QT : public Adafruit_IS31FL3741_colorGFX {
 public:
-  Adafruit_IS31FL3741_QT(uint8_t order = IS3741_RGB);
+  /*!
+    @brief  Constructor for STEMMA QT version (13 x 9 LEDs), direct
+            (unbuffered).
+  */
+  Adafruit_IS31FL3741_QT(uint8_t order = IS3741_RGB)
+      : Adafruit_IS31FL3741_colorGFX(13, 9, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 
@@ -248,7 +267,11 @@ public:
 class Adafruit_IS31FL3741_QT_buffered
     : public Adafruit_IS31FL3741_colorGFX_buffered {
 public:
-  Adafruit_IS31FL3741_QT_buffered(uint8_t order = IS3741_RGB);
+  /*!
+    @brief  Constructor for STEMMA QT version (13 x 9 LEDs), buffered.
+  */
+  Adafruit_IS31FL3741_QT_buffered(uint8_t order = IS3741_RGB)
+      : Adafruit_IS31FL3741_colorGFX_buffered(13, 9, order) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 
@@ -334,6 +357,7 @@ public:
     @returns  GFXcanvas16*  Pointer to GFXcanvas16 object, or NULL.
   */
   GFXcanvas16 *getCanvas(void) const { return canvas; }
+
 protected:
   GFXcanvas16 *canvas = NULL; ///< Pointer to GFX canvas
 };
@@ -391,7 +415,12 @@ public:
 /**************************************************************************/
 class Adafruit_IS31FL3741_GlassesMatrix : public Adafruit_GFX {
 public:
-  Adafruit_IS31FL3741_GlassesMatrix(Adafruit_IS31FL3741 *controller);
+  /*!
+    @brief  Constructor for LED glasses (matrix portion, 18x5 LEDs)
+    @param  controller  Pointer to core object (underlying hardware).
+  */
+  Adafruit_IS31FL3741_GlassesMatrix(Adafruit_IS31FL3741 *controller)
+      : Adafruit_GFX(18, 5), _is31(controller) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
 protected:
@@ -443,7 +472,12 @@ protected:
 class Adafruit_IS31FL3741_GlassesLeftRing
     : public Adafruit_IS31FL3741_GlassesRing {
 public:
-  Adafruit_IS31FL3741_GlassesLeftRing(Adafruit_IS31FL3741 *controller);
+  /*!
+    @brief  Constructor for glasses left LED ring.
+    @param  controller  Pointer to Adafruit_IS31FL3741 object.
+  */
+  Adafruit_IS31FL3741_GlassesLeftRing(Adafruit_IS31FL3741 *controller)
+      : Adafruit_IS31FL3741_GlassesRing(controller, false) {}
 };
 
 /**************************************************************************/
@@ -456,7 +490,12 @@ public:
 class Adafruit_IS31FL3741_GlassesRightRing
     : public Adafruit_IS31FL3741_GlassesRing {
 public:
-  Adafruit_IS31FL3741_GlassesRightRing(Adafruit_IS31FL3741 *controller);
+  /*!
+    @brief  Constructor for glasses right LED ring.
+    @param  controller  Pointer to Adafruit_IS31FL3741 object.
+  */
+  Adafruit_IS31FL3741_GlassesRightRing(Adafruit_IS31FL3741 *controller)
+      : Adafruit_IS31FL3741_GlassesRing(controller, true) {}
 };
 
 /**************************************************************************/
@@ -533,8 +572,13 @@ protected:
 class Adafruit_IS31FL3741_GlassesLeftRing_buffered
     : public Adafruit_IS31FL3741_GlassesRing_buffered {
 public:
+  /*!
+    @brief  Constructor for buffered glasses left LED ring.
+    @param  controller  Pointer to Adafruit_IS31FL3741_buffered object.
+  */
   Adafruit_IS31FL3741_GlassesLeftRing_buffered(
-      Adafruit_IS31FL3741_buffered *controller);
+      Adafruit_IS31FL3741_buffered *controller)
+      : Adafruit_IS31FL3741_GlassesRing_buffered(controller, false) {}
 };
 
 /**************************************************************************/
@@ -549,8 +593,13 @@ public:
 class Adafruit_IS31FL3741_GlassesRightRing_buffered
     : public Adafruit_IS31FL3741_GlassesRing_buffered {
 public:
+  /*!
+    @brief  Constructor for buffered glasses right LED ring.
+    @param  controller  Pointer to Adafruit_IS31FL3741_buffered object.
+  */
   Adafruit_IS31FL3741_GlassesRightRing_buffered(
-      Adafruit_IS31FL3741_buffered *controller);
+      Adafruit_IS31FL3741_buffered *controller)
+      : Adafruit_IS31FL3741_GlassesRing_buffered(controller, true) {}
 };
 
 #endif // _ADAFRUIT_IS31FL3741_H_
