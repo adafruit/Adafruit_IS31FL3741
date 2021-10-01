@@ -67,7 +67,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Class for Lumissil IS31FL3741 Glasses (ring portion) with LED data being buffered on the microcontroller and sent only when show() is called. Not used by user code directly, the left and right classes below create distinct subclasses for that.  
+<p>Class for Adafruit LED Glasses (ring portion) with LED data being buffered on the microcontroller and sent only when show() is called. Not used by user code directly, the left and right classes below create distinct subclasses for that.  
  <a href="class_adafruit___i_s31_f_l3741___glasses_ring__buffered.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_adafruit___i_s31_f_l3741_8h_source.html">Adafruit_IS31FL3741.h</a>&gt;</code></p>
@@ -78,7 +78,7 @@ Inheritance diagram for Adafruit_IS31FL3741_GlassesRing_buffered:</div>
   <img src="class_adafruit___i_s31_f_l3741___glasses_ring__buffered.png" usemap="#Adafruit_5FIS31FL3741_5FGlassesRing_5Fbuffered_map" alt=""/>
   <map id="Adafruit_5FIS31FL3741_5FGlassesRing_5Fbuffered_map" name="Adafruit_5FIS31FL3741_5FGlassesRing_5Fbuffered_map">
 <area href="class_adafruit___i_s31_f_l3741___glasses_left_ring__buffered.html" title="Class for Lumissil IS31FL3741 Glasses (left ring) with LED data being buffered on the microcontroller..." alt="Adafruit_IS31FL3741_GlassesLeftRing_buffered" shape="rect" coords="0,56,291,80"/>
-<area href="class_adafruit___i_s31_f_l3741___glasses_right_ring__buffered.html" title="Class for Lumissil IS31FL3741 Glasses (right ring) with LED data being buffered on the microcontrolle..." alt="Adafruit_IS31FL3741_GlassesRightRing_buffered" shape="rect" coords="301,56,592,80"/>
+<area href="class_adafruit___i_s31_f_l3741___glasses_right_ring__buffered.html" title="Class for Adafruit LED Glasses (right ring) with LED data being buffered on the microcontroller and s..." alt="Adafruit_IS31FL3741_GlassesRightRing_buffered" shape="rect" coords="301,56,592,80"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -116,7 +116,8 @@ const uint16_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el
 <tr class="separator:a25c177c9062419d74e31b6e6cadc2467"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Class for Lumissil IS31FL3741 Glasses (ring portion) with LED data being buffered on the microcontroller and sent only when show() is called. Not used by user code directly, the left and right classes below create distinct subclasses for that. </p>
+<div class="textblock"><p>Class for Adafruit LED Glasses (ring portion) with LED data being buffered on the microcontroller and sent only when show() is called. Not used by user code directly, the left and right classes below create distinct subclasses for that. </p>
+<dl class="section note"><dt>Note</dt><dd>This class is deprecated but provided for compatibility. New code should use the <a class="el" href="class_adafruit___eye_lights.html" title="Class for Adafruit EyeLights, direct (unbuffered). ">Adafruit_EyeLights</a> classes. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab2f031c4a3c479b204629972c18983a4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab2f031c4a3c479b204629972c18983a4">&#9670;&nbsp;</a></span>Adafruit_IS31FL3741_GlassesRing_buffered()</h2>
@@ -147,7 +148,7 @@ const uint16_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el
 <p>Constructor for buffered glasses LED ring. Not invoked by user code; use one of the subsequent subclasses for that. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">controller</td><td>Pointer to <a class="el" href="class_adafruit___i_s31_f_l3741.html" title="Class for generic IS31FL3741 breakout. ">Adafruit_IS31FL3741</a> object. </td></tr>
+    <tr><td class="paramname">controller</td><td>Pointer to <a class="el" href="class_adafruit___i_s31_f_l3741.html" title="Class for Lumissil IS31FL3741 LED driver. This is the base class upon which the rest of this code bui...">Adafruit_IS31FL3741</a> object. </td></tr>
     <tr><td class="paramname">isRight</td><td>true if right ring, false if left. </td></tr>
   </table>
   </dd>

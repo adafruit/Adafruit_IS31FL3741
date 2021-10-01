@@ -1,8 +1,18 @@
 var searchData=
 [
+  ['adafruit_5feyelights',['Adafruit_EyeLights',['../class_adafruit___eye_lights.html',1,'']]],
+  ['adafruit_5feyelights_5fbase',['Adafruit_EyeLights_Base',['../class_adafruit___eye_lights___base.html',1,'']]],
+  ['adafruit_5feyelights_5fbuffered',['Adafruit_EyeLights_buffered',['../class_adafruit___eye_lights__buffered.html',1,'']]],
+  ['adafruit_5feyelights_5fring',['Adafruit_EyeLights_Ring',['../class_adafruit___eye_lights___ring.html',1,'']]],
+  ['adafruit_5feyelights_5fring_5fbase',['Adafruit_EyeLights_Ring_Base',['../class_adafruit___eye_lights___ring___base.html',1,'']]],
+  ['adafruit_5feyelights_5fring_5fbuffered',['Adafruit_EyeLights_Ring_buffered',['../class_adafruit___eye_lights___ring__buffered.html',1,'']]],
   ['adafruit_5fis31fl3741',['Adafruit_IS31FL3741',['../class_adafruit___i_s31_f_l3741.html',1,'']]],
   ['adafruit_5fis31fl3741_5fbuffered',['Adafruit_IS31FL3741_buffered',['../class_adafruit___i_s31_f_l3741__buffered.html',1,'']]],
+  ['adafruit_5fis31fl3741_5fcolorgfx',['Adafruit_IS31FL3741_colorGFX',['../class_adafruit___i_s31_f_l3741__color_g_f_x.html',1,'']]],
+  ['adafruit_5fis31fl3741_5fcolorgfx_5fbuffered',['Adafruit_IS31FL3741_colorGFX_buffered',['../class_adafruit___i_s31_f_l3741__color_g_f_x__buffered.html',1,'']]],
+  ['adafruit_5fis31fl3741_5fcolororder',['Adafruit_IS31FL3741_ColorOrder',['../class_adafruit___i_s31_f_l3741___color_order.html',1,'']]],
   ['adafruit_5fis31fl3741_5fevb',['Adafruit_IS31FL3741_EVB',['../class_adafruit___i_s31_f_l3741___e_v_b.html',1,'']]],
+  ['adafruit_5fis31fl3741_5fevb_5fbuffered',['Adafruit_IS31FL3741_EVB_buffered',['../class_adafruit___i_s31_f_l3741___e_v_b__buffered.html',1,'']]],
   ['adafruit_5fis31fl3741_5fglassesleftring',['Adafruit_IS31FL3741_GlassesLeftRing',['../class_adafruit___i_s31_f_l3741___glasses_left_ring.html',1,'']]],
   ['adafruit_5fis31fl3741_5fglassesleftring_5fbuffered',['Adafruit_IS31FL3741_GlassesLeftRing_buffered',['../class_adafruit___i_s31_f_l3741___glasses_left_ring__buffered.html',1,'']]],
   ['adafruit_5fis31fl3741_5fglassesmatrix',['Adafruit_IS31FL3741_GlassesMatrix',['../class_adafruit___i_s31_f_l3741___glasses_matrix.html',1,'']]],

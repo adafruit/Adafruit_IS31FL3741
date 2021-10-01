@@ -67,7 +67,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Class for Lumissil IS31FL3741 Glasses (matrix portion) with LED data being buffered on the microcontroller and sent only when show() is called.  
+<p>Class for Adafruit LED Glasses (matrix portion) with LED data being buffered on the microcontroller and sent only when show() is called.  
  <a href="class_adafruit___i_s31_f_l3741___glasses_matrix__buffered.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_adafruit___i_s31_f_l3741_8h_source.html">Adafruit_IS31FL3741.h</a>&gt;</code></p>
@@ -108,7 +108,8 @@ GFXcanvas16 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" h
 <tr class="separator:accbcfcede7a0c037640e1f8c6c901162"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Class for Lumissil IS31FL3741 Glasses (matrix portion) with LED data being buffered on the microcontroller and sent only when show() is called. </p>
+<div class="textblock"><p>Class for Adafruit LED Glasses (matrix portion) with LED data being buffered on the microcontroller and sent only when show() is called. </p>
+<dl class="section note"><dt>Note</dt><dd>This class is deprecated but provided for compatibility. New code should use the <a class="el" href="class_adafruit___eye_lights.html" title="Class for Adafruit EyeLights, direct (unbuffered). ">Adafruit_EyeLights</a> classes. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aa9afe403b058b2c8e1a399c19ef7fb23"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa9afe403b058b2c8e1a399c19ef7fb23">&#9670;&nbsp;</a></span>Adafruit_IS31FL3741_GlassesMatrix_buffered()</h2>
@@ -139,7 +140,7 @@ GFXcanvas16 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" h
 <p>Constructor for buffered LED glasses (matrix portion, 18x5 LEDs) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">controller</td><td>Pointer to <a class="el" href="class_adafruit___i_s31_f_l3741__buffered.html" title="Class for Lumissil IS31FL3741 Glasses with LED data being buffered on the microcontroller and sent on...">Adafruit_IS31FL3741_buffered</a> object. </td></tr>
+    <tr><td class="paramname">controller</td><td>Pointer to <a class="el" href="class_adafruit___i_s31_f_l3741__buffered.html" title="Class for a &quot;buffered&quot; Lumissil IS31FL3741 LED driver – LED PWM state is staged in RAM (requiring 35...">Adafruit_IS31FL3741_buffered</a> object. </td></tr>
     <tr><td class="paramname">withCanvas</td><td>If true, allocate an additional GFXcanvas16 object that's 3X the size of the LED matrix &ndash; using the <a class="el" href="class_adafruit___i_s31_f_l3741___glasses_matrix__buffered.html#a8ed4bf30a74b41ef1184c1bcf7305eec" title="Scales associated canvas (if one was requested via constructor) 1:3 with antialiasing &amp; gamma correction...">scale()</a> function, anything drawn to the canvas can be smoothly downsampled to the matrix resolution. Good for scrolling things. </td></tr>
   </table>
   </dd>
