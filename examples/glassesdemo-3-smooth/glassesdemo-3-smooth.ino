@@ -9,23 +9,16 @@
 // Some boards have just one I2C interface, but some have more...
 TwoWire *i2c = &Wire; // e.g. change this to &Wire1 for QT Py RP2040
 
-// Object declarations are nearly the same as before, with the "_buffered"
-// postfix, but notice the matrix item has an extra "true" argument now.
+// Glasses object declaration is nearly the same as before, with the
+// "_buffered" postfix, but notice it now has an extra "true" argument.
 // This creates an offscreen drawing surface that's 3X larger than the
 // matrix, and later we can shrink it down with antialiasing.
 
-// This is the glasses' core LED controller object
-Adafruit_IS31FL3741_buffered ledcontroller;
-
-// And these objects relate to the glasses' matrix and rings.
-// Each expects the address of the controller object.
-Adafruit_IS31FL3741_GlassesMatrix_buffered    ledmatrix(&ledcontroller, true);
-Adafruit_IS31FL3741_GlassesLeftRing_buffered  leftring(&ledcontroller);
-Adafruit_IS31FL3741_GlassesRightRing_buffered rightring(&ledcontroller);
+Adafruit_EyeLights_buffered glasses(true);
 
 // Notice the slight change here to the text positioning. The initial X
 // position isn't known until we're in setup() and can access the offscreen
-// canvas. Also, the Y position is now 14 instead of 5 (because 3X larger).
+// canvas. Also, the Y position is now 14 instead of 5 (because larger).
 
 char text[] = "ADAFRUIT!";      // A message to scroll
 int text_x;                     // Pos is initialized in setup()
@@ -39,12 +32,12 @@ void setup() {
   Serial.begin(115200);
   Serial.println("ISSI3741 LED Glasses Adafruit GFX Test");
 
-  if (! ledcontroller.begin(IS3741_ADDR_DEFAULT, i2c)) {
+  if (! glasses.begin(IS3741_ADDR_DEFAULT, i2c)) {
     Serial.println("IS41 not found");
     for (;;);
   }
 
-  canvas = ledmatrix.getCanvas();
+  canvas = glasses.getCanvas();
   if (! canvas) {
     Serial.println("Couldn't allocate canvas");
     for (;;);
@@ -57,9 +50,9 @@ void setup() {
   i2c->setClock(800000);
 
   // Set brightness to max and bring controller out of shutdown state
-  ledcontroller.setLEDscaling(0xFF);
-  ledcontroller.setGlobalCurrent(0xFF);
-  ledcontroller.enable(true);
+  glasses.setLEDscaling(0xFF);
+  glasses.setGlobalCurrent(0xFF);
+  glasses.enable(true);
 
   // Because canvas is a pointer to an object, not an object itself,
   // functions are accessed with -> instead of .
@@ -67,7 +60,7 @@ void setup() {
 
   // Clear canvas, set matrix to normal upright orientation
   canvas->fillScreen(0);
-  ledmatrix.setRotation(0);
+  glasses.setRotation(0);
 
   // We're using a different font, because Tom Thumb is too tiny for this.
   // Legibility isn't great with this other font, but it's what we had on
@@ -77,8 +70,8 @@ void setup() {
   canvas->setTextWrap(false); // Allow text to extend off edges
 
   // Rings work just as before
-  rightring.setBrightness(50);  // Turn down the LED rings brightness,
-  leftring.setBrightness(50);   // 0 = off, 255 = max
+  glasses.right_ring.setBrightness(50);  // Turn down the LED rings brightness,
+  glasses.left_ring.setBrightness(50);   // 0 = off, 255 = max
 
   // Get text dimensions to determine X coord where scrolling resets
   uint16_t w, h;
@@ -97,9 +90,9 @@ void loop() {
   canvas->setCursor(text_x, text_y);
   for (int i = 0; i < (int)strlen(text); i++) {
     // Get 24-bit color for this character, cycling through color wheel
-    uint32_t color888 = ledcontroller.ColorHSV(65536 * i / strlen(text));
+    uint32_t color888 = glasses.ColorHSV(65536 * i / strlen(text));
     // Remap 24-bit color to '565' color used by Adafruit_GFX
-    uint16_t color565 = ledcontroller.color565(color888);
+    uint16_t color565 = glasses.color565(color888);
     canvas->setTextColor(color565); // Set text color
     canvas->print(text[i]);         // and print one character
   }
@@ -110,21 +103,20 @@ void loop() {
   // the prior examples where the rings could be drawn behind the text,
   // that's not an option here. Black pixels in the canvas will be black
   // on the LED matrix.
-  ledmatrix.scale();
+  glasses.scale();
 
   // Animate the LED rings with a color wheel.
-  for (int i=0; i < leftring.numPixels(); i++) {
-    leftring.setPixelColor(i, ledcontroller.ColorHSV(
-      ring_hue + i * 65536 / leftring.numPixels()));
+  for (int i=0; i < glasses.left_ring.numPixels(); i++) {
+    glasses.left_ring.setPixelColor(i, glasses.ColorHSV(
+      ring_hue + i * 65536 / glasses.left_ring.numPixels()));
   }
-  for (int i=0; i < rightring.numPixels(); i++) {
-    rightring.setPixelColor(i, ledcontroller.ColorHSV(
-      ring_hue - i * 65536 / rightring.numPixels()));
+  for (int i=0; i < glasses.right_ring.numPixels(); i++) {
+    glasses.right_ring.setPixelColor(i, glasses.ColorHSV(
+      ring_hue - i * 65536 / glasses.right_ring.numPixels()));
   }
   ring_hue += 1000; // Shift color a bit on next frame - makes it spin
 
-  ledcontroller.show(); // Always show() with a buffered controller!
+  glasses.show(); // Always show() with a buffered controller!
 
-  // There's no delay() in this example, we just let it run full-tilt
-  // because the drawing and scaling takes a bit longer.
+  delay(20); // Pause briefly to limit scrolling speed.
 }
