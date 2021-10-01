@@ -179,6 +179,13 @@ class Adafruit_IS31FL3741_colorGFX : public Adafruit_IS31FL3741,
                                      public Adafruit_IS31FL3741_ColorOrder,
                                      public Adafruit_GFX {
 public:
+  /*!
+    @brief  Constructor for Adafruit_IS31FL3741_colorGFX object. This is
+            used internally by the library, not user code.
+    @param  width   Width, in pixels, passed to GFXcanvas16 constructor.
+    @param  height  Height, in pixels, passed to GFXcanvas16 constructor.
+    @param  order   One of the IS3741_* color types (e.g. IS3741_RGB).
+  */
   Adafruit_IS31FL3741_colorGFX(uint8_t width, uint8_t height,
                                IS3741_order order);
   // Overload the base (monochrome) fill() with a GFX RGB565-style color.
@@ -199,6 +206,13 @@ class Adafruit_IS31FL3741_colorGFX_buffered
       public Adafruit_IS31FL3741_ColorOrder,
       public Adafruit_GFX {
 public:
+  /*!
+    @brief  Constructor for Adafruit_IS31FL3741_colorGFX_buffered object.
+            This is used internally by the library, not user code.
+    @param  width   Width, in pixels, passed to GFXcanvas16 constructor.
+    @param  height  Height, in pixels, passed to GFXcanvas16 constructor.
+    @param  order   One of the IS3741_* color types (e.g. IS3741_RGB).
+  */
   Adafruit_IS31FL3741_colorGFX_buffered(uint8_t width, uint8_t height,
                                         IS3741_order order);
   // Overload the base (monochrome) fill() with a GFX RGB565-style color.
@@ -232,6 +246,8 @@ public:
   /*!
     @brief  Constructor for Lumissil IS31FL3741 OEM evaluation board,
             13x9 pixels, direct (unbuffered).
+    @param  order  One of the IS3741_order enumeration types for RGB
+                   sequence. Default is IS3741_BGR.
   */
   Adafruit_IS31FL3741_EVB(IS3741_order order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX(9, 13, order) {}
@@ -249,6 +265,8 @@ public:
   /*!
     @brief  Constructor for Lumissil IS31FL3741 OEM evaluation board,
             13x9 pixels, buffered.
+    @param  order  One of the IS3741_order enumeration types for RGB
+                   sequence. Default is IS3741_BGR.
   */
   Adafruit_IS31FL3741_EVB_buffered(IS3741_order order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX_buffered(9, 13, order) {}
@@ -266,6 +284,8 @@ public:
   /*!
     @brief  Constructor for STEMMA QT version (13 x 9 LEDs), direct
             (unbuffered).
+    @param  order  One of the IS3741_order enumeration types for RGB
+                   sequence. Default is IS3741_BGR.
   */
   Adafruit_IS31FL3741_QT(IS3741_order order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX(13, 9, order) {}
@@ -282,6 +302,8 @@ class Adafruit_IS31FL3741_QT_buffered
 public:
   /*!
     @brief  Constructor for STEMMA QT version (13 x 9 LEDs), buffered.
+    @param  order  One of the IS3741_order enumeration types for RGB
+                   sequence. Default is IS3741_BGR.
   */
   Adafruit_IS31FL3741_QT_buffered(IS3741_order order = IS3741_BGR)
       : Adafruit_IS31FL3741_colorGFX_buffered(13, 9, order) {}
@@ -333,6 +355,12 @@ protected:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring : public Adafruit_EyeLights_Ring_Base {
 public:
+  /*!
+    @brief  Constructor for one of the EyeLights ring objects (direct,
+            unbuffered). Used internally by the library, not user code.
+    @param  parent   Pointer to parent Adafruit_EyeLights object.
+    @param  isRight  true = right ring, false = left ring.
+  */
   Adafruit_EyeLights_Ring(void *parent, bool isRight)
       : Adafruit_EyeLights_Ring_Base(parent, isRight) {}
   void setPixelColor(int16_t n, uint32_t color);
@@ -346,6 +374,12 @@ public:
 /**************************************************************************/
 class Adafruit_EyeLights_Ring_buffered : public Adafruit_EyeLights_Ring_Base {
 public:
+  /*!
+    @brief  Constructor for one of the EyeLights ring objects (buffered).
+            Used internally by the library, not user code.
+    @param  parent   Pointer to parent Adafruit_EyeLights_buffered object.
+    @param  isRight  true = right ring, false = left ring.
+  */
   Adafruit_EyeLights_Ring_buffered(void *parent, bool isRight)
       : Adafruit_EyeLights_Ring_Base(parent, isRight) {}
   void setPixelColor(int16_t n, uint32_t color);
@@ -360,6 +394,13 @@ public:
 /**************************************************************************/
 class Adafruit_EyeLights_Base {
 public:
+  /*!
+    @brief  Constructor for Adafruit_EyeLights_Base object. This is used
+            internally by the library, not user code.
+    @param  withCanvas  true to also allocate a 3X size GFXcanvas16 object
+                        (can be used for antialiasing via the smooth()
+                        function), false for normal direct-to-matrix drawing.
+  */
   Adafruit_EyeLights_Base(bool withCanvas) {
     if (withCanvas)
       canvas = new GFXcanvas16(18 * 3, 5 * 3);
@@ -382,14 +423,23 @@ protected:
 class Adafruit_EyeLights : public Adafruit_EyeLights_Base,
                            public Adafruit_IS31FL3741_colorGFX {
 public:
+  /*!
+    @brief  Constructor for Adafruit_EyeLights object.
+    @param  withCanvas  true to also allocate a 3X size GFXcanvas16 object
+                        (can be used for antialiasing via the smooth()
+                        function), false for normal direct-to-matrix
+                        drawing. Default is false.
+    @param  order       One of the IS3741_order enumeration types for RGB
+                        sequence. Default is IS3741_BGR.
+  */
   Adafruit_EyeLights(bool withCanvas = false, IS3741_order order = IS3741_BGR)
       : Adafruit_EyeLights_Base(withCanvas),
         Adafruit_IS31FL3741_colorGFX(18, 5, order), left_ring(this, false),
         right_ring(this, true) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void scale();
-  Adafruit_EyeLights_Ring left_ring;
-  Adafruit_EyeLights_Ring right_ring;
+  Adafruit_EyeLights_Ring left_ring;  ///< Left LED ring object
+  Adafruit_EyeLights_Ring right_ring; ///< Right LED ring object
 };
 
 /**************************************************************************/
@@ -401,6 +451,15 @@ class Adafruit_EyeLights_buffered
     : public Adafruit_EyeLights_Base,
       public Adafruit_IS31FL3741_colorGFX_buffered {
 public:
+  /*!
+    @brief  Constructor for Adafruit_EyeLights_buffered object.
+    @param  withCanvas  true to also allocate a 3X size GFXcanvas16 object
+                        (can be used for antialiasing via the smooth()
+                        function), false for normal direct-to-matrix
+                        drawing. Default is false.
+    @param  order       One of the IS3741_order enumeration types for RGB
+                        sequence. Default is IS3741_BGR.
+  */
   Adafruit_EyeLights_buffered(bool withCanvas = false,
                               IS3741_order order = IS3741_BGR)
       : Adafruit_EyeLights_Base(withCanvas),
@@ -408,8 +467,8 @@ public:
         left_ring(this, false), right_ring(this, true) {}
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void scale();
-  Adafruit_EyeLights_Ring_buffered left_ring;
-  Adafruit_EyeLights_Ring_buffered right_ring;
+  Adafruit_EyeLights_Ring_buffered left_ring;  ///< Left LED ring object
+  Adafruit_EyeLights_Ring_buffered right_ring; ///< Right LED ring object
 };
 
 /* =======================================================================
