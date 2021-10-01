@@ -69,7 +69,7 @@ public:
             in the direct case. For code that you KNOW will always be
             strictly unbuffered, don't call this, it sets a bad precedent.
   */
-  inline const void show(void) {}
+  inline void show(void) {}
 
   // Although Adafruit_IS31FL3741 itself has no concept of color, most of
   // its subclasses do. These color-related operations go here so that all
@@ -364,7 +364,6 @@ public:
     if (withCanvas)
       canvas = new GFXcanvas16(18 * 3, 5 * 3);
   }
-  ~Adafruit_EyeLights_Base() { delete canvas; }
   /*!
     @brief    Get pointer to GFX canvas for smooth drawing.
     @returns  GFXcanvas16*  Pointer to GFXcanvas16 object, or NULL.

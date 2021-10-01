@@ -231,7 +231,7 @@ bool Adafruit_IS31FL3741::fillTwoPages(uint8_t first_page, uint8_t value) {
     selectPage(first_page + page);           // starting at first_page
     uint8_t addr = 0;    // Writes always start at reg 0 within page
     while (page_bytes) { // While there's data to write for page...
-      uint8_t bytesThisPass = min(page_bytes, 31);
+      uint8_t bytesThisPass = min((int)page_bytes, 31);
       buf[0] = addr;
       if (!_i2c_dev->write(buf, bytesThisPass + 1)) // +1 for addr
         return false;
@@ -440,7 +440,6 @@ bool Adafruit_IS31FL3741_buffered::begin(uint8_t addr, TwoWire *theWire) {
 */
 /**************************************************************************/
 void Adafruit_IS31FL3741_buffered::show(void) {
-  uint16_t total_bytes = 351;
   uint8_t *ptr = ledbuf;
   uint8_t chunk = _i2c_dev->maxBufferSize() - 1;
 
