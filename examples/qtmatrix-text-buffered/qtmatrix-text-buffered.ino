@@ -9,6 +9,8 @@
 #include <Adafruit_IS31FL3741.h>
 
 Adafruit_IS31FL3741_QT_buffered matrix;
+// If colors appear wrong on matrix, try invoking constructor like so:
+// Adafruit_IS31FL3741_QT_buffered matrix(IS3741_RBG);
 
 // Some boards have just one I2C interface, but some have more...
 TwoWire *i2c = &Wire; // e.g. change this to &Wire1 for QT Py RP2040
