@@ -4,7 +4,7 @@
 // font to use directly on the matrix (without scaling), use the TomThumb
 // font that's included with Adafruit_GFX.
 
-const uint8_t EyeLightsCanvasFontBitmaps[] PROGMEM = {
+const uint8_t PROGMEM EyeLightsCanvasFontBitmaps[] = {
     0x00, 0x00, 0x39, 0xCE, 0x73, 0xB9, 0xCE, 0x70, 0x00, 0x0E, 0x73, 0x80,
     0xE7, 0xE7, 0xE7, 0xC6, 0xC6, 0x0E, 0x38, 0x1C, 0x70, 0xFF, 0xF9, 0xFF,
     0xF7, 0xFF, 0xC3, 0x8E, 0x07, 0x1C, 0x0E, 0x38, 0x7F, 0xFD, 0xFF, 0xF3,
@@ -109,7 +109,7 @@ const uint8_t EyeLightsCanvasFontBitmaps[] PROGMEM = {
 };
 
 // {offset, width, height, advance cursor, x offset, y offset}
-const GFXglyph EyeLightsCanvasFontGlyphs[] PROGMEM = {
+const GFXglyph PROGMEM EyeLightsCanvasFontGlyphs[] = {
     {0, 0, 0, 6, 0, 0},         // 0x20 (space)
     {2, 5, 15, 7, 1, -15},      // 0x21 !
     {12, 8, 5, 10, 1, -15},     // 0x22 "
@@ -208,6 +208,6 @@ const GFXglyph EyeLightsCanvasFontGlyphs[] PROGMEM = {
     {1198, 11, 6, 13, 1, -12},  // 0x7E ~
 };
 
-const GFXfont EyeLightsCanvasFont PROGMEM = {
+const GFXfont PROGMEM EyeLightsCanvasFont = {
     (uint8_t *)EyeLightsCanvasFontBitmaps,
     (GFXglyph *)EyeLightsCanvasFontGlyphs, 0x20, 0x7E, 18};
