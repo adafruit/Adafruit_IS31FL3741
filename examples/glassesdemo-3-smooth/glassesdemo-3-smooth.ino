@@ -4,7 +4,7 @@
 // like the Arduino Uno, but any 32-bit microcontroller should be fine.
 
 #include <Adafruit_IS31FL3741.h>
-#include <Fonts/FreeSansOblique9pt7b.h> // Different font!
+#include <EyeLightsCanvasFont.h> // Different font!
 
 // Some boards have just one I2C interface, but some have more...
 TwoWire *i2c = &Wire; // e.g. change this to &Wire1 for QT Py RP2040
@@ -23,7 +23,7 @@ Adafruit_EyeLights_buffered glasses(true);
 char text[] = "ADAFRUIT!";      // A message to scroll
 int text_x;                     // Pos is initialized in setup()
 int text_min;                   // Pos. where text resets (calc'd later)
-int text_y = 14;                // Text base line at bottom of canvas
+int text_y = 15;                // Text base line at bottom of canvas
 uint16_t ring_hue = 0;          // For ring animation
 
 GFXcanvas16 *canvas;            // Pointer to canvas object
@@ -62,11 +62,10 @@ void setup() {
   canvas->fillScreen(0);
   glasses.setRotation(0);
 
-  // We're using a different font, because Tom Thumb is too tiny for this.
-  // Legibility isn't great with this other font, but it's what we had on
-  // hand. The ideal font would be 15 pixels tall but 'hinted' for a
-  // 5-pixel grid. Oblique fonts tend to read a little better on scrollers.
-  canvas->setFont(&FreeSansOblique9pt7b);
+  // We're using a font designed especially for the EyeLights canvas
+  // with 1:3 downscaling. This should read a little better than trying
+  // to size up the Tom Thumb font in prior example.
+  canvas->setFont(&EyeLightsCanvasFont);
   canvas->setTextWrap(false); // Allow text to extend off edges
 
   // Rings work just as before

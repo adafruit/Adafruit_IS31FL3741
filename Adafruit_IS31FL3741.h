@@ -29,6 +29,27 @@ typedef enum {
   IS3741_BGR = ((2 << 4) | (1 << 2) | (0)), // Encode as B,G,R
 } IS3741_order;
 
+// 8-bit gamma correction table for the gamma8() and gamma32() funcs.
+static const uint8_t PROGMEM _IS31GammaTable[256] = {
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,   1,   1,   1,   1,
+    1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   3,
+    3,   3,   3,   3,   3,   4,   4,   4,   4,   5,   5,   5,   5,   5,   6,
+    6,   6,   6,   7,   7,   7,   8,   8,   8,   9,   9,   9,   10,  10,  10,
+    11,  11,  11,  12,  12,  13,  13,  13,  14,  14,  15,  15,  16,  16,  17,
+    17,  18,  18,  19,  19,  20,  20,  21,  21,  22,  22,  23,  24,  24,  25,
+    25,  26,  27,  27,  28,  29,  29,  30,  31,  31,  32,  33,  34,  34,  35,
+    36,  37,  38,  38,  39,  40,  41,  42,  42,  43,  44,  45,  46,  47,  48,
+    49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
+    64,  65,  66,  68,  69,  70,  71,  72,  73,  75,  76,  77,  78,  80,  81,
+    82,  84,  85,  86,  88,  89,  90,  92,  93,  94,  96,  97,  99,  100, 102,
+    103, 105, 106, 108, 109, 111, 112, 114, 115, 117, 119, 120, 122, 124, 125,
+    127, 129, 130, 132, 134, 136, 137, 139, 141, 143, 145, 146, 148, 150, 152,
+    154, 156, 158, 160, 162, 164, 166, 168, 170, 172, 174, 176, 178, 180, 182,
+    184, 186, 188, 191, 193, 195, 197, 199, 202, 204, 206, 209, 211, 213, 215,
+    218, 220, 223, 225, 227, 230, 232, 235, 237, 240, 242, 245, 247, 250, 252,
+    255};
+
 // BASE IS31 CLASSES -------------------------------------------------------
 
 /**************************************************************************/
@@ -84,7 +105,7 @@ public:
     @param    blue   8-bit blue value.
     @returns  Packed 16-bit RGB565 color.
     @note     Yes, the name is unfortunate -- have lowercase color565()
-              here, and uppercase ColorHSV() later. This is for
+              here, and uppercase Color and ColorHSV() later. This is for
               compatibility with existing code from Adafruit_GFX and
               Adafruit_NeoPixel, which were separately developed and used
               differing cases. The idea here is to help re-use existing
@@ -105,6 +126,39 @@ public:
            ((color >> 3) & 0x001F);
   }
 
+  /*!
+    @brief   Convert separate red, green and blue values into a single
+             "packed" 24-bit RGB color.
+    @param   r  Red brightness, 0 to 255.
+    @param   g  Green brightness, 0 to 255.
+    @param   b  Blue brightness, 0 to 255.
+    @return  Packed RGB value, which can then be assigned to a variable for
+             later use or passed to the setPixelColor() function in some
+             subclasses. Packed RGB format is predictable (0x00RRGGBB),
+             regardless of LED color order.
+  */
+  static uint32_t Color(uint8_t r, uint8_t g, uint8_t b) {
+    return ((uint32_t)r << 16) | ((uint32_t)g << 8) | b;
+  }
+
+  /*!
+    @brief   An 8-bit gamma-correction function for basic pixel brightness
+             adjustment. Makes color transitions appear more perceptially
+             correct.
+    @param   x  Input brightness, 0 (minimum or off/black) to 255 (maximum).
+    @return  Gamma-adjusted brightness, can then be passed to one of the
+             setPixelColor() functions. This uses a fixed gamma correction
+             exponent of 2.6, which seems reasonably okay for average RGB
+             LEDs in average tasks. If you need finer control you'll need
+             to provide your own gamma-correction function instead.
+    @note    Copied from Adafruit_NeoPixel, only the table name changed.
+  */
+  static uint8_t gamma8(uint8_t x) {
+    return pgm_read_byte(&_IS31GammaTable[x]); // 0-255 in, 0-255 out
+  }
+
+  // These are documented in .cpp file:
+  static uint32_t gamma32(uint32_t x);
   static uint32_t ColorHSV(uint16_t hue, uint8_t sat = 255, uint8_t val = 255);
 
 protected:
@@ -364,7 +418,9 @@ public:
   Adafruit_EyeLights_Ring(void *parent, bool isRight)
       : Adafruit_EyeLights_Ring_Base(parent, isRight) {}
   void setPixelColor(int16_t n, uint32_t color);
+  void setPixelColor(int16_t n, uint8_t t, uint8_t g, uint8_t b);
   void fill(uint32_t color);
+  void fill(uint8_t r, uint8_t g, uint8_t b);
 };
 
 /**************************************************************************/
@@ -383,7 +439,9 @@ public:
   Adafruit_EyeLights_Ring_buffered(void *parent, bool isRight)
       : Adafruit_EyeLights_Ring_Base(parent, isRight) {}
   void setPixelColor(int16_t n, uint32_t color);
+  void setPixelColor(int16_t n, uint8_t r, uint8_t g, uint8_t b);
   void fill(uint32_t color);
+  void fill(uint8_t r, uint8_t g, uint8_t b);
 };
 
 /**************************************************************************/

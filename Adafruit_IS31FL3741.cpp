@@ -49,6 +49,13 @@
   uint8_t _G_ = (((uint16_t)((_COLOR_ >> 8) & 0xFF)) * _BRIGHTNESS_) >> 8;     \
   uint8_t _B_ = (((uint16_t)(_COLOR_ & 0xFF)) * _BRIGHTNESS_) >> 8;
 
+// This scales unpacked separate 8-bit RGB components by a brightness level
+// (0-255) and places in the same 3 uint8_t variables passed.
+#define _IS31_SCALE_RGB_SEPARATE_(_R_, _G_, _B_, _BRIGHTNESS_)                 \
+  _R_ = ((uint16_t)_R_ * _BRIGHTNESS_) >> 8;                                   \
+  _G_ = ((uint16_t)_G_ * _BRIGHTNESS_) >> 8;                                   \
+  _B_ = ((uint16_t)_B_ * _BRIGHTNESS_) >> 8;
+
 // IS31FL3741 (DIRECT, UNBUFFERED) -----------------------------------------
 // Most of these functions are also used by the IS31 buffered subclass,
 // only a few are overloaded. Those appear later.
@@ -397,6 +404,34 @@ uint32_t Adafruit_IS31FL3741::ColorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
   return ((((((r * s1) >> 8) + s2) * v1) & 0xff00) << 8) |
          (((((g * s1) >> 8) + s2) * v1) & 0xff00) |
          (((((b * s1) >> 8) + s2) * v1) >> 8);
+}
+
+/**************************************************************************/
+/*!
+  @brief   A gamma-correction function for 32-bit packed RGB colors.
+           Makes color transitions appear more perceptially correct.
+  @param   x  Packed RGB color.
+  @return  Gamma-adjusted packed color, can then be passed in one of the
+           setPixelColor() functions. Like gamma8(), this uses a fixed
+           gamma correction exponent of 2.6, which seems reasonably okay
+           for average NeoPixels in average tasks. If you need finer
+           control you'll need to provide your own gamma-correction
+           function instead.
+*/
+/**************************************************************************/
+uint32_t Adafruit_IS31FL3741::gamma32(uint32_t x) {
+  uint8_t *y = (uint8_t *)&x;
+  // All four bytes of a 32-bit value are filtered even if RGB (not WRGB),
+  // to avoid a bunch of shifting and masking that would be necessary for
+  // properly handling different endianisms (and each byte is a fairly
+  // trivial operation, so it might not even be wasting cycles vs a check
+  // and branch for the RGB case). In theory this might cause trouble *if*
+  // someone's storing information in the unused most significant byte
+  // of an RGB value, but this seems exceedingly rare and if it's
+  // encountered in reality they can mask values going in or coming out.
+  for (uint8_t i = 0; i < 4; i++)
+    y[i] = gamma8(y[i]);
+  return x; // Packed 32-bit return
 }
 
 // IS31FL3741 (BUFFERED) ---------------------------------------------------
@@ -855,68 +890,68 @@ static const uint16_t PROGMEM right_ring_map[24 * 3] = {
 // correction for better linearity. Tables are used to avoid floating-point
 // math. They appear large here but reside in flash, not too bad.
 // To regenerate tables (e.g. different gamma), in Python:
-// print(str([int((x / (31*9)) ** 2.4 * 255 + 0.5) for x in range(31*9+1)]))
+// print(str([int((x / (31*9)) ** 2.6 * 255 + 0.5) for x in range(31*9+1)]))
 // Then edit braces and clang-format result. For green, use 63 instead of 31.
 // Red & blue table is 280 bytes, green table is 568 bytes. 848 total.
 static const uint8_t PROGMEM gammaRB[] = {
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   1,   1,   1,   1,   1,   1,   1,   1,   1,
-    1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,
-    3,   3,   4,   4,   4,   4,   4,   5,   5,   5,   5,   5,   6,   6,   6,
-    6,   7,   7,   7,   7,   8,   8,   8,   9,   9,   9,   10,  10,  10,  11,
-    11,  11,  12,  12,  12,  13,  13,  13,  14,  14,  15,  15,  16,  16,  16,
-    17,  17,  18,  18,  19,  19,  20,  20,  21,  21,  22,  22,  23,  23,  24,
-    24,  25,  26,  26,  27,  27,  28,  29,  29,  30,  30,  31,  32,  32,  33,
-    34,  34,  35,  36,  36,  37,  38,  39,  39,  40,  41,  42,  42,  43,  44,
-    45,  45,  46,  47,  48,  49,  50,  50,  51,  52,  53,  54,  55,  56,  57,
-    58,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  69,  70,  71,
-    72,  73,  74,  75,  77,  78,  79,  80,  81,  82,  83,  84,  86,  87,  88,
-    89,  90,  91,  93,  94,  95,  96,  98,  99,  100, 101, 103, 104, 105, 107,
-    108, 109, 111, 112, 113, 115, 116, 117, 119, 120, 122, 123, 125, 126, 127,
-    129, 130, 132, 133, 135, 136, 138, 140, 141, 143, 144, 146, 147, 149, 151,
-    152, 154, 155, 157, 159, 160, 162, 164, 165, 167, 169, 171, 172, 174, 176,
-    178, 179, 181, 183, 185, 187, 189, 190, 192, 194, 196, 198, 200, 202, 204,
-    205, 207, 209, 211, 213, 215, 217, 219, 221, 223, 225, 227, 229, 232, 234,
-    236, 238, 240, 242, 244, 246, 248, 251, 253, 255};
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,   1,   1,
+    1,   1,   1,   1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,
+    2,   2,   2,   3,   3,   3,   3,   3,   3,   4,   4,   4,   4,   4,   4,
+    5,   5,   5,   5,   6,   6,   6,   6,   6,   7,   7,   7,   8,   8,   8,
+    8,   9,   9,   9,   10,  10,  10,  11,  11,  11,  12,  12,  12,  13,  13,
+    13,  14,  14,  15,  15,  15,  16,  16,  17,  17,  18,  18,  19,  19,  20,
+    20,  21,  21,  22,  22,  23,  23,  24,  24,  25,  25,  26,  27,  27,  28,
+    28,  29,  30,  30,  31,  32,  32,  33,  34,  34,  35,  36,  36,  37,  38,
+    39,  39,  40,  41,  42,  42,  43,  44,  45,  46,  47,  47,  48,  49,  50,
+    51,  52,  53,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,
+    65,  66,  67,  68,  69,  70,  71,  73,  74,  75,  76,  77,  78,  79,  80,
+    82,  83,  84,  85,  86,  88,  89,  90,  91,  93,  94,  95,  97,  98,  99,
+    100, 102, 103, 105, 106, 107, 109, 110, 112, 113, 114, 116, 117, 119, 120,
+    122, 123, 125, 126, 128, 130, 131, 133, 134, 136, 137, 139, 141, 142, 144,
+    146, 147, 149, 151, 153, 154, 156, 158, 160, 161, 163, 165, 167, 169, 171,
+    172, 174, 176, 178, 180, 182, 184, 186, 188, 190, 192, 194, 196, 198, 200,
+    202, 204, 206, 208, 210, 212, 214, 217, 219, 221, 223, 225, 227, 230, 232,
+    234, 236, 239, 241, 243, 246, 248, 250, 253, 255};
 static const uint8_t PROGMEM gammaG[] = {
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   1,   1,   1,   1,   1,   1,   1,   1,
     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
-    1,   1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,
-    2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3,   3,   3,
-    3,   3,   3,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,
+    1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
+    2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3,   3,   3,   3,   3,
+    3,   3,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,
     4,   5,   5,   5,   5,   5,   5,   5,   5,   5,   6,   6,   6,   6,   6,
-    6,   6,   6,   7,   7,   7,   7,   7,   7,   7,   7,   8,   8,   8,   8,
-    8,   8,   8,   9,   9,   9,   9,   9,   9,   10,  10,  10,  10,  10,  10,
-    10,  11,  11,  11,  11,  11,  12,  12,  12,  12,  12,  12,  13,  13,  13,
-    13,  13,  14,  14,  14,  14,  14,  15,  15,  15,  15,  15,  16,  16,  16,
-    16,  16,  17,  17,  17,  17,  18,  18,  18,  18,  18,  19,  19,  19,  19,
-    20,  20,  20,  20,  21,  21,  21,  21,  22,  22,  22,  22,  23,  23,  23,
-    24,  24,  24,  24,  25,  25,  25,  25,  26,  26,  26,  27,  27,  27,  27,
-    28,  28,  28,  29,  29,  29,  30,  30,  30,  30,  31,  31,  31,  32,  32,
-    32,  33,  33,  33,  34,  34,  34,  35,  35,  35,  36,  36,  36,  37,  37,
-    37,  38,  38,  39,  39,  39,  40,  40,  40,  41,  41,  41,  42,  42,  43,
-    43,  43,  44,  44,  45,  45,  45,  46,  46,  46,  47,  47,  48,  48,  49,
-    49,  49,  50,  50,  51,  51,  51,  52,  52,  53,  53,  54,  54,  54,  55,
-    55,  56,  56,  57,  57,  58,  58,  58,  59,  59,  60,  60,  61,  61,  62,
-    62,  63,  63,  64,  64,  65,  65,  66,  66,  67,  67,  68,  68,  69,  69,
-    70,  70,  71,  71,  72,  72,  73,  73,  74,  74,  75,  75,  76,  76,  77,
-    77,  78,  78,  79,  80,  80,  81,  81,  82,  82,  83,  83,  84,  85,  85,
-    86,  86,  87,  87,  88,  89,  89,  90,  90,  91,  92,  92,  93,  93,  94,
-    95,  95,  96,  96,  97,  98,  98,  99,  99,  100, 101, 101, 102, 103, 103,
-    104, 105, 105, 106, 106, 107, 108, 108, 109, 110, 110, 111, 112, 112, 113,
-    114, 114, 115, 116, 116, 117, 118, 118, 119, 120, 121, 121, 122, 123, 123,
-    124, 125, 126, 126, 127, 128, 128, 129, 130, 131, 131, 132, 133, 134, 134,
-    135, 136, 136, 137, 138, 139, 140, 140, 141, 142, 143, 143, 144, 145, 146,
-    146, 147, 148, 149, 150, 150, 151, 152, 153, 154, 154, 155, 156, 157, 158,
-    158, 159, 160, 161, 162, 163, 163, 164, 165, 166, 167, 168, 168, 169, 170,
-    171, 172, 173, 174, 174, 175, 176, 177, 178, 179, 180, 181, 181, 182, 183,
-    184, 185, 186, 187, 188, 189, 189, 190, 191, 192, 193, 194, 195, 196, 197,
-    198, 199, 200, 201, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211,
-    212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226,
-    227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241,
-    242, 243, 244, 245, 246, 248, 249, 250, 251, 252, 253, 254, 255};
+    6,   6,   6,   6,   7,   7,   7,   7,   7,   7,   7,   7,   8,   8,   8,
+    8,   8,   8,   8,   9,   9,   9,   9,   9,   9,   10,  10,  10,  10,  10,
+    10,  10,  11,  11,  11,  11,  11,  11,  12,  12,  12,  12,  12,  13,  13,
+    13,  13,  13,  13,  14,  14,  14,  14,  14,  15,  15,  15,  15,  15,  16,
+    16,  16,  16,  17,  17,  17,  17,  17,  18,  18,  18,  18,  19,  19,  19,
+    19,  20,  20,  20,  20,  20,  21,  21,  21,  21,  22,  22,  22,  23,  23,
+    23,  23,  24,  24,  24,  24,  25,  25,  25,  26,  26,  26,  26,  27,  27,
+    27,  28,  28,  28,  28,  29,  29,  29,  30,  30,  30,  31,  31,  31,  32,
+    32,  32,  33,  33,  33,  34,  34,  34,  35,  35,  35,  36,  36,  36,  37,
+    37,  37,  38,  38,  38,  39,  39,  40,  40,  40,  41,  41,  41,  42,  42,
+    43,  43,  43,  44,  44,  45,  45,  45,  46,  46,  47,  47,  47,  48,  48,
+    49,  49,  50,  50,  50,  51,  51,  52,  52,  53,  53,  54,  54,  54,  55,
+    55,  56,  56,  57,  57,  58,  58,  59,  59,  60,  60,  60,  61,  61,  62,
+    62,  63,  63,  64,  64,  65,  65,  66,  66,  67,  67,  68,  69,  69,  70,
+    70,  71,  71,  72,  72,  73,  73,  74,  74,  75,  75,  76,  77,  77,  78,
+    78,  79,  79,  80,  81,  81,  82,  82,  83,  83,  84,  85,  85,  86,  86,
+    87,  88,  88,  89,  89,  90,  91,  91,  92,  93,  93,  94,  94,  95,  96,
+    96,  97,  98,  98,  99,  100, 100, 101, 102, 102, 103, 104, 104, 105, 106,
+    106, 107, 108, 108, 109, 110, 110, 111, 112, 113, 113, 114, 115, 115, 116,
+    117, 118, 118, 119, 120, 121, 121, 122, 123, 123, 124, 125, 126, 127, 127,
+    128, 129, 130, 130, 131, 132, 133, 133, 134, 135, 136, 137, 137, 138, 139,
+    140, 141, 141, 142, 143, 144, 145, 146, 146, 147, 148, 149, 150, 151, 151,
+    152, 153, 154, 155, 156, 157, 157, 158, 159, 160, 161, 162, 163, 164, 164,
+    165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 174, 175, 176, 177, 178,
+    179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193,
+    194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208,
+    209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 224,
+    225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 236, 237, 238, 239, 240,
+    241, 242, 243, 245, 246, 247, 248, 249, 250, 252, 253, 254, 255};
 
 /**************************************************************************/
 /*!
@@ -939,7 +974,8 @@ Adafruit_EyeLights_Ring_Base::Adafruit_EyeLights_Ring_Base(void *parent,
 
 /**************************************************************************/
 /*!
-    @brief  Set color of one pixel of one direct (unbuffered) EyeLights ring.
+    @brief  Set color of one pixel of one direct (unbuffered) EyeLights
+            ring, from a single packed RGB value.
     @param  n      Index of pixel to set (0-23).
     @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
@@ -957,14 +993,55 @@ void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint32_t color) {
 
 /**************************************************************************/
 /*!
+    @brief  Set color of one pixel of one direct (unbuffered) EyeLights
+            ring, from separate R,G,B values.
+    @param  n  Index of pixel to set (0-23).
+    @param  r  Red component (0-255) of color, a la NeoPixel.
+    @param  g  Green component (0-255) of color, a la NeoPixel.
+    @param  b  Blue component (0-255) of color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring::setPixelColor(int16_t n, uint8_t r, uint8_t g,
+                                            uint8_t b) {
+  if ((n >= 0) && (n < 24)) {
+    Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
+    _IS31_SCALE_RGB_SEPARATE_(r, g, b, _brightness);
+    n *= 3;
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->bOffset]), b);
+  }
+}
+
+/**************************************************************************/
+/*!
     @brief  Fill all pixels of one direct (unbuffered) EyeLights ring to
-            same color.
+            same color, from a single packed value.
     @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
 /**************************************************************************/
 void Adafruit_EyeLights_Ring::fill(uint32_t color) {
   Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
   _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+  for (uint8_t n = 0; n < 24 * 3; n += 3) {
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
+    eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->bOffset]), b);
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Fill all pixels of one direct (unbuffered) EyeLights ring to
+            same color, from separate R,G,B values.
+    @param  r  Red component (0-255) of color, a la NeoPixel.
+    @param  g  Green component (0-255) of color, a la NeoPixel.
+    @param  b  Blue component (0-255) of color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring::fill(uint8_t r, uint8_t g, uint8_t b) {
+  Adafruit_EyeLights *eyelights = (Adafruit_EyeLights *)parent;
+  _IS31_SCALE_RGB_SEPARATE_(r, g, b, _brightness);
   for (uint8_t n = 0; n < 24 * 3; n += 3) {
     eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->rOffset]), r);
     eyelights->setLEDPWM(pgm_read_word(&ring_map[n + eyelights->gOffset]), g);
@@ -1045,7 +1122,8 @@ void Adafruit_EyeLights::scale(void) {
 
 /**************************************************************************/
 /*!
-    @brief  Set color of one pixel of one buffered EyeLights ring.
+    @brief  Set color of one pixel of one buffered EyeLights ring, from a
+            single packed RGB value.
             No immediate effect on LEDs; must follow up with show().
     @param  n      Index of pixel to set (0-23).
     @param  color  RGB888 (24-bit) color, a la NeoPixel.
@@ -1067,8 +1145,34 @@ void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n,
 
 /**************************************************************************/
 /*!
-    @brief  Fill all pixels of one buffered EyeLights ring to same color.
-            No immediate effect on LEDs; must follow up with show().
+    @brief  Set color of one pixel of one buffered EyeLights ring, from
+            separate R,G,B values. No immediate effect on LEDs; must
+            follow up with show().
+    @param  n  Index of pixel to set (0-23).
+    @param  r  Red component (0-255) of color, a la NeoPixel.
+    @param  g  Green component (0-255) of color, a la NeoPixel.
+    @param  b  Blue component (0-255) of color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring_buffered::setPixelColor(int16_t n, uint8_t r,
+                                                     uint8_t g, uint8_t b) {
+  if ((n >= 0) && (n < 24)) {
+    Adafruit_EyeLights_buffered *eyelights =
+        (Adafruit_EyeLights_buffered *)parent;
+    uint8_t *ledbuf = eyelights->getBuffer();
+    _IS31_SCALE_RGB_SEPARATE_(r, g, b, _brightness);
+    n *= 3;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->bOffset])] = b;
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Fill all pixels of one buffered EyeLights ring to same color,
+            from a single packed R,G,B value. No immediate effect on LEDs;
+            must follow up with show().
     @param  color  RGB888 (24-bit) color, a la NeoPixel.
 */
 /**************************************************************************/
@@ -1077,6 +1181,28 @@ void Adafruit_EyeLights_Ring_buffered::fill(uint32_t color) {
       (Adafruit_EyeLights_buffered *)parent;
   uint8_t *ledbuf = eyelights->getBuffer();
   _IS31_SCALE_RGB_(color, r, g, b, _brightness);
+  for (uint8_t n = 0; n < 24 * 3; n += 3) {
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
+    ledbuf[pgm_read_word(&ring_map[n + eyelights->bOffset])] = b;
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Fill all pixels of one buffered EyeLights ring to same color,
+            from separate R,G,B values. No immediate effect on LEDs; must
+            follow up with show().
+    @param  r  Red component (0-255) of color, a la NeoPixel.
+    @param  g  Green component (0-255) of color, a la NeoPixel.
+    @param  b  Blue component (0-255) of color, a la NeoPixel.
+*/
+/**************************************************************************/
+void Adafruit_EyeLights_Ring_buffered::fill(uint8_t r, uint8_t g, uint8_t b) {
+  Adafruit_EyeLights_buffered *eyelights =
+      (Adafruit_EyeLights_buffered *)parent;
+  uint8_t *ledbuf = eyelights->getBuffer();
+  _IS31_SCALE_RGB_SEPARATE_(r, g, b, _brightness);
   for (uint8_t n = 0; n < 24 * 3; n += 3) {
     ledbuf[pgm_read_word(&ring_map[n + eyelights->rOffset])] = r;
     ledbuf[pgm_read_word(&ring_map[n + eyelights->gOffset])] = g;
