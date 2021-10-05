@@ -140,6 +140,15 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ac6f40317a585f8ad3e4b701804bc1f8f"><td class="memItemLeft" align="right" valign="top">static uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#ac6f40317a585f8ad3e4b701804bc1f8f">color565</a> (uint32_t color)</td></tr>
 <tr class="memdesc:ac6f40317a585f8ad3e4b701804bc1f8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converter for RGB888-format color (packed) to RGB565-format.  <a href="#ac6f40317a585f8ad3e4b701804bc1f8f">More...</a><br /></td></tr>
 <tr class="separator:ac6f40317a585f8ad3e4b701804bc1f8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9891a74220f8569565522f192091d9d4"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a9891a74220f8569565522f192091d9d4">Color</a> (uint8_t r, uint8_t g, uint8_t b)</td></tr>
+<tr class="memdesc:a9891a74220f8569565522f192091d9d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert separate red, green and blue values into a single "packed" 24-bit RGB color.  <a href="#a9891a74220f8569565522f192091d9d4">More...</a><br /></td></tr>
+<tr class="separator:a9891a74220f8569565522f192091d9d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a849f59578116287729ab16ac6499e3ab"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a849f59578116287729ab16ac6499e3ab">gamma8</a> (uint8_t x)</td></tr>
+<tr class="memdesc:a849f59578116287729ab16ac6499e3ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">An 8-bit gamma-correction function for basic pixel brightness adjustment. Makes color transitions appear more perceptially correct.  <a href="#a849f59578116287729ab16ac6499e3ab">More...</a><br /></td></tr>
+<tr class="separator:a849f59578116287729ab16ac6499e3ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a062c968f626e49797a22960ab34c63c1"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a062c968f626e49797a22960ab34c63c1">gamma32</a> (uint32_t x)</td></tr>
+<tr class="memdesc:a062c968f626e49797a22960ab34c63c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">A gamma-correction function for 32-bit packed RGB colors. Makes color transitions appear more perceptially correct.  <a href="#a062c968f626e49797a22960ab34c63c1">More...</a><br /></td></tr>
+<tr class="separator:a062c968f626e49797a22960ab34c63c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4fe0030f36db85bb6f4db212081aff04"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___i_s31_f_l3741.html#a4fe0030f36db85bb6f4db212081aff04">ColorHSV</a> (uint16_t hue, uint8_t sat=255, uint8_t val=255)</td></tr>
 <tr class="memdesc:a4fe0030f36db85bb6f4db212081aff04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert hue, saturation and value into a packed 32-bit RGB color that can be passed to setPixelColor() or Color565(). Swiped directly from Adafruit_NeoPixel.  <a href="#a4fe0030f36db85bb6f4db212081aff04">More...</a><br /></td></tr>
 <tr class="separator:a4fe0030f36db85bb6f4db212081aff04"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -507,7 +516,7 @@ Adafruit_I2CDevice *&#160;</td><td class="memItemRight" valign="bottom"><a class
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Packed 16-bit RGB565 color. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Yes, the name is unfortunate &ndash; have lowercase <a class="el" href="class_adafruit___i_s31_f_l3741.html#ad775e359fed05770985ed2ba98303084" title="Converter for RGB888-format color (separate) to RGB565-format. ">color565()</a> here, and uppercase <a class="el" href="class_adafruit___i_s31_f_l3741.html#a4fe0030f36db85bb6f4db212081aff04" title="Convert hue, saturation and value into a packed 32-bit RGB color that can be passed to setPixelColor(...">ColorHSV()</a> later. This is for compatibility with existing code from Adafruit_GFX and Adafruit_NeoPixel, which were separately developed and used differing cases. The idea here is to help re-use existing Arduino sketch code from other projects, so don't "fix" this. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Yes, the name is unfortunate &ndash; have lowercase <a class="el" href="class_adafruit___i_s31_f_l3741.html#ad775e359fed05770985ed2ba98303084" title="Converter for RGB888-format color (separate) to RGB565-format. ">color565()</a> here, and uppercase Color and <a class="el" href="class_adafruit___i_s31_f_l3741.html#a4fe0030f36db85bb6f4db212081aff04" title="Convert hue, saturation and value into a packed 32-bit RGB color that can be passed to setPixelColor(...">ColorHSV()</a> later. This is for compatibility with existing code from Adafruit_GFX and Adafruit_NeoPixel, which were separately developed and used differing cases. The idea here is to help re-use existing Arduino sketch code from other projects, so don't "fix" this. </dd></dl>
 
 </div>
 </div>
@@ -544,6 +553,130 @@ Adafruit_I2CDevice *&#160;</td><td class="memItemRight" valign="bottom"><a class
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Packed 16-bit RGB565 color (0bRRRRRGGGGGGBBBBB) </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>See notes above re: naming. </dd></dl>
+
+</div>
+</div>
+<a id="a9891a74220f8569565522f192091d9d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9891a74220f8569565522f192091d9d4">&#9670;&nbsp;</a></span>Color()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint32_t Adafruit_IS31FL3741::Color </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Convert separate red, green and blue values into a single "packed" 24-bit RGB color. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r</td><td>Red brightness, 0 to 255. </td></tr>
+    <tr><td class="paramname">g</td><td>Green brightness, 0 to 255. </td></tr>
+    <tr><td class="paramname">b</td><td>Blue brightness, 0 to 255. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Packed RGB value, which can then be assigned to a variable for later use or passed to the setPixelColor() function in some subclasses. Packed RGB format is predictable (0x00RRGGBB), regardless of LED color order. </dd></dl>
+
+</div>
+</div>
+<a id="a849f59578116287729ab16ac6499e3ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a849f59578116287729ab16ac6499e3ab">&#9670;&nbsp;</a></span>gamma8()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint8_t Adafruit_IS31FL3741::gamma8 </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>An 8-bit gamma-correction function for basic pixel brightness adjustment. Makes color transitions appear more perceptially correct. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>Input brightness, 0 (minimum or off/black) to 255 (maximum). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Gamma-adjusted brightness, can then be passed to one of the setPixelColor() functions. This uses a fixed gamma correction exponent of 2.6, which seems reasonably okay for average RGB LEDs in average tasks. If you need finer control you'll need to provide your own gamma-correction function instead. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Copied from Adafruit_NeoPixel, only the table name changed. </dd></dl>
+
+</div>
+</div>
+<a id="a062c968f626e49797a22960ab34c63c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a062c968f626e49797a22960ab34c63c1">&#9670;&nbsp;</a></span>gamma32()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Adafruit_IS31FL3741::gamma32 </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>A gamma-correction function for 32-bit packed RGB colors. Makes color transitions appear more perceptially correct. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>Packed RGB color. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Gamma-adjusted packed color, can then be passed in one of the setPixelColor() functions. Like <a class="el" href="class_adafruit___i_s31_f_l3741.html#a849f59578116287729ab16ac6499e3ab" title="An 8-bit gamma-correction function for basic pixel brightness adjustment. Makes color transitions app...">gamma8()</a>, this uses a fixed gamma correction exponent of 2.6, which seems reasonably okay for average NeoPixels in average tasks. If you need finer control you'll need to provide your own gamma-correction function instead. </dd></dl>
 
 </div>
 </div>

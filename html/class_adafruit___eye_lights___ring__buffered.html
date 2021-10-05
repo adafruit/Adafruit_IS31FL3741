@@ -86,11 +86,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:acddb3559320559262eeb3e82106f2816"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for one of the EyeLights ring objects (buffered). Used internally by the library, not user code.  <a href="#acddb3559320559262eeb3e82106f2816">More...</a><br /></td></tr>
 <tr class="separator:acddb3559320559262eeb3e82106f2816"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef6c299911d57313ef378ec11701798c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___eye_lights___ring__buffered.html#aef6c299911d57313ef378ec11701798c">setPixelColor</a> (int16_t n, uint32_t color)</td></tr>
-<tr class="memdesc:aef6c299911d57313ef378ec11701798c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set color of one pixel of one buffered EyeLights ring. No immediate effect on LEDs; must follow up with show().  <a href="#aef6c299911d57313ef378ec11701798c">More...</a><br /></td></tr>
+<tr class="memdesc:aef6c299911d57313ef378ec11701798c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set color of one pixel of one buffered EyeLights ring, from a single packed RGB value. No immediate effect on LEDs; must follow up with show().  <a href="#aef6c299911d57313ef378ec11701798c">More...</a><br /></td></tr>
 <tr class="separator:aef6c299911d57313ef378ec11701798c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abacf556bf28c83bd0cfc4998d24ef817"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___eye_lights___ring__buffered.html#abacf556bf28c83bd0cfc4998d24ef817">setPixelColor</a> (int16_t n, uint8_t r, uint8_t g, uint8_t b)</td></tr>
+<tr class="memdesc:abacf556bf28c83bd0cfc4998d24ef817"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set color of one pixel of one buffered EyeLights ring, from separate R,G,B values. No immediate effect on LEDs; must follow up with show().  <a href="#abacf556bf28c83bd0cfc4998d24ef817">More...</a><br /></td></tr>
+<tr class="separator:abacf556bf28c83bd0cfc4998d24ef817"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a1420b6c696307c1f1263aafd5dacd5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___eye_lights___ring__buffered.html#a1a1420b6c696307c1f1263aafd5dacd5">fill</a> (uint32_t color)</td></tr>
-<tr class="memdesc:a1a1420b6c696307c1f1263aafd5dacd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fill all pixels of one buffered EyeLights ring to same color. No immediate effect on LEDs; must follow up with show().  <a href="#a1a1420b6c696307c1f1263aafd5dacd5">More...</a><br /></td></tr>
+<tr class="memdesc:a1a1420b6c696307c1f1263aafd5dacd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fill all pixels of one buffered EyeLights ring to same color, from a single packed R,G,B value. No immediate effect on LEDs; must follow up with show().  <a href="#a1a1420b6c696307c1f1263aafd5dacd5">More...</a><br /></td></tr>
 <tr class="separator:a1a1420b6c696307c1f1263aafd5dacd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a848ce6b1fdddb259e2f104ba7f2e34b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___eye_lights___ring__buffered.html#a848ce6b1fdddb259e2f104ba7f2e34b3">fill</a> (uint8_t r, uint8_t g, uint8_t b)</td></tr>
+<tr class="memdesc:a848ce6b1fdddb259e2f104ba7f2e34b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fill all pixels of one buffered EyeLights ring to same color, from separate R,G,B values. No immediate effect on LEDs; must follow up with show().  <a href="#a848ce6b1fdddb259e2f104ba7f2e34b3">More...</a><br /></td></tr>
+<tr class="separator:a848ce6b1fdddb259e2f104ba7f2e34b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_adafruit___eye_lights___ring___base"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_adafruit___eye_lights___ring___base')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_adafruit___eye_lights___ring___base.html">Adafruit_EyeLights_Ring_Base</a></td></tr>
 <tr class="memitem:a3054ed06cec87a8a33926ce04f1da997 inherit pub_methods_class_adafruit___eye_lights___ring___base"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___eye_lights___ring___base.html#a3054ed06cec87a8a33926ce04f1da997">Adafruit_EyeLights_Ring_Base</a> (void *<a class="el" href="class_adafruit___eye_lights___ring___base.html#a20d55ff152777ad778ba559e1d6c6fec">parent</a>, bool isRight)</td></tr>
 <tr class="memdesc:a3054ed06cec87a8a33926ce04f1da997 inherit pub_methods_class_adafruit___eye_lights___ring___base"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for EyeLights LED ring. This is a base class used by both the direct and buffered variants. Not invoked by user code.  <a href="class_adafruit___eye_lights___ring___base.html#a3054ed06cec87a8a33926ce04f1da997">More...</a><br /></td></tr>
@@ -168,7 +174,7 @@ const uint16_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="aef6c299911d57313ef378ec11701798c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aef6c299911d57313ef378ec11701798c">&#9670;&nbsp;</a></span>setPixelColor()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aef6c299911d57313ef378ec11701798c">&#9670;&nbsp;</a></span>setPixelColor() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -193,7 +199,7 @@ const uint16_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el
       </table>
 </div><div class="memdoc">
 
-<p>Set color of one pixel of one buffered EyeLights ring. No immediate effect on LEDs; must follow up with show(). </p>
+<p>Set color of one pixel of one buffered EyeLights ring, from a single packed RGB value. No immediate effect on LEDs; must follow up with show(). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">n</td><td>Index of pixel to set (0-23). </td></tr>
@@ -204,8 +210,59 @@ const uint16_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el
 
 </div>
 </div>
+<a id="abacf556bf28c83bd0cfc4998d24ef817"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abacf556bf28c83bd0cfc4998d24ef817">&#9670;&nbsp;</a></span>setPixelColor() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Adafruit_EyeLights_Ring_buffered::setPixelColor </td>
+          <td>(</td>
+          <td class="paramtype">int16_t&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set color of one pixel of one buffered EyeLights ring, from separate R,G,B values. No immediate effect on LEDs; must follow up with show(). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Index of pixel to set (0-23). </td></tr>
+    <tr><td class="paramname">r</td><td>Red component (0-255) of color, a la NeoPixel. </td></tr>
+    <tr><td class="paramname">g</td><td>Green component (0-255) of color, a la NeoPixel. </td></tr>
+    <tr><td class="paramname">b</td><td>Blue component (0-255) of color, a la NeoPixel. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a1a1420b6c696307c1f1263aafd5dacd5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a1420b6c696307c1f1263aafd5dacd5">&#9670;&nbsp;</a></span>fill()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a1420b6c696307c1f1263aafd5dacd5">&#9670;&nbsp;</a></span>fill() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -220,10 +277,54 @@ const uint16_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el
       </table>
 </div><div class="memdoc">
 
-<p>Fill all pixels of one buffered EyeLights ring to same color. No immediate effect on LEDs; must follow up with show(). </p>
+<p>Fill all pixels of one buffered EyeLights ring to same color, from a single packed R,G,B value. No immediate effect on LEDs; must follow up with show(). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">color</td><td>RGB888 (24-bit) color, a la NeoPixel. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a848ce6b1fdddb259e2f104ba7f2e34b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a848ce6b1fdddb259e2f104ba7f2e34b3">&#9670;&nbsp;</a></span>fill() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Adafruit_EyeLights_Ring_buffered::fill </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fill all pixels of one buffered EyeLights ring to same color, from separate R,G,B values. No immediate effect on LEDs; must follow up with show(). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r</td><td>Red component (0-255) of color, a la NeoPixel. </td></tr>
+    <tr><td class="paramname">g</td><td>Green component (0-255) of color, a la NeoPixel. </td></tr>
+    <tr><td class="paramname">b</td><td>Blue component (0-255) of color, a la NeoPixel. </td></tr>
   </table>
   </dd>
 </dl>
